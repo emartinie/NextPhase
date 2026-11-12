@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070a">
+  <meta name="description" content="An independent, interactive HomeGroups design prototype.">
+  <title>NextPhase · HomeGroups</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="symbols" aria-hidden="true">
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+    <symbol id="icon-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
+    <symbol id="icon-next" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="icon-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/></symbol>
+    <symbol id="icon-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol>
+    <symbol id="icon-note" viewBox="0 0 24 24"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/></symbol>
+    <symbol id="icon-flip" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  </svg>
+
+  <div class="app">
+    <header class="toolbar">
+      <button class="icon-button identity" type="button" data-action="library" aria-label="Your library"><svg><use href="#icon-book"/></svg></button>
+      <span class="brand">NextPhase</span>
+      <div class="toolbar-actions">
+        <button class="icon-button" type="button" data-action="actions" aria-label="Quick actions"><svg><use href="#icon-plus"/></svg></button>
+        <button class="icon-button" type="button" data-action="search" aria-label="Search"><svg><use href="#icon-search"/></svg></button>
+      </div>
+    </header>
+    <main id="screen" class="screen" aria-labelledby="screen-title"></main>
+    <div class="dock">
+      <section id="player" class="player" aria-label="Floating media player" hidden>
+        <span class="tile blue"><svg><use href="#icon-headphones"/></svg></span>
+        <div class="player-title"><strong>John 1:1–5</strong><small id="player-status">Read aloud</small></div>
+        <button id="playback" class="icon-button plain" type="button" aria-label="Play reading"><svg><use href="#icon-play"/></svg></button>
+        <button class="icon-button plain" type="button" data-action="stop-player" aria-label="Dismiss player"><svg><use href="#icon-close"/></svg></button>
+      </section>
+      <nav class="tab-bar" aria-label="Main navigation">
+        <button type="button" data-tab="home"><svg><use href="#icon-home"/></svg>Home</button>
+        <button type="button" data-tab="study"><svg><use href="#icon-book"/></svg>Study</button>
+        <button type="button" data-tab="fellowship"><svg><use href="#icon-chat"/></svg>Fellowship</button>
+        <button type="button" data-tab="explore"><svg><use href="#icon-compass"/></svg>Explore</button>
+      </nav>
+    </div>
+    <button class="companion-launch" type="button" data-action="companion" aria-label="Open Companion"><svg><use href="#icon-spark"/></svg></button>
+  </div>
+
+  <dialog id="overlay" aria-labelledby="panel-title">
+    <div class="panel">
+      <div class="panel-header">
+        <button id="panel-back" class="icon-button" type="button" aria-label="Previous panel" hidden><svg><use href="#icon-back"/></svg></button>
+        <h2 id="panel-title" tabindex="-1"></h2>
+        <button id="panel-close" class="icon-button" type="button" aria-label="Close panel"><svg><use href="#icon-close"/></svg></button>
+      </div>
+      <div id="panel-body" class="panel-body"></div>
+    </div>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <noscript>Enable JavaScript to use the NextPhase prototype.</noscript>
+</body>
+</html>
