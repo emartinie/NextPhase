@@ -1,57 +1,39 @@
 "use strict";
 
-const verses = [
-  "In the beginning was the Word, and the Word was with God, and the Word was God.",
-  "The same was in the beginning with God.",
-  "All things were made by him; and without him was not any thing made that was made.",
-  "In him was life; and the life was the light of men.",
-  "And the light shineth in darkness; and the darkness comprehended it not."
-];
-
-const entries = {
-  scripture: { title: "John 1:1–5", detail: "Scripture · King James Version", icon: "book", color: "blue" },
-  context: { title: "Creation echoes in John", detail: "Research · John 1 and Genesis 1", icon: "compass", color: "purple" },
-  discussion: { title: "Light in the darkness", detail: "Fellowship · Reading Circle", icon: "chat", color: "green" }
-};
-const titles = { home: "Home", study: "Study", fellowship: "Fellowship", explore: "Explore" };
-const screen = document.getElementById("screen");
-const dialog = document.getElementById("overlay");
-const panelTitle = document.getElementById("panel-title");
-const panelBody = document.getElementById("panel-body");
-const backButton = document.getElementById("panel-back");
-const player = document.getElementById("player");
-const playback = document.getElementById("playback");
-const playerStatus = document.getElementById("player-status");
-const toast = document.getElementById("toast");
-const speech = window.speechSynthesis;
-const canNarrate = Boolean(speech) && typeof SpeechSynthesisUtterance === "function";
-const positions = {};
-const historyStack = [];
-let activeTab;
-let panel;
-let returnFocus;
-let studyFace = "reading";
-let fellowshipFilter = "All";
-let promptDraft = "";
-let noteDraft = "";
-let speechRun;
-let toastTimer;
-
-const messages = [
-  { text: "I’m here as you read. Try asking about John’s opening line or looking up a related passage." }
-];
-const storageKey = "nextphase-prototype-v1";
-let library = { saved: false, notes: [] };
+const $ = id => document.getElementById(id);
+const viewport = $("viewport");
+const view = $("view");
+const rail = $("right-rail");
+const dialog = $("excursion");
+const body = $("panel-body");
+const title = $("panel-title");
+const stack = [];
+const places = new Map();
+const conversations = new Map();
+const questionDrafts = new Map();
+const replyDrafts = new Map();
+const noteDrafts = new Map();
+const storageKey = "nextphase-v2";
+let model = { joined: ["circle", "research"], saved: [], notes: [], replies: {} };
 try {
-  const previous = JSON.parse(localStorage.getItem(storageKey));
-  if (previous && Array.isArray(previous.notes)) library = previous;
+  const stored = JSON.parse(localStorage.getItem(storageKey));
+  if (stored && Array.isArray(stored.joined) && Array.isArray(stored.saved) &&
+      Array.isArray(stored.notes) && stored.replies && typeof stored.replies === "object") model = stored;
 } catch {
-  // The prototype remains usable when local storage is unavailable.
+  // Keep the demo usable when browser storage is unavailable.
 }
 
-function persistLibrary() {
+let week = curriculum[0];
+let activeView = "thread";
+let feedFilter = "all";
+let notebookFilter = "all";
+let frame;
+let origin;
+let afterClose;
+
+function persist() {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(library));
+    localStorage.setItem(storageKey, JSON.stringify(model));
     return true;
   } catch {
     return false;
@@ -59,430 +41,590 @@ function persistLibrary() {
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, character => ({
+  return String(value).replace(/[&<>"']/g, ch => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[character]);
+  })[ch]);
 }
 
 function icon(name) {
-  return `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
+  return `<svg aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
 }
 
-function tile(name, color) {
-  return `<span class="tile ${color}">${icon(name)}</span>`;
+function attrs(spec) {
+  return Object.entries(spec).map(([name, value]) => `data-${name}="${escapeHtml(value)}"`).join(" ");
 }
 
-function iconButton(label, name, action) {
-  return `<button class="icon-button" type="button" data-action="${action}" aria-label="${label}">${icon(name)}</button>`;
+function button(label, name, spec, className = "button") {
+  return `<button type="button" class="${className}" ${attrs(spec)}>${name ? icon(name) : ""}<span>${escapeHtml(label)}</span></button>`;
 }
 
-function row(label, detail, name, color, action) {
-  return `<button type="button" class="row" data-action="${action}">
-    ${tile(name, color)}<span class="row-copy"><strong>${escapeHtml(label)}</strong>
-    ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</span>${icon("next")}
+function iconButton(label, name, spec) {
+  return `<button type="button" class="icon-button" aria-label="${escapeHtml(label)}" ${attrs(spec)}>${icon(name)}</button>`;
+}
+
+function row(label, detail, name, spec, tone = "blue") {
+  return `<button type="button" class="row" ${attrs(spec)}>
+    <span class="row-icon ${tone}">${icon(name)}</span>
+    <span class="row-label"><strong>${escapeHtml(label)}</strong><small>${escapeHtml(detail)}</small></span>
+    ${icon("next")}
   </button>`;
 }
 
-function entry(key) {
-  const item = entries[key];
-  return row(item.title, item.detail, item.icon, item.color, key);
+function heading(label, description = "") {
+  return `<header class="view-header"><h1 id="view-title" tabindex="-1">${label}</h1>${description ? `<p>${description}</p>` : ""}</header>`;
 }
 
-function group(...rows) {
-  return `<div class="group">${rows.join("")}</div>`;
+function passageText(key, interactive = false, selected = 0) {
+  const passage = passages[key];
+  return `<div class="verses">${passage.lines.map((line, index) => {
+    const number = passage.start + index;
+    const marker = interactive
+      ? `<button type="button" class="verse-number" data-open="verse" data-id="${key}" data-verse="${number}" aria-label="Tools for verse ${number}">${number}</button>`
+      : `<sup class="verse-number">${number}</sup>`;
+    return `<div class="verse${number === selected ? " selected" : ""}" ${interactive ? `id="verse-${number}"` : ""}>${marker}<p>${escapeHtml(line)}</p></div>`;
+  }).join("")}</div>`;
 }
 
-function section(title, body, control = "") {
-  return `<section class="section"><div class="section-heading"><h2>${title}</h2>${control}</div>${body}</section>`;
+function linkedPassage(id) {
+  const passage = passages[id];
+  return button(passage.title, "book", { open: "scripture", id }, "button reference");
 }
 
-function inlineAction(label, name, action) {
-  return `<button type="button" class="inline-action" data-action="${action}">${icon(name)}${label}</button>`;
-}
-
-function saveAction() {
-  return iconButton(library.saved ? "Remove saved passage" : "Save passage", library.saved ? "check" : "bookmark", "save");
-}
-
-function passage(lines = verses) {
-  return `<blockquote class="scripture">
-    ${lines.map((verse, i) => `<p><sup>${i + 1}</sup>${verse}</p>`).join("")}
-    <cite>John 1:${lines.length === 1 ? "1" : "1–5"} · King James Version</cite>
-  </blockquote>`;
-}
-
-function home() {
-  return `<section class="feature">
-    <div class="feature-label">${tile("book", "blue")}This week’s study</div>
-    <h2>In the Beginning</h2>
-    <p>Read Genesis and John side by side.</p>
-    <div class="feature-actions">
-      <button class="primary" type="button" data-tab="study">Continue study ${icon("arrow")}</button>
-      ${saveAction()}
+function threadView() {
+  const passage = passages[week.primary];
+  const related = passages[week.related];
+  const investigation = investigations[week.investigation];
+  const post = posts.find(item => item.id === week.discussion);
+  return `<div class="thread-intro">
+    <div class="thread-kicker">
+      <span class="section-tag"><span></span> THE LIVING THREAD</span>
+      ${button(`Week ${week.number} · ${week.name}`, "next", { open: "weeks" }, "button week-switch")}
+    </div>
+    ${heading(week.title, week.summary)}
+  </div>
+  <article class="reading" id="reading" aria-labelledby="reading-title">
+    <header class="reading-header">
+      <div><p class="section-tag">${passage.section} <span class="separator">/</span> KJV</p><h2 id="reading-title">${passage.title}</h2></div>
+      ${iconButton("Passage options", "more", { open: "verse", id: week.primary })}
+    </header>
+    ${passageText(week.primary, true)}
+    <div class="reading-footer">
+      ${button(related.title, "book", { open: "scripture", id: week.related }, "button reference")}
+      ${button("Study tools", "compass", { open: "tools", id: week.primary }, "button subtle")}
+    </div>
+  </article>
+  <section class="connection" id="connections" aria-labelledby="connections-title">
+    <div class="connection-mark">${icon("compass")}</div>
+    <div class="connection-content">
+      <p class="section-tag">FOLLOW THE QUESTION</p>
+      <h2 id="connections-title">${week.question}</h2>
+      <div class="rows">
+        ${row(investigation.title, "Investigation · Evidence and interpretation", "compass", { open: "research", id: week.investigation }, "amber")}
+        ${row(post.title, communities[post.community].name, "chat", { open: "discussion", id: post.id }, "green")}
+      </div>
     </div>
   </section>
-  ${section("My study", group(
-    row("Scripture", "John 1:1–5", "book", "blue", "scripture"),
-    row("Research", "Creation echoes in John", "compass", "purple", "context"),
-    row("Fellowship", "Reading Circle", "chat", "green", "discussion"),
-    row("Listen", "John 1:1–5 read aloud", "headphones", "orange", "listen")
-  ), iconButton("Study options", "more", "study-options"))}
-  ${section("Your library", group(
-    row("Saved & notes", "Passages and personal notes", "bookmark", "gold", "library")
-  ))}`;
-}
-
-function study() {
-  const reading = `<div class="prose">
-    <h2>In the Beginning</h2>
-    <p>John opens with words that echo the first line of Genesis. Both passages invite the reader to pay attention to what happens when God speaks and light enters the story.</p>
-    ${passage(verses.slice(0, 1))}
-    ${inlineAction("Open John 1:1–5", "book", "scripture")}
-    <h2>Read the passages together</h2>
-    <p>Genesis 1 moves from darkness to light through the spoken word. John moves from the Word to life and light. Read both openings slowly and note the order in which those ideas appear.</p>
-    ${inlineAction("Open Genesis 1:1–3", "book", "genesis")}
-    <h2>For reflection</h2>
-    <p>Where does John repeat a word or idea? What does that repetition help you notice about the relationship between life and light?</p>
-    ${inlineAction("Open the discussion", "chat", "discussion")}
-  </div>`;
-  const context = `<div class="prose">
-    <h2>Creation echoes in John</h2>
-    <p>Notice the shared opening phrase “In the beginning.” Set the two passages side by side and pay attention to where they diverge.</p>
-    ${inlineAction("Compare the openings", "compass", "context")}
-    <h2>Questions for your group</h2>
-    <p>What does each writer put first? How do their images of darkness and light shape the next part of the story?</p>
-    ${inlineAction("Add a personal note", "note", "note")}
-  </div>`;
-  return `<div class="section-heading">
-    <div class="chips" role="group" aria-label="Study face">
-      <button class="chip" type="button" data-face="reading" aria-pressed="${studyFace === "reading"}">Reading</button>
-      <button class="chip" type="button" data-face="context" aria-pressed="${studyFace === "context"}">Context</button>
+  <section class="connection reflection" id="reflection" aria-labelledby="reflection-title">
+    <div class="connection-mark">${icon("note")}</div>
+    <div class="connection-content">
+      <p class="section-tag">PERSONAL STUDY</p>
+      <h2 id="reflection-title">Pause and reflect</h2>
+      <p>${week.reflection}</p>
+      ${button("Write a note", "note", { open: "note", id: week.primary })}
     </div>
-    ${iconButton("Flip study card", "flip", "flip")}
-  </div><section class="section">${studyFace === "reading" ? reading : context}</section>`;
+  </section>`;
 }
 
-function fellowship() {
-  return `<div class="chips" role="group" aria-label="Fellowship filter">
-    ${["All", "Reading Circle", "Prayer"].map(label => `<button type="button" class="chip" data-filter="${label}" aria-pressed="${label === fellowshipFilter}">${label}</button>`).join("")}
+function replyCount(post) {
+  return post.replies.length + (model.replies[post.id] || []).length;
+}
+
+function feedView() {
+  const joined = Object.keys(communities).filter(id => model.joined.includes(id));
+  const items = posts.filter(post => joined.includes(post.community) && (feedFilter === "all" || feedFilter === post.community));
+  const choices = [["all", "All joined"], ...joined.map(id => [id, communities[id].name])];
+  return `${heading("Fellowship", "A shared feed from the communities you follow.")}
+    <div class="feed-controls">
+      <span class="demo-label">SIMULATED FEED</span>
+      ${button("Communities", "plus", { open: "communities" }, "button subtle")}
+    </div>
+    <div class="filters" role="group" aria-label="Filter Fellowship">${choices.map(([id, label]) => chip(label, id, feedFilter, "feed")).join("")}</div>
+    <div class="feed">
+      ${items.map(post => `<article class="post">
+        <div class="post-byline">
+          <span class="avatar ${communities[post.community].color}" aria-hidden="true">${post.initials}</span>
+          <div><strong>${post.author}</strong><small>${communities[post.community].name} · ${post.time}</small></div>
+        </div>
+        <h2>${post.title}</h2>
+        <p>${post.text}</p>
+        <div class="post-actions">
+          ${linkedPassage(post.passage)}
+          ${button(replyCount(post) ? `${replyCount(post)} ${replyCount(post) === 1 ? "reply" : "replies"}` : "Discuss", "chat", { open: "discussion", id: post.id }, "button subtle")}
+        </div>
+      </article>`).join("") || '<p class="empty">Follow a sample community to see its posts here.</p>'}
+    </div>`;
+}
+
+function chip(label, value, current, type) {
+  return `<button type="button" class="chip" data-${type}="${escapeHtml(value)}" aria-pressed="${value === current}">${escapeHtml(label)}</button>`;
+}
+
+function notebookView() {
+  const notes = model.notes.filter(note => notebookFilter === "all" || note.week === notebookFilter);
+  const saved = model.saved.filter(item => notebookFilter === "all" || item.week === notebookFilter);
+  return `${heading("Notebook", "Your notes and saved passages on this device.")}
+    <div class="filters" role="group" aria-label="Filter notebook">
+      ${chip("All weeks", "all", notebookFilter, "notebook")}
+      ${curriculum.map(item => chip(item.name, item.id, notebookFilter, "notebook")).join("")}
+    </div>
+    <section class="notebook-section"><h2>Saved passages</h2>
+      <div class="rows">${saved.map(item => {
+        const passage = passages[item.passage];
+        const detail = curriculum.find(study => study.id === item.week)?.name || "";
+        return row(item.verse ? `${passage.book} ${passage.chapter}:${item.verse}` : passage.title, detail, "bookmark", { open: "scripture", id: item.passage, verse: item.verse || "", week: item.week });
+      }).join("") || '<p class="empty">Save a passage or verse from the reading tools.</p>'}</div>
+    </section>
+    <section class="notebook-section"><h2>Notes</h2>
+      ${notes.map(item => `<article class="notebook-note">
+        <p>${escapeHtml(item.text)}</p>
+        ${button(passages[item.passage].title, "book", { open: "scripture", id: item.passage, week: item.week, verse: item.verse || "" }, "button reference")}
+      </article>`).join("") || '<p class="empty">Notes you write while studying will appear here.</p>'}
+    </section>`;
+}
+
+const views = { thread: threadView, fellowship: feedView, notebook: notebookView };
+function positionKey() {
+  return activeView === "thread" ? week.id : activeView;
+}
+
+function renderRail() {
+  rail.innerHTML = `<div class="rail-study">
+    <p class="section-tag">CURRENT STUDY</p>
+    <strong>${week.name}</strong>
+    ${button("Change week", "next", { open: "weeks" }, "button subtle")}
   </div>
-  ${section("Discussions", group(
-    fellowshipFilter !== "Prayer" ? entry("discussion") : "",
-    fellowshipFilter !== "Reading Circle" ? row("For our neighbors", "Prayer · 2 reflections", "chat", "purple", "prayer") : ""
-  ))}`;
+  <div class="rail-contents">
+    <p class="section-tag">IN THIS THREAD</p>
+    ${button("Read the passage", "book", { jump: "reading" }, "button rail-link")}
+    ${button("Follow the question", "compass", { jump: "connections" }, "button rail-link")}
+    ${button("Pause and reflect", "note", { jump: "reflection" }, "button rail-link")}
+  </div>`;
 }
 
-function explore() {
-  return `${section("Discover", group(
-    entry("context"),
-    row("Genesis 1:1–3", "Scripture · Creation", "book", "blue", "genesis"),
-    row("Read aloud", "John 1:1–5", "headphones", "orange", "listen")
-  ))}${section("From your library", group(
-    row("Saved & notes", "Your personal study material", "bookmark", "gold", "library")
-  ))}`;
-}
-
-const screens = { home, study, fellowship, explore };
-
-function renderScreen() {
-  screen.innerHTML = `<h1 id="screen-title" tabindex="-1">${titles[activeTab]}</h1>${screens[activeTab]()}`;
-}
-
-function changeTab(tab, focus = true) {
-  if (tab === activeTab) return;
-  if (activeTab) positions[activeTab] = screen.scrollTop;
-  activeTab = tab;
-  renderScreen();
-  screen.scrollTop = positions[tab] || 0;
-  document.querySelectorAll(".tab-bar [data-tab]").forEach(button => {
-    if (button.dataset.tab === tab) button.setAttribute("aria-current", "page");
-    else button.removeAttribute("aria-current");
+function renderView() {
+  view.innerHTML = views[activeView]();
+  document.querySelectorAll("nav [data-view]").forEach(control => {
+    if (control.dataset.view === activeView) control.setAttribute("aria-current", "page");
+    else control.removeAttribute("aria-current");
   });
-  if (focus) document.getElementById("screen-title").focus({ preventScroll: true });
+  renderRail();
 }
 
-function companionContent() {
-  return `<div id="conversation" class="conversation" role="log" aria-label="Companion conversation">
-    ${messages.map(message => `<p class="bubble ${message.mine ? "mine" : ""}">${escapeHtml(message.text)}</p>`).join("")}
-  </div>
-  <div class="chips">
-    <button class="chip" type="button" data-action="companion-context">Why “in the beginning”?</button>
-    <button class="chip" type="button" data-action="scripture">Open John 1</button>
-  </div>
-  <form id="companion-form" class="prompt-form">
-    <input name="prompt" aria-label="Ask the demo Companion" placeholder="Ask the demo Companion…" value="${escapeHtml(promptDraft)}" maxlength="400" required>
-    <button class="primary" type="submit" aria-label="Send to Companion">${icon("send")}</button>
+function go(viewName, nextWeek = week, jump = "") {
+  places.set(positionKey(), viewport.scrollTop);
+  const changed = viewName !== activeView || nextWeek.id !== week.id;
+  activeView = viewName;
+  week = nextWeek;
+  if (changed) renderView();
+  const target = jump ? $(jump) : $("view-title");
+  if (jump) {
+    target.tabIndex = -1;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "start" });
+  } else if (changed) {
+    target.focus({ preventScroll: true });
+    viewport.scrollTop = places.get(positionKey()) || 0;
+  }
+}
+
+function rerenderView(selector) {
+  const top = viewport.scrollTop;
+  renderView();
+  if (selector) view.querySelector(selector)?.focus({ preventScroll: true });
+  viewport.scrollTop = top;
+}
+
+function currentStudy(frame) {
+  return curriculum.find(item => item.id === frame.week) || week;
+}
+
+function currentPassage(frame) {
+  return frame.id && passages[frame.id] ? frame.id : currentStudy(frame).primary;
+}
+
+function savedIndex(frame) {
+  const passage = currentPassage(frame);
+  return model.saved.findIndex(item => item.week === frame.week && item.passage === passage && item.verse === (frame.verse || 0));
+}
+
+function makeTools(frame) {
+  const id = currentPassage(frame);
+  const passage = passages[id];
+  const study = currentStudy(frame);
+  const canRemove = savedIndex(frame) !== -1;
+  const details = { id, week: frame.week, verse: frame.verse || "" };
+  return `<div class="rows">
+    ${row(passage.word + " · " + passage.transliteration, passage.language, "book", { open: "language", ...details }, "violet")}
+    ${row(passages[passage.reference].title, "Cross-reference", "flip", { open: "scripture", id: passage.reference, week: frame.week })}
+    ${row(investigations[study.investigation].title, "Investigation", "compass", { open: "research", id: study.investigation, week: frame.week }, "amber")}
+    ${row(commandments[passage.practice].title, "Commandment · " + commandments[passage.practice].reference, "check", { open: "commandment", id: passage.practice, week: frame.week }, "green")}
+    ${row(canRemove ? "Remove bookmark" : frame.verse ? "Save verse" : "Save passage", "Notebook", "bookmark", { action: "save" })}
+    ${row("Write a note", "Private to this device", "note", { open: "note", ...details })}
+    ${row("Ask Companion", "Scripted study prompts", "spark", { open: "companion", ...details }, "violet")}
+  </div>`;
+}
+
+function toggleFaces(first, second, value) {
+  return `<div class="filters" role="group" aria-label="Panel face">
+    ${chip(first, "front", value, "face")}${chip(second, "back", value, "face")}
+    ${iconButton("Flip panel", "flip", { action: "flip" })}
+  </div>`;
+}
+
+function scripturePanel(frame) {
+  const passage = passages[frame.id];
+  const face = frame.face || "front";
+  return [passage.title, "SCRIPTURE EXCURSION · KJV", `${toggleFaces("Read", "Study tools", face)}
+    ${face === "front" ? `<div class="excursion-reading">${frame.verse ? `<p class="muted">Opened from verse ${frame.verse}</p>` : ""}${passageText(frame.id, false, frame.verse)}</div>
+      <div class="panel-actions">${button("Compare " + passages[passage.reference].title, "flip", { open: "scripture", id: passage.reference, week: frame.week })}</div>` : makeTools(frame)}`];
+}
+
+function researchPanel(frame) {
+  const research = investigations[frame.id];
+  const study = curriculum.find(item => item.id === research.thread);
+  const face = frame.face || "front";
+  return [research.title, "INVESTIGATION", `${toggleFaces("Evidence", "Interpretation", face)}
+    <article class="panel-prose"><p class="section-tag">${research.source}</p>
+      <p>${face === "front" ? research.observation : research.interpretation}</p>
+    </article>
+    <div class="rows">
+      ${row(passages[research.passage].title, "Read the text alongside this note", "book", { open: "scripture", id: research.passage, week: study.id })}
+      ${row("Discuss this question", "Sample community discussion", "chat", { open: "discussion", id: study.discussion, week: study.id }, "green")}
+    </div>`];
+}
+
+function discussionPanel(frame) {
+  const post = posts.find(item => item.id === frame.id);
+  const replies = [...post.replies, ...(model.replies[post.id] || [])];
+  const allowed = model.joined.includes(post.community);
+  const replyForm = `<form id="reply-form" class="form">
+    <label for="reply">Add a simulated reply</label>
+    <textarea id="reply" name="reply" maxlength="800" required>${escapeHtml(replyDrafts.get(post.id) || "")}</textarea>
+    <button type="submit" class="button primary">Save reply on this device</button>
   </form>`;
+  return [post.title, "SAMPLE DISCUSSION · " + communities[post.community].name, `<div class="panel-prose">
+    <p class="muted">${post.author} · ${post.time}</p><p>${post.text}</p>
+    ${button(passages[post.passage].title, "book", { open: "scripture", id: post.passage, week: post.thread }, "button reference")}
+    ${button("Open its Living Thread", "next", { action: "thread-from-panel", week: post.thread }, "button subtle")}
+    </div>
+    <div class="replies">${replies.map(reply => `<article><strong>${escapeHtml(reply.author)}</strong><p>${escapeHtml(reply.text)}</p></article>`).join("")}</div>
+    ${allowed ? replyForm : `<p class="empty">Follow this sample community to try a reply.</p>${button("Manage communities", "plus", { open: "communities" })}`}`];
+}
+
+function noteKey(frame) {
+  return frame.week + ":" + currentPassage(frame) + ":" + (frame.verse || 0);
+}
+
+function notePanel(frame) {
+  const passage = passages[currentPassage(frame)];
+  return ["New note", passage.title, `<form id="note-form" class="form">
+    <label for="note">Note for this reading</label>
+    <textarea id="note" name="note" maxlength="1200" required>${escapeHtml(noteDrafts.get(noteKey(frame)) || "")}</textarea>
+    <button type="submit" class="button primary">Save note</button>
+  </form>`];
+}
+
+function companionPanel(frame) {
+  const study = currentStudy(frame);
+  const passage = passages[currentPassage(frame)];
+  const messages = conversations.get(study.id) || [];
+  return ["Companion", "SCRIPTED DEMO · " + study.name, `<div class="companion-context">
+    ${icon("book")} <span>Reading with you</span> <strong>${passage.title}</strong>
+    </div><div class="chat-log" role="log" aria-label="Companion conversation">
+      <p class="bubble">What are you noticing in this passage?</p>
+      ${messages.map(message => `<p class="bubble${message.mine ? " mine" : ""}">${escapeHtml(message.text)}</p>`).join("")}
+    </div>
+    <div class="panel-actions">
+      ${button("What should I compare?", null, { action: "suggest" }, "button subtle")}
+      ${button("Open related passage", "book", { open: "scripture", id: passage.reference, week: study.id }, "button reference")}
+      ${button("Word study", "book", { open: "language", id: currentPassage(frame), week: study.id }, "button subtle")}
+    </div>
+    <form id="question-form" class="question-form">
+      <input id="question" aria-label="Ask Companion" placeholder="Ask about this reading…" maxlength="400" required value="${escapeHtml(questionDrafts.get(study.id) || "")}">
+      <button type="submit" class="button primary" aria-label="Send question">${icon("send")}</button>
+    </form>`];
+}
+
+function weeksPanel() {
+  return ["Study weeks", "WEEKLY CURRICULUM", `<div class="rows">
+    ${curriculum.map(item => row(item.name, `Week ${item.number} · ${item.title}${week.id === item.id ? " · Current" : ""}`, week.id === item.id ? "check" : "book", { action: "select-week", week: item.id })).join("")}
+  </div>`];
+}
+
+function communitiesPanel() {
+  return ["Communities", "SIMULATED FELLOWSHIP", `<p class="muted">Choose which sample communities appear in your feed.</p>
+    <div class="rows">${Object.entries(communities).map(([id, group]) => {
+      const joined = model.joined.includes(id);
+      return `<div class="community-row"><span class="avatar ${group.color}">${group.initials}</span>
+        <div><strong>${group.name}</strong><small>${group.description}</small></div>
+        <button type="button" class="button subtle" aria-label="${joined ? "Unfollow" : "Follow"} ${group.name}" aria-pressed="${joined}" data-action="join" data-id="${id}">${joined ? "Following" : "Follow"}</button></div>`;
+    }).join("")}</div>`];
 }
 
 const panels = {
-  actions: () => ["Quick actions", group(
-    row("Add a note", "Keep a thought from this study", "note", "gold", "note"),
-    row("Open Scripture", "John 1:1–5", "book", "blue", "scripture"),
-    row("Open Companion", "", "spark", "purple", "companion"),
-    row("Listen", "Read John 1 aloud", "headphones", "orange", "listen")
-  )],
-  "study-options": () => ["Study options", group(
-    row(library.saved ? "Remove saved passage" : "Save John 1:1–5", "", "bookmark", "gold", "save"),
-    row("Add a note", "", "note", "blue", "note"),
-    row("Compare with Genesis", "", "flip", "purple", "context")
-  )],
-  scripture: () => ["John 1:1–5", `<div class="prose">${passage()}</div>
-    <div class="chips">${inlineAction("Creation context", "compass", "context")}
-    ${inlineAction("Listen", "headphones", "listen")}${saveAction()}</div>`],
-  genesis: () => ["Genesis 1:1–3", `<div class="prose"><blockquote class="scripture">
-    <p><sup>1</sup>In the beginning God created the heaven and the earth.</p>
-    <p><sup>2</sup>And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.</p>
-    <p><sup>3</sup>And God said, Let there be light: and there was light.</p>
-    <cite>Genesis 1:1–3 · King James Version</cite>
-  </blockquote></div>${inlineAction("Open John 1:1–5", "book", "scripture")}`],
-  context: () => ["Creation echoes in John", `<div class="prose">
-    <p>John begins with the same opening phrase as Genesis. Genesis tells of God creating and speaking light into darkness. John introduces the Word, through whom all things were made, and connects life with light.</p>
-    <h3>A detail to look for</h3><p>Try marking each mention of beginning, light and darkness. Where does John add something new?</p>
-  </div><div class="chips">${inlineAction("Genesis 1:1–3", "book", "genesis")}${inlineAction("John 1:1–5", "book", "scripture")}</div>`],
-  discussion: () => ["Light in the darkness", `<div class="prose">
-    <p class="muted">Reading Circle · Sample discussion</p>
-    <h3>Mara H.</h3><p>I hadn’t noticed how quickly John moves from creation to life. What stood out to you when you read these verses with Genesis?</p>
-    <h3>Daniel R.</h3><p>The light keeps shining even with the darkness still there. That’s the line I took into the week.</p>
-  </div><div class="chips">${inlineAction("Read John 1:1–5", "book", "scripture")}${inlineAction("Keep a private note", "note", "note")}</div>`],
-  prayer: () => ["For our neighbors", `<div class="prose">
-    <p class="muted">Prayer · Sample discussion</p>
-    <h3>Nadia S.</h3><p>Our group is praying for the families moving into the apartment complex this week.</p>
-    <h3>Sam T.</h3><p>I’m praying for chances to offer a meal or help someone get settled.</p>
-  </div>${inlineAction("Keep a private note", "note", "note")}`],
-  library: () => ["Saved & notes", `${library.saved ? group(entry("scripture")) : '<p class="empty">Save a passage to find it here.</p>'}
-    ${library.notes.map(note => `<p class="bubble note">${escapeHtml(note)}</p>`).join("")}
-    ${inlineAction("Add a note", "note", "note")}`],
-  note: () => ["New note", `<form id="note-form" class="form">
-    <label for="note-input">Note for this study</label>
-    <textarea id="note-input" name="note" rows="4" maxlength="1200" required>${escapeHtml(noteDraft)}</textarea>
-    <button class="primary" type="submit">Save on this device</button>
-  </form>`],
-  search: () => ["Search", `<input id="search-input" type="search" aria-label="Search this prototype" placeholder="Try John, Genesis, or light"><div id="search-results"></div>`],
-  companion: () => ["Companion", companionContent()]
+  scripture: scripturePanel,
+  research: researchPanel,
+  discussion: discussionPanel,
+  note: notePanel,
+  companion: companionPanel,
+  weeks: weeksPanel,
+  communities: communitiesPanel,
+  tools: frame => ["Study tools", passages[currentPassage(frame)].title, makeTools(frame)],
+  verse: frame => {
+    const passage = passages[currentPassage(frame)];
+    const label = frame.verse ? `${passage.book} ${passage.chapter}:${frame.verse}` : passage.title;
+    return [label, "PASSAGE OPTIONS", `${frame.verse ? `<p class="verse-excerpt">${escapeHtml(passage.lines[frame.verse - passage.start])}</p>` : ""}${makeTools(frame)}`];
+  },
+  language: frame => {
+    const passage = passages[frame.id];
+    return ["Word study", passage.language, `<article class="panel-prose">
+      <p class="original-word" lang="${passage.language.startsWith("Greek") ? "el" : "he"}" dir="auto">${passage.word}</p>
+      <h3>${passage.transliteration}</h3><p>${passage.meaning}</p><p>${passage.languageNote}</p></article>
+      ${linkedPassage(frame.id)}`];
+  },
+  commandment: frame => {
+    const commandment = commandments[frame.id];
+    return [commandment.title, "COMMANDMENTS · " + commandment.reference, `<article class="panel-prose">
+      <blockquote>${commandment.verse}</blockquote><p>${commandment.note}</p></article>`];
+  },
+  search: frame => ["Search", "PASSAGES, INVESTIGATIONS & DISCUSSIONS", `<input id="search" type="search" aria-label="Search sample content" placeholder="Try ‘Noah’ or ‘John’" value="${escapeHtml(frame.query || "")}"><div id="search-results"></div>`],
+  menu: frame => ["Quick actions", "LIVING THREAD", `<div class="rows">
+    ${row("Change study week", week.name, "book", { open: "weeks" })}
+    ${row("Write a note", "For the current passage", "note", { open: "note", id: currentPassage(frame) })}
+    ${row("Open study tools", "Cross-references, language and commandments", "compass", { open: "tools", id: currentPassage(frame) }, "amber")}
+  </div>`]
 };
 
-function renderPanel(focus = true) {
-  const [title, body] = panels[panel.key]();
-  panelTitle.textContent = title;
-  panelBody.innerHTML = body;
-  dialog.dataset.placement = ["actions", "study-options"].includes(panel.key) ? "menu" : "sheet";
-  backButton.hidden = historyStack.length === 0;
-  if (panel.key === "search") {
-    document.getElementById("search-input").value = panel.query || "";
-    renderSearch(panel.query || "");
-  }
-  panelBody.scrollTop = panel.scroll || 0;
-  if (focus) panelTitle.focus({ preventScroll: true });
+const searchIndex = [
+  ...Object.entries(passages).map(([id, item]) => ({ id, kind: "scripture", label: item.title, terms: item.lines.join(" ") + " " + item.transliteration, detail: "Scripture", icon: "book", tone: "blue", week: curriculum.find(week => [week.primary, week.related].includes(id)).id })),
+  ...Object.entries(investigations).map(([id, item]) => ({ id, kind: "research", label: item.title, terms: item.source, detail: "Investigation", icon: "compass", tone: "amber", week: item.thread })),
+  ...posts.map(post => ({ id: post.id, kind: "discussion", label: post.title, terms: post.text, detail: "Sample discussion", icon: "chat", tone: "green", week: post.thread }))
+];
+
+function renderResults(query) {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = words.length ? searchIndex.filter(item => {
+    const haystack = (item.label + " " + item.terms).toLowerCase();
+    return words.every(word => haystack.includes(word));
+  }) : searchIndex.filter(item => item.week === week.id).slice(0, 5);
+  $("search-results").innerHTML = matches.length ? `<div class="rows">${matches.map(item =>
+    row(item.label, item.detail, item.icon, { open: item.kind, id: item.id, week: item.week }, item.tone)
+  ).join("")}</div>` : '<p class="empty">No matches in the sample content.</p>';
 }
 
-function openPanel(key, opener) {
+function focusPanel() {
+  title.focus({ preventScroll: true });
+}
+
+function renderPanel(focus = false) {
+  const [heading, context, contents] = panels[frame.kind](frame);
+  title.textContent = heading;
+  $("panel-context").textContent = context;
+  $("panel-back").hidden = stack.length === 0;
+  $("panel-expand").hidden = frame.kind === "menu";
+  $("panel-expand").setAttribute("aria-label", frame.expanded ? "Collapse panel" : "Expand panel");
+  $("panel-expand").setAttribute("aria-pressed", String(Boolean(frame.expanded)));
+  $("panel-expand").innerHTML = icon(frame.expanded ? "minus" : "expand");
+  dialog.dataset.expanded = String(Boolean(frame.expanded));
+  dialog.dataset.mode = frame.kind === "menu" ? "menu" : "panel";
+  body.innerHTML = contents;
+  if (frame.kind === "search") renderResults(frame.query || "");
+  body.scrollTop = frame.top || 0;
+  if (focus) focusPanel();
+}
+
+function openPanel(spec, trigger) {
+  const next = {
+    kind: spec.open,
+    id: spec.id || "",
+    week: spec.week || (dialog.open ? frame.week : week.id),
+    verse: Number(spec.verse) || 0,
+    expanded: dialog.open && Boolean(frame.expanded)
+  };
   if (dialog.open) {
-    if (key === panel.key) return;
-    panel.scroll = panelBody.scrollTop;
-    historyStack.push(panel);
+    frame.top = body.scrollTop;
+    frame.returnIndex = [...body.querySelectorAll("button")].indexOf(trigger);
+    stack.push(frame);
   } else {
-    returnFocus = opener;
+    origin = { top: viewport.scrollTop, trigger };
   }
-  panel = { key };
-  renderPanel(false);
-  if (!dialog.open) dialog.showModal();
-  panelTitle.focus({ preventScroll: true });
-}
-
-function previousPanel() {
-  panel = historyStack.pop();
+  frame = next;
   renderPanel();
+  if (!dialog.open) dialog.showModal();
+  focusPanel();
 }
 
-function renderSearch(query) {
-  const normalized = query.trim().toLowerCase();
-  const matches = Object.keys(entries).filter(key =>
-    [entries[key].title, entries[key].detail].join(" ").toLowerCase().includes(normalized)
-  ).map(entry);
-  if ("genesis 1:1–3 scripture creation".includes(normalized)) {
-    matches.push(row("Genesis 1:1–3", "Scripture · Creation", "book", "blue", "genesis"));
-  }
-  document.getElementById("search-results").innerHTML = matches.length
-    ? group(...matches)
-    : '<p class="empty">No matching passages or discussions.</p>';
+function rerenderPanel(focusSelector) {
+  frame.top = body.scrollTop;
+  renderPanel();
+  body.querySelector(focusSelector)?.focus({ preventScroll: true });
 }
 
-function notify(message) {
-  clearTimeout(toastTimer);
-  toast.textContent = message;
-  toastTimer = setTimeout(() => { toast.textContent = ""; }, 3200);
+function goAfterClose(viewName, weekId, jump) {
+  const targetWeek = curriculum.find(item => item.id === weekId) || week;
+  afterClose = () => go(viewName, targetWeek, jump);
+  dialog.close();
 }
 
-function updatePlayback(label, iconName, status) {
-  playback.setAttribute("aria-label", label);
-  playback.innerHTML = icon(iconName);
-  playerStatus.textContent = status;
-}
+$("panel-back").addEventListener("click", () => {
+  frame = stack.pop();
+  renderPanel(true);
+  const trigger = body.querySelectorAll("button")[frame.returnIndex];
+  trigger?.focus({ preventScroll: true });
+  body.scrollTop = frame.top || 0;
+});
 
-function stopPlayer() {
-  speechRun = undefined;
-  speech?.cancel();
-  player.hidden = true;
-  updatePlayback("Play reading", "play", canNarrate ? "Read aloud" : "Read aloud unavailable");
-}
-
-function togglePlayback() {
-  if (speechRun && speech.paused) {
-    speech.resume();
-    updatePlayback("Pause reading", "pause", "Reading aloud");
-    return;
-  }
-  if (speechRun) {
-    speech.pause();
-    updatePlayback("Resume reading", "play", "Paused");
-    return;
-  }
-  const utterance = new SpeechSynthesisUtterance(verses.join(" "));
-  utterance.lang = "en-US";
-  utterance.rate = .9;
-  speechRun = utterance;
-  function finish(status) {
-    if (speechRun !== utterance) return;
-    speechRun = undefined;
-    updatePlayback("Play reading", "play", status);
-  }
-  utterance.onend = () => finish("Read aloud");
-  utterance.onerror = () => finish("Voice unavailable · Tap to retry");
-  updatePlayback("Pause reading", "pause", "Reading aloud");
-  speech.speak(utterance);
-}
-
-function respondToCompanion(question) {
-  const contextQuestion = /beginning|genesis|creat|word/i.test(question);
-  const lightQuestion = /light|dark/i.test(question);
-  const answer = contextQuestion
-    ? "John’s first words echo Genesis 1. Genesis opens with God creating, and John introduces the Word through whom creation came to be. Open John 1 and choose Creation context to compare the passages."
-    : lightQuestion
-      ? "John 1:4–5 connects life with light, then describes the light shining in darkness. Open the passage and look at what each verse adds."
-      : "This demo has prepared notes on John 1, creation, and light. Try asking about one of those topics.";
-  messages.push({ text: question, mine: true }, { text: answer });
-  promptDraft = "";
-  renderPanel(false);
-  document.querySelector("#companion-form input").focus({ preventScroll: true });
-  panelBody.scrollTop = panelBody.scrollHeight;
-}
-
-function toggleSaved(button) {
-  library.saved = !library.saved;
-  const persisted = persistLibrary();
-  if (panel?.key === "study-options") {
-    renderPanel();
-  } else {
-    button.setAttribute("aria-label", library.saved ? "Remove saved passage" : "Save passage");
-    button.innerHTML = icon(library.saved ? "check" : "bookmark");
-  }
-  const message = library.saved ? "Passage saved" : "Passage removed";
-  // A modal covers the app-level toast, so announce changes inside it.
-  if (dialog.open) {
-    let status = document.getElementById("panel-status");
-    if (!status) {
-      status = document.createElement("p");
-      status.id = "panel-status";
-      status.className = "muted";
-      status.setAttribute("role", "status");
-      panelBody.append(status);
-    }
-    status.textContent = persisted ? message : message + " for this visit";
-  } else {
-    notify(persisted ? message : message + " for this visit");
-  }
-}
-
-function refreshScreen(focusSelector) {
-  const top = screen.scrollTop;
-  renderScreen();
-  screen.scrollTop = top;
-  screen.querySelector(focusSelector)?.focus({ preventScroll: true });
-}
-
-document.addEventListener("click", event => {
-  const button = event.target.closest("button");
-  if (!button) return;
-  const { tab, face, filter, action } = button.dataset;
-  if (tab) {
-    changeTab(tab);
-  } else if (face || action === "flip") {
-    studyFace = face || (studyFace === "reading" ? "context" : "reading");
-    refreshScreen(face ? `[data-face="${studyFace}"]` : '[data-action="flip"]');
-  } else if (filter) {
-    fellowshipFilter = filter;
-    refreshScreen(`[data-filter="${filter}"]`);
-  } else if (action === "listen") {
-    if (dialog.open) dialog.close();
-    player.hidden = false;
-    if (canNarrate && !speechRun) togglePlayback();
-    const playerControl = canNarrate ? playback : player.querySelector('[data-action="stop-player"]');
-    playerControl.focus({ preventScroll: true });
-  } else if (action === "stop-player") {
-    stopPlayer();
-    document.querySelector(".companion-launch").focus({ preventScroll: true });
-  } else if (action === "save") {
-    toggleSaved(button);
-  } else if (action === "companion-context") {
-    respondToCompanion("Why does John start with “in the beginning”?");
-  } else if (Object.hasOwn(panels, action)) {
-    openPanel(action, button);
-  }
+$("panel-close").addEventListener("click", () => dialog.close());
+$("panel-expand").addEventListener("click", () => {
+  const top = body.scrollTop;
+  frame.expanded = !frame.expanded;
+  dialog.dataset.expanded = String(frame.expanded);
+  $("panel-expand").setAttribute("aria-label", frame.expanded ? "Collapse panel" : "Expand panel");
+  $("panel-expand").setAttribute("aria-pressed", String(frame.expanded));
+  $("panel-expand").innerHTML = icon(frame.expanded ? "minus" : "expand");
+  body.scrollTop = top;
 });
 
 dialog.addEventListener("click", event => {
   if (event.target === dialog) dialog.close();
 });
-document.getElementById("panel-close").addEventListener("click", () => dialog.close());
-backButton.addEventListener("click", previousPanel);
 dialog.addEventListener("close", () => {
-  historyStack.length = 0;
-  panel = undefined;
-  if (document.activeElement === document.body || dialog.contains(document.activeElement)) {
-    const destination = returnFocus?.isConnected ? returnFocus : document.getElementById("screen-title");
-    destination.focus({ preventScroll: true });
+  const previous = origin;
+  const next = afterClose;
+  stack.length = 0;
+  frame = origin = afterClose = undefined;
+  if (previous) {
+    (previous.trigger?.isConnected ? previous.trigger : viewport).focus({ preventScroll: true });
+    viewport.scrollTop = previous.top;
   }
-  returnFocus = undefined;
+  next?.();
 });
+
+function panelStatus(message) {
+  let status = $("panel-status");
+  if (!status) {
+    status = document.createElement("p");
+    status.id = "panel-status";
+    status.className = "local-status";
+    status.setAttribute("role", "status");
+    body.prepend(status);
+  }
+  status.textContent = message;
+}
+
+function savePassage() {
+  const index = savedIndex(frame);
+  if (index < 0) model.saved.unshift({ week: frame.week, passage: currentPassage(frame), verse: frame.verse });
+  else model.saved.splice(index, 1);
+  const stored = persist();
+  rerenderPanel('[data-action="save"]');
+  panelStatus(index < 0 ? stored ? "Saved to Notebook." : "Saved for this visit." : "Bookmark removed.");
+}
+
+function respond(question) {
+  const study = currentStudy(frame);
+  const passage = passages[currentPassage(frame)];
+  const related = passages[passage.reference];
+  const messages = conversations.get(study.id) || [];
+  const answer = /word|hebrew|greek|language/i.test(question)
+    ? `In ${passage.title}, look at ${passage.word} (${passage.transliteration}), “${passage.meaning}.” The Word study tool has a short note about this usage.`
+    : /compare|question|passage|why|light|promise|noah|abram|genesis|john/i.test(question)
+      ? `Compare ${passage.title} with ${related.title}. As you read, ask: ${study.question}`
+      : "This scripted demo can offer a comparison or point you to a word study. Try asking what to compare.";
+  messages.push({ text: question, mine: true }, { text: answer });
+  conversations.set(study.id, messages);
+  questionDrafts.delete(study.id);
+  rerenderPanel("#question");
+  body.scrollTop = body.scrollHeight;
+}
+
+const actions = {
+  "select-week": control => goAfterClose("thread", control.dataset.week),
+  "thread-from-panel": control => goAfterClose("thread", control.dataset.week),
+  save: savePassage,
+  flip: () => setFace(frame.face === "back" ? "front" : "back"),
+  suggest: () => respond("What should I compare?"),
+  join: control => {
+    const id = control.dataset.id;
+    const index = model.joined.indexOf(id);
+    if (index < 0) model.joined.push(id);
+    else model.joined.splice(index, 1);
+    if (!model.joined.includes(feedFilter)) feedFilter = "all";
+    const stored = persist();
+    if (activeView === "fellowship") rerenderView();
+    rerenderPanel(`[data-action="join"][data-id="${id}"]`);
+    panelStatus(stored ? "Sample feed updated." : "Sample feed updated for this visit.");
+  }
+};
+
+function setFace(face) {
+  frame.face = face;
+  rerenderPanel(`[data-face="${face}"]`);
+}
+
+document.addEventListener("click", event => {
+  const control = event.target.closest("button");
+  if (!control) return;
+  const data = control.dataset;
+  if (data.open) openPanel(data, control);
+  else if (data.view) go(data.view);
+  else if (data.jump) go("thread", week, data.jump);
+  else if (data.feed) {
+    feedFilter = data.feed;
+    rerenderView(`[data-feed="${feedFilter}"]`);
+  } else if (data.notebook) {
+    notebookFilter = data.notebook;
+    rerenderView(`[data-notebook="${notebookFilter}"]`);
+  } else if (data.face) setFace(data.face);
+  else actions[data.action]?.(control);
+});
+
 dialog.addEventListener("input", event => {
   const field = event.target;
-  if (field.id === "search-input") {
-    panel.query = field.value;
-    renderSearch(panel.query);
-  }
-  if (field.name === "prompt") promptDraft = field.value;
-  if (field.name === "note") noteDraft = field.value;
+  if (field.id === "search") {
+    frame.query = field.value;
+    renderResults(frame.query);
+  } else if (field.id === "note") noteDrafts.set(noteKey(frame), field.value);
+  else if (field.id === "question") questionDrafts.set(frame.week, field.value);
+  else if (field.id === "reply") replyDrafts.set(frame.id, field.value);
 });
+
 dialog.addEventListener("submit", event => {
   event.preventDefault();
   const form = event.target;
-  const field = form.elements.namedItem(form.id === "note-form" ? "note" : "prompt");
+  const field = form.querySelector("textarea, input");
   const value = field.value.trim();
   if (!value) {
     field.focus();
     return;
   }
-  if (form.id === "companion-form") {
-    respondToCompanion(value);
-  } else {
-    library.notes.push(value);
-    const persisted = persistLibrary();
-    noteDraft = "";
-    panel = { key: "library" };
-    renderPanel();
-    const status = document.createElement("p");
-    status.className = "muted";
-    status.setAttribute("role", "status");
-    status.textContent = persisted ? "Note saved on this device" : "Note saved for this visit";
-    panelBody.prepend(status);
+  if (form.id === "question-form") {
+    respond(value);
+  } else if (form.id === "note-form") {
+    model.notes.unshift({ text: value, week: frame.week, passage: currentPassage(frame), verse: frame.verse });
+    noteDrafts.delete(noteKey(frame));
+    field.value = "";
+    const stored = persist();
+    if (activeView === "notebook") rerenderView();
+    panelStatus(stored ? "Note saved to Notebook." : "Note saved for this visit.");
+  } else if (form.id === "reply-form") {
+    (model.replies[frame.id] ||= []).push({ author: "You · Local demo", text: value });
+    replyDrafts.delete(frame.id);
+    const stored = persist();
+    if (activeView === "fellowship") rerenderView();
+    rerenderPanel("#reply");
+    panelStatus(stored ? "Demo reply saved on this device." : "Demo reply saved for this visit.");
   }
 });
 
-playback.addEventListener("click", togglePlayback);
-if (!canNarrate) {
-  playback.disabled = true;
-  playerStatus.textContent = "Read aloud unavailable";
-}
-window.addEventListener("pagehide", stopPlayer);
-changeTab("home", false);
+renderView();
