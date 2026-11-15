@@ -1,0 +1,105 @@
+{
+  "english": "After the Death",
+  "hebrew": "אחרי מות",
+  "transliteration": " Acharei Mot | אחרי מות",
+  "week": 29,
+  "title": "Bible Study for Week 29",
+  "intro": {
+    "summary": "This study covers the Day of Atonement, the sacredness of blood, and boundaries for holy relationships in the Torah; Jeremiah’s purchase of a field as a sign of hope beyond judgment in the Prophets; and Yeshua’s healing and authority over sickness in the New Testament, joining atonement and holy living with confident hope in God’s restoration.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esv.org/hw/mq/03016001-03018030.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esv.org/hw/mq/26022001-26022019.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esv.org/hw/mq/43007001-43007052.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esv.org/hw/mq/58007001-58007028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Leviticus 16:1 | The Day of Atonement",
+        "Leviticus 17:10 | Eating Blood Prohibited",
+        "Leviticus 18:1 | Sexual Relations"
+      ],
+      "Prophets": [
+        "Ezekiel 22:1 | The Bloody City",
+        "14:4 – Assurance of Forgiveness"
+      ],
+      "Writings": [
+        ""
+      ],
+      "Gospels": [
+        "John 7 | Jesus/ Yeshua at the Feast of Booths, Jews think He will go to the dispersed house of Israel,"
+      ],
+      "Letters": [
+        "James 2 – Faith and Works"
+      ],
+      "Revelation": []
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": " Acharei Mot | אחרי מות"
+}

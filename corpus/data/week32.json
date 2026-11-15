@@ -1,0 +1,107 @@
+{
+  "english": "On the Mount",
+  "hebrew": "בהר",
+  "transliteration": "Behar | בהר",
+  "week": 32,
+  "title": "Bible Study for Week 32",
+  "intro": {
+    "summary": "This study covers Sabbath years, Jubilee, redemption of land and persons, and freedom from perpetual bondage in the Torah; the promised birth and calling of Samson in the Prophets; and Peter’s picture of believers as living stones and a royal priesthood in the New Testament, emphasizing restoration, freedom, and a people built for God.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "http://audio.esvbible.org/hw/01047028-01050026.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "http://audio.esvbible.org/hw/11002001-11002012.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/43013001-43013038.mp3,44001001-44001026.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "http://audio.esvbible.org/hw/58007001-58007028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Leviticus 25:1 | The Sabbatical Year",
+        "Leviticus 25:8 | The Year of Jubilee",
+        "Leviticus 26:1 | Rewards for Obedience"
+      ],
+      "Prophets": [
+        "Jer 32:16 | Jeremiah Prays for Understanding",
+        "Jer 32:26 | God's Assurance of the People's Return"
+      ],
+      "Writings": [
+        "Ezekiel 37:1-28 | Future Reunification of Southern and Northern Kingdoms (all 10 tribes, plus the house of Judah)"
+      ],
+      "Gospels": [
+        "Luke 4:16-21, John 10:22-42 | Jesus/ Yeshua teaching in the synagogue on Sabbath (Friday night to Saturday night)"
+      ],
+      "Letters": [
+        "Romans 6 | Sin is breaking the law"
+      ],
+      "Revelation": [
+        "Revelation 20 | Millennial Reign"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Behar | בהר"
+}

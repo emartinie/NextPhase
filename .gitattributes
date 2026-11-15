@@ -1,0 +1,2 @@
+corpus/preparedness/be-ready-catalog.json -text
+corpus/reference/**/*.json -text whitespace=cr-at-eol,-blank-at-eof

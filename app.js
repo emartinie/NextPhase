@@ -1,488 +1,1063 @@
-"use strict";
+import {
+  currentWeek, schedules, getWeek, WEEK_COUNT, LANGUAGES, ORIENTATIONS, nameKey,
+  getWeeklyText, getCommentary, readPassage, webUrl, passageUrl,
+} from './corpus.js';
+import { fixture, members, loadLocal, saveLocal } from './fellowship.js';
+import { createStudyTools } from './study-tools.js';
+import { createPeopleViews } from './people.js';
+import { createGameView } from './games.js';
+import { createPreparednessViews } from './preparedness.js';
+import { createLibraryViews } from './preparedness-library.js';
+import { createMapViews } from './preparedness-map.js';
+import { createRadioViews } from './preparedness-radio.js';
+import { articleLocation, createLearningViews } from './learning.js';
+import { createLearningEnrichment } from './learning-enrichment.js';
+import { createTopicalViews } from './learning-topical.js';
+import { createReferenceViews } from './learning-references.js';
+import { createAncientViews } from './ancient-library.js';
+import { calendarCards, calendarFields, calendarRoute, createCalendarViews } from './calendar.js';
 
-const verses = [
-  "In the beginning was the Word, and the Word was with God, and the Word was God.",
-  "The same was in the beginning with God.",
-  "All things were made by him; and without him was not any thing made that was made.",
-  "In him was life; and the life was the light of men.",
-  "And the light shineth in darkness; and the darkness comprehended it not."
-];
+const $ = (id) => document.getElementById(id);
+const study = $('study');
+const fellowship = $('fellowship');
+const dialog = $('dialog');
+const panel = $('panel-body');
+const audio = $('audio');
+const now = new Date();
+const cycleWeek = currentWeek(now);
+const today = now.getDay() + 1;
+const liveYear = now.getFullYear();
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const sessions = new Map();
+const frames = [];
+const historyFrames = new Map();
+const ledger = loadLocal();
+let catalog;
+let active;
+let face = 'study';
+let week;
+let origin;
+let frameSequence = 0;
+let pendingClose;
+let renderSequence = 0;
 
-const entries = {
-  scripture: { title: "John 1:1–5", detail: "Scripture · King James Version", icon: "book", color: "blue" },
-  context: { title: "Creation echoes in John", detail: "Research · John 1 and Genesis 1", icon: "compass", color: "purple" },
-  discussion: { title: "Light in the darkness", detail: "Fellowship · Reading Circle", icon: "chat", color: "green" }
-};
-const titles = { home: "Home", study: "Study", fellowship: "Fellowship", explore: "Explore" };
-const screen = document.getElementById("screen");
-const dialog = document.getElementById("overlay");
-const panelTitle = document.getElementById("panel-title");
-const panelBody = document.getElementById("panel-body");
-const backButton = document.getElementById("panel-back");
-const player = document.getElementById("player");
-const playback = document.getElementById("playback");
-const playerStatus = document.getElementById("player-status");
-const toast = document.getElementById("toast");
-const speech = window.speechSynthesis;
-const canNarrate = Boolean(speech) && typeof SpeechSynthesisUtterance === "function";
-const positions = {};
-const historyStack = [];
-let activeTab;
-let panel;
-let returnFocus;
-let studyFace = "reading";
-let fellowshipFilter = "All";
-let promptDraft = "";
-let noteDraft = "";
-let speechRun;
-let toastTimer;
-
-const messages = [
-  { text: "I’m here as you read. Try asking about John’s opening line or looking up a related passage." }
-];
-const storageKey = "nextphase-prototype-v1";
-let library = { saved: false, notes: [] };
-try {
-  const previous = JSON.parse(localStorage.getItem(storageKey));
-  if (previous && Array.isArray(previous.notes)) library = previous;
-} catch {
-  // The prototype remains usable when local storage is unavailable.
+function node(tag, content = '', className = '') {
+  const item = document.createElement(tag);
+  if (content) item.textContent = content;
+  if (className) item.className = className;
+  return item;
 }
-
-function persistLibrary() {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(library));
-    return true;
-  } catch {
-    return false;
-  }
+const text = (value, style = 'subtle') => node('p', value, style);
+function button(label, action, style = 'button') {
+  const item = node('button', label, style);
+  item.type = 'button';
+  item.addEventListener('click', action);
+  return item;
 }
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, character => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[character]);
+function link(label, value) {
+  const url = webUrl(value);
+  if (!url) return node('span', label, 'subtle');
+  const item = node('a', label, 'button');
+  Object.assign(item, { href: url, target: '_blank', rel: 'noopener noreferrer' });
+  return item;
 }
-
-function icon(name) {
-  return `<svg aria-hidden="true"><use href="#icon-${name}"/></svg>`;
+function cluster(...items) {
+  const bar = node('div', '', 'actions');
+  bar.append(...items);
+  return bar;
 }
-
-function tile(name, color) {
-  return `<span class="tile ${color}">${icon(name)}</span>`;
+function disclosure(label, ...items) {
+  const details = node('details');
+  const body = node('div', '', 'detail');
+  body.append(...items);
+  details.append(node('summary', label), body);
+  return details;
 }
-
-function iconButton(label, name, action) {
-  return `<button class="icon-button" type="button" data-action="${action}" aria-label="${label}">${icon(name)}</button>`;
+function renderIntro(id, kicker, title, subtitle, theme = '') {
+  const intro = node('header', '', 'intro');
+  const heading = node('h1', title);
+  heading.id = id;
+  intro.append(node('p', kicker, 'eyebrow'), heading, text(subtitle, 'portion'));
+  if (theme) intro.append(text(theme, 'theme'));
+  return intro;
 }
-
-function row(label, detail, name, color, action) {
-  return `<button type="button" class="row" data-action="${action}">
-    ${tile(name, color)}<span class="row-copy"><strong>${escapeHtml(label)}</strong>
-    ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</span>${icon("next")}
-  </button>`;
+function row(label, detail, run) {
+  const control = button('', run, 'row');
+  const copy = node('span', label);
+  if (detail) copy.append(node('small', detail));
+  const arrow = node('span', '›');
+  arrow.setAttribute('aria-hidden', 'true');
+  control.append(copy, arrow);
+  return control;
 }
-
-function entry(key) {
-  const item = entries[key];
-  return row(item.title, item.detail, item.icon, item.color, key);
+function title(label) {
+  return label.replaceAll('_', ' ').replace(/^\w/, (first) => first.toUpperCase());
 }
-
-function group(...rows) {
-  return `<div class="group">${rows.join("")}</div>`;
-}
-
-function section(title, body, control = "") {
-  return `<section class="section"><div class="section-heading"><h2>${title}</h2>${control}</div>${body}</section>`;
-}
-
-function inlineAction(label, name, action) {
-  return `<button type="button" class="inline-action" data-action="${action}">${icon(name)}${label}</button>`;
-}
-
-function saveAction() {
-  return iconButton(library.saved ? "Remove saved passage" : "Save passage", library.saved ? "check" : "bookmark", "save");
-}
-
-function passage(lines = verses) {
-  return `<blockquote class="scripture">
-    ${lines.map((verse, i) => `<p><sup>${i + 1}</sup>${verse}</p>`).join("")}
-    <cite>John 1:${lines.length === 1 ? "1" : "1–5"} · King James Version</cite>
-  </blockquote>`;
-}
-
-function home() {
-  return `<section class="feature">
-    <div class="feature-label">${tile("book", "blue")}This week’s study</div>
-    <h2>In the Beginning</h2>
-    <p>Read Genesis and John side by side.</p>
-    <div class="feature-actions">
-      <button class="primary" type="button" data-tab="study">Continue study ${icon("arrow")}</button>
-      ${saveAction()}
-    </div>
-  </section>
-  ${section("My study", group(
-    row("Scripture", "John 1:1–5", "book", "blue", "scripture"),
-    row("Research", "Creation echoes in John", "compass", "purple", "context"),
-    row("Fellowship", "Reading Circle", "chat", "green", "discussion"),
-    row("Listen", "John 1:1–5 read aloud", "headphones", "orange", "listen")
-  ), iconButton("Study options", "more", "study-options"))}
-  ${section("Your library", group(
-    row("Saved & notes", "Passages and personal notes", "bookmark", "gold", "library")
-  ))}`;
-}
-
-function study() {
-  const reading = `<div class="prose">
-    <h2>In the Beginning</h2>
-    <p>John opens with words that echo the first line of Genesis. Both passages invite the reader to pay attention to what happens when God speaks and light enters the story.</p>
-    ${passage(verses.slice(0, 1))}
-    ${inlineAction("Open John 1:1–5", "book", "scripture")}
-    <h2>Read the passages together</h2>
-    <p>Genesis 1 moves from darkness to light through the spoken word. John moves from the Word to life and light. Read both openings slowly and note the order in which those ideas appear.</p>
-    ${inlineAction("Open Genesis 1:1–3", "book", "genesis")}
-    <h2>For reflection</h2>
-    <p>Where does John repeat a word or idea? What does that repetition help you notice about the relationship between life and light?</p>
-    ${inlineAction("Open the discussion", "chat", "discussion")}
-  </div>`;
-  const context = `<div class="prose">
-    <h2>Creation echoes in John</h2>
-    <p>Notice the shared opening phrase “In the beginning.” Set the two passages side by side and pay attention to where they diverge.</p>
-    ${inlineAction("Compare the openings", "compass", "context")}
-    <h2>Questions for your group</h2>
-    <p>What does each writer put first? How do their images of darkness and light shape the next part of the story?</p>
-    ${inlineAction("Add a personal note", "note", "note")}
-  </div>`;
-  return `<div class="section-heading">
-    <div class="chips" role="group" aria-label="Study face">
-      <button class="chip" type="button" data-face="reading" aria-pressed="${studyFace === "reading"}">Reading</button>
-      <button class="chip" type="button" data-face="context" aria-pressed="${studyFace === "context"}">Context</button>
-    </div>
-    ${iconButton("Flip study card", "flip", "flip")}
-  </div><section class="section">${studyFace === "reading" ? reading : context}</section>`;
-}
-
-function fellowship() {
-  return `<div class="chips" role="group" aria-label="Fellowship filter">
-    ${["All", "Reading Circle", "Prayer"].map(label => `<button type="button" class="chip" data-filter="${label}" aria-pressed="${label === fellowshipFilter}">${label}</button>`).join("")}
-  </div>
-  ${section("Discussions", group(
-    fellowshipFilter !== "Prayer" ? entry("discussion") : "",
-    fellowshipFilter !== "Reading Circle" ? row("For our neighbors", "Prayer · 2 reflections", "chat", "purple", "prayer") : ""
-  ))}`;
-}
-
-function explore() {
-  return `${section("Discover", group(
-    entry("context"),
-    row("Genesis 1:1–3", "Scripture · Creation", "book", "blue", "genesis"),
-    row("Read aloud", "John 1:1–5", "headphones", "orange", "listen")
-  ))}${section("From your library", group(
-    row("Saved & notes", "Your personal study material", "bookmark", "gold", "library")
-  ))}`;
-}
-
-const screens = { home, study, fellowship, explore };
-
-function renderScreen() {
-  screen.innerHTML = `<h1 id="screen-title" tabindex="-1">${titles[activeTab]}</h1>${screens[activeTab]()}`;
-}
-
-function changeTab(tab, focus = true) {
-  if (tab === activeTab) return;
-  if (activeTab) positions[activeTab] = screen.scrollTop;
-  activeTab = tab;
-  renderScreen();
-  screen.scrollTop = positions[tab] || 0;
-  document.querySelectorAll(".tab-bar [data-tab]").forEach(button => {
-    if (button.dataset.tab === tab) button.setAttribute("aria-current", "page");
-    else button.removeAttribute("aria-current");
-  });
-  if (focus) document.getElementById("screen-title").focus({ preventScroll: true });
-}
-
-function companionContent() {
-  return `<div id="conversation" class="conversation" role="log" aria-label="Companion conversation">
-    ${messages.map(message => `<p class="bubble ${message.mine ? "mine" : ""}">${escapeHtml(message.text)}</p>`).join("")}
-  </div>
-  <div class="chips">
-    <button class="chip" type="button" data-action="companion-context">Why “in the beginning”?</button>
-    <button class="chip" type="button" data-action="scripture">Open John 1</button>
-  </div>
-  <form id="companion-form" class="prompt-form">
-    <input name="prompt" aria-label="Ask the demo Companion" placeholder="Ask the demo Companion…" value="${escapeHtml(promptDraft)}" maxlength="400" required>
-    <button class="primary" type="submit" aria-label="Send to Companion">${icon("send")}</button>
-  </form>`;
-}
-
-const panels = {
-  actions: () => ["Quick actions", group(
-    row("Add a note", "Keep a thought from this study", "note", "gold", "note"),
-    row("Open Scripture", "John 1:1–5", "book", "blue", "scripture"),
-    row("Open Companion", "", "spark", "purple", "companion"),
-    row("Listen", "Read John 1 aloud", "headphones", "orange", "listen")
-  )],
-  "study-options": () => ["Study options", group(
-    row(library.saved ? "Remove saved passage" : "Save John 1:1–5", "", "bookmark", "gold", "save"),
-    row("Add a note", "", "note", "blue", "note"),
-    row("Compare with Genesis", "", "flip", "purple", "context")
-  )],
-  scripture: () => ["John 1:1–5", `<div class="prose">${passage()}</div>
-    <div class="chips">${inlineAction("Creation context", "compass", "context")}
-    ${inlineAction("Listen", "headphones", "listen")}${saveAction()}</div>`],
-  genesis: () => ["Genesis 1:1–3", `<div class="prose"><blockquote class="scripture">
-    <p><sup>1</sup>In the beginning God created the heaven and the earth.</p>
-    <p><sup>2</sup>And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.</p>
-    <p><sup>3</sup>And God said, Let there be light: and there was light.</p>
-    <cite>Genesis 1:1–3 · King James Version</cite>
-  </blockquote></div>${inlineAction("Open John 1:1–5", "book", "scripture")}`],
-  context: () => ["Creation echoes in John", `<div class="prose">
-    <p>John begins with the same opening phrase as Genesis. Genesis tells of God creating and speaking light into darkness. John introduces the Word, through whom all things were made, and connects life with light.</p>
-    <h3>A detail to look for</h3><p>Try marking each mention of beginning, light and darkness. Where does John add something new?</p>
-  </div><div class="chips">${inlineAction("Genesis 1:1–3", "book", "genesis")}${inlineAction("John 1:1–5", "book", "scripture")}</div>`],
-  discussion: () => ["Light in the darkness", `<div class="prose">
-    <p class="muted">Reading Circle · Sample discussion</p>
-    <h3>Mara H.</h3><p>I hadn’t noticed how quickly John moves from creation to life. What stood out to you when you read these verses with Genesis?</p>
-    <h3>Daniel R.</h3><p>The light keeps shining even with the darkness still there. That’s the line I took into the week.</p>
-  </div><div class="chips">${inlineAction("Read John 1:1–5", "book", "scripture")}${inlineAction("Keep a private note", "note", "note")}</div>`],
-  prayer: () => ["For our neighbors", `<div class="prose">
-    <p class="muted">Prayer · Sample discussion</p>
-    <h3>Nadia S.</h3><p>Our group is praying for the families moving into the apartment complex this week.</p>
-    <h3>Sam T.</h3><p>I’m praying for chances to offer a meal or help someone get settled.</p>
-  </div>${inlineAction("Keep a private note", "note", "note")}`],
-  library: () => ["Saved & notes", `${library.saved ? group(entry("scripture")) : '<p class="empty">Save a passage to find it here.</p>'}
-    ${library.notes.map(note => `<p class="bubble note">${escapeHtml(note)}</p>`).join("")}
-    ${inlineAction("Add a note", "note", "note")}`],
-  note: () => ["New note", `<form id="note-form" class="form">
-    <label for="note-input">Note for this study</label>
-    <textarea id="note-input" name="note" rows="4" maxlength="1200" required>${escapeHtml(noteDraft)}</textarea>
-    <button class="primary" type="submit">Save on this device</button>
-  </form>`],
-  search: () => ["Search", `<input id="search-input" type="search" aria-label="Search this prototype" placeholder="Try John, Genesis, or light"><div id="search-results"></div>`],
-  companion: () => ["Companion", companionContent()]
-};
-
-function renderPanel(focus = true) {
-  const [title, body] = panels[panel.key]();
-  panelTitle.textContent = title;
-  panelBody.innerHTML = body;
-  dialog.dataset.placement = ["actions", "study-options"].includes(panel.key) ? "menu" : "sheet";
-  backButton.hidden = historyStack.length === 0;
-  if (panel.key === "search") {
-    document.getElementById("search-input").value = panel.query || "";
-    renderSearch(panel.query || "");
-  }
-  panelBody.scrollTop = panel.scroll || 0;
-  if (focus) panelTitle.focus({ preventScroll: true });
-}
-
-function openPanel(key, opener) {
-  if (dialog.open) {
-    if (key === panel.key) return;
-    panel.scroll = panelBody.scrollTop;
-    historyStack.push(panel);
-  } else {
-    returnFocus = opener;
-  }
-  panel = { key };
-  renderPanel(false);
-  if (!dialog.open) dialog.showModal();
-  panelTitle.focus({ preventScroll: true });
-}
-
-function previousPanel() {
-  panel = historyStack.pop();
-  renderPanel();
-}
-
-function renderSearch(query) {
-  const normalized = query.trim().toLowerCase();
-  const matches = Object.keys(entries).filter(key =>
-    [entries[key].title, entries[key].detail].join(" ").toLowerCase().includes(normalized)
-  ).map(entry);
-  if ("genesis 1:1–3 scripture creation".includes(normalized)) {
-    matches.push(row("Genesis 1:1–3", "Scripture · Creation", "book", "blue", "genesis"));
-  }
-  document.getElementById("search-results").innerHTML = matches.length
-    ? group(...matches)
-    : '<p class="empty">No matching passages or discussions.</p>';
-}
-
-function notify(message) {
-  clearTimeout(toastTimer);
-  toast.textContent = message;
-  toastTimer = setTimeout(() => { toast.textContent = ""; }, 3200);
-}
-
-function updatePlayback(label, iconName, status) {
-  playback.setAttribute("aria-label", label);
-  playback.innerHTML = icon(iconName);
-  playerStatus.textContent = status;
-}
-
-function stopPlayer() {
-  speechRun = undefined;
-  speech?.cancel();
-  player.hidden = true;
-  updatePlayback("Play reading", "play", canNarrate ? "Read aloud" : "Read aloud unavailable");
-}
-
-function togglePlayback() {
-  if (speechRun && speech.paused) {
-    speech.resume();
-    updatePlayback("Pause reading", "pause", "Reading aloud");
-    return;
-  }
-  if (speechRun) {
-    speech.pause();
-    updatePlayback("Resume reading", "play", "Paused");
-    return;
-  }
-  const utterance = new SpeechSynthesisUtterance(verses.join(" "));
-  utterance.lang = "en-US";
-  utterance.rate = .9;
-  speechRun = utterance;
-  function finish(status) {
-    if (speechRun !== utterance) return;
-    speechRun = undefined;
-    updatePlayback("Play reading", "play", status);
-  }
-  utterance.onend = () => finish("Read aloud");
-  utterance.onerror = () => finish("Voice unavailable · Tap to retry");
-  updatePlayback("Pause reading", "pause", "Reading aloud");
-  speech.speak(utterance);
-}
-
-function respondToCompanion(question) {
-  const contextQuestion = /beginning|genesis|creat|word/i.test(question);
-  const lightQuestion = /light|dark/i.test(question);
-  const answer = contextQuestion
-    ? "John’s first words echo Genesis 1. Genesis opens with God creating, and John introduces the Word through whom creation came to be. Open John 1 and choose Creation context to compare the passages."
-    : lightQuestion
-      ? "John 1:4–5 connects life with light, then describes the light shining in darkness. Open the passage and look at what each verse adds."
-      : "This demo has prepared notes on John 1, creation, and light. Try asking about one of those topics.";
-  messages.push({ text: question, mine: true }, { text: answer });
-  promptDraft = "";
-  renderPanel(false);
-  document.querySelector("#companion-form input").focus({ preventScroll: true });
-  panelBody.scrollTop = panelBody.scrollHeight;
-}
-
-function toggleSaved(button) {
-  library.saved = !library.saved;
-  const persisted = persistLibrary();
-  if (panel?.key === "study-options") {
-    renderPanel();
-  } else {
-    button.setAttribute("aria-label", library.saved ? "Remove saved passage" : "Save passage");
-    button.innerHTML = icon(library.saved ? "check" : "bookmark");
-  }
-  const message = library.saved ? "Passage saved" : "Passage removed";
-  // A modal covers the app-level toast, so announce changes inside it.
-  if (dialog.open) {
-    let status = document.getElementById("panel-status");
-    if (!status) {
-      status = document.createElement("p");
-      status.id = "panel-status";
-      status.className = "muted";
-      status.setAttribute("role", "status");
-      panelBody.append(status);
+function appendData(container, value) {
+  if (Array.isArray(value)) {
+    const list = node('ul');
+    for (const item of value) {
+      const li = node('li');
+      appendData(li, item);
+      list.append(li);
     }
-    status.textContent = persisted ? message : message + " for this visit";
-  } else {
-    notify(persisted ? message : message + " for this visit");
+    container.append(list);
+  } else if (value && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) {
+      if (item === null || item === '' || item === undefined) continue;
+      const section = node('div');
+      section.append(node('h3', title(key)));
+      appendData(section, item);
+      container.append(section);
+    }
+  } else if (typeof value === 'string' || typeof value === 'number') {
+    const phrase = String(value);
+    if (webUrl(phrase)) container.append(link('Open source ↗', phrase));
+    else if (/\.(mp3|pdf|html)$/i.test(phrase)) container.append(text(phrase + ' · Local source asset unavailable'));
+    else container.append(text(phrase, 'source-copy'));
+  }
+}
+function readRoute() {
+  const params = new URL(location.href).searchParams;
+  const names = { bereshit: 1, noach: 2, 'lech-lecha': 3 };
+  const selected = Number(params.get('week')) || names[params.get('study')];
+  return {
+    week: Number.isInteger(selected) && selected >= 1 && selected <= WEEK_COUNT ? selected : cycleWeek,
+    face: params.get('face') === 'fellowship' ? 'fellowship' : 'study',
+  };
+}
+function changeRoute(selected, nextFace) {
+  if (selected === week && nextFace === face) return;
+  const url = new URL(location.href);
+  url.searchParams.delete('study');
+  if (selected === cycleWeek) url.searchParams.delete('week');
+  else url.searchParams.set('week', selected);
+  if (nextFace === 'study') url.searchParams.delete('face');
+  else url.searchParams.set('face', nextFace);
+  history.pushState({ panels: [] }, '', url);
+  applyRoute();
+}
+function dayRow(number = active?.day) {
+  return catalog?.daily.find((item) => +item.week === week && +item.day_number === number);
+}
+const weekLine = () => `Week ${week} · ${active?.row.portion_transliteration ?? 'Weekly study'}`;
+const defaultRef = () => dayRow()?.torah_daily_reading || active?.row.torah_reading || 'John 1';
+const passage = (ref, source) => open('reader', { ref, source });
+const currentSurface = () => face === 'study' ? study : fellowship;
+
+async function applyRoute() {
+  const target = readRoute();
+  if (target.face !== face && currentSurface().contains(document.activeElement)) {
+    $('flip').focus({ preventScroll: true });
+  }
+  showFace(target.face);
+  if (week === target.week && active?.content) return;
+  const sequence = ++renderSequence;
+  if (active?.content) {
+    active.scroll = [study.scrollTop, fellowship.scrollTop];
+    active.openSections = [...study.querySelectorAll('details[open]')].map((detail) => detail.dataset.section);
+  }
+  week = target.week;
+  if (!sessions.has(week)) sessions.set(week, {
+    day: today, row: catalog.weekly.find((item) => +item.week === week), scroll: [0, 0],
+    openSections: [], year: liveYear,
+  });
+  active = sessions.get(week);
+  $('week-button').textContent = `Week ${week} ⌄`;
+  study.replaceChildren(text('Opening the weekly study…', 'loading'));
+  fellowship.replaceChildren(text('Opening study discussion…', 'loading'));
+  try {
+    const content = await getWeek(week);
+    if (sequence !== renderSequence) return;
+    active.content = content;
+    renderStudy();
+    renderFellowship();
+    [study.scrollTop, fellowship.scrollTop] = active.scroll;
+  } catch {
+    if (sequence !== renderSequence) return;
+    study.replaceChildren(text('The weekly study could not load.', 'loading'), button('Try again', applyRoute));
+    fellowship.replaceChildren(text('The weekly study could not load.', 'loading'));
   }
 }
 
-function refreshScreen(focusSelector) {
-  const top = screen.scrollTop;
-  renderScreen();
-  screen.scrollTop = top;
-  screen.querySelector(focusSelector)?.focus({ preventScroll: true });
+function showFace(next) {
+  face = next;
+  $('stage').dataset.face = face;
+  const back = face === 'fellowship';
+  study.inert = back;
+  study.setAttribute('aria-hidden', String(back));
+  fellowship.inert = !back;
+  fellowship.setAttribute('aria-hidden', String(!back));
+  $('flip').setAttribute('aria-pressed', String(back));
+  $('flip').innerHTML = back ? 'Back to study <span aria-hidden="true">⇄</span>' : 'Study discussion <span aria-hidden="true">⇄</span>';
+  $('tools-button').hidden = back;
+  $('notes-button').hidden = back;
+  $('flip').classList.toggle('only', back);
+  updateGamesEntry();
 }
 
-document.addEventListener("click", event => {
-  const button = event.target.closest("button");
-  if (!button) return;
-  const { tab, face, filter, action } = button.dataset;
-  if (tab) {
-    changeTab(tab);
-  } else if (face || action === "flip") {
-    studyFace = face || (studyFace === "reading" ? "context" : "reading");
-    refreshScreen(face ? `[data-face="${studyFace}"]` : '[data-action="flip"]');
-  } else if (filter) {
-    fellowshipFilter = filter;
-    refreshScreen(`[data-filter="${filter}"]`);
-  } else if (action === "listen") {
-    if (dialog.open) dialog.close();
-    player.hidden = false;
-    if (canNarrate && !speechRun) togglePlayback();
-    const playerControl = canNarrate ? playback : player.querySelector('[data-action="stop-player"]');
-    playerControl.focus({ preventScroll: true });
-  } else if (action === "stop-player") {
-    stopPlayer();
-    document.querySelector(".companion-launch").focus({ preventScroll: true });
-  } else if (action === "save") {
-    toggleSaved(button);
-  } else if (action === "companion-context") {
-    respondToCompanion("Why does John start with “in the beginning”?");
-  } else if (Object.hasOwn(panels, action)) {
-    openPanel(action, button);
-  }
-});
+function updateGamesEntry() {
+  const control = $('games-button');
+  const available = face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
+  control.hidden = !available;
+  control.parentElement.dataset.games = String(available);
+}
 
-dialog.addEventListener("click", event => {
-  if (event.target === dialog) dialog.close();
-});
-document.getElementById("panel-close").addEventListener("click", () => dialog.close());
-backButton.addEventListener("click", previousPanel);
-dialog.addEventListener("close", () => {
-  historyStack.length = 0;
-  panel = undefined;
-  if (document.activeElement === document.body || dialog.contains(document.activeElement)) {
-    const destination = returnFocus?.isConnected ? returnFocus : document.getElementById("screen-title");
-    destination.focus({ preventScroll: true });
+function openFellowshipGames() {
+  if (!$('games-button').hidden) open('games', { scope: threadKey() });
+}
+
+function renderStudy() {
+  const { row: data, content } = active;
+  const inner = node('article', '', 'sheet');
+  const theme = catalog.themes.get(week) || data.theme_title;
+  const portion = [data.portion_transliteration, data.title_hebrew].filter(Boolean).join(' · ');
+  inner.append(renderIntro('study-title', week === cycleWeek ? `This week · ${week} / 52` : `Weekly study · ${week} / 52`,
+    data.title_english || content.english, portion, theme));
+  const daily = node('section', '', 'today');
+  const selection = dayRow();
+  const progress = node('div', '', 'progress');
+  progress.setAttribute('aria-hidden', 'true');
+  for (let day = 1; day <= 7; day++) progress.append(node('span', '', day <= active.day ? 'past' : ''));
+  daily.append(node('p', (week === cycleWeek && active.day === today ? 'Today · ' : '') + dayNames[active.day - 1], 'eyebrow'),
+    node('h2', selection?.torah_daily_reading || 'Daily reading unavailable'),
+    cluster(button('Read passage', () => passage(defaultRef(), dayRow()?.sefaria_bilingual_link), 'button primary'),
+      button('Daily schedule', () => open('days'), 'quiet')),
+    progress, text(`Day ${active.day} of 7 · Torah reading`));
+  if (week === cycleWeek && active.day === today) {
+    daily.append(button('Calendar', () => open('calendar'), 'quiet today-calendar'));
   }
-  returnFocus = undefined;
-});
-dialog.addEventListener("input", event => {
-  const field = event.target;
-  if (field.id === "search-input") {
-    panel.query = field.value;
-    renderSearch(panel.query);
+  inner.append(daily);
+
+  const stack = node('div', '', 'stack');
+  const referenceRows = [['Torah', data.torah_reading], ['Prophets / Writings', data.haftarah_prophets_writings], ['New Testament', data.new_testament]];
+  const references = node('div', '', 'references');
+  for (const [area, ref] of referenceRows) {
+    if (!ref || /^none\b/i.test(ref)) continue;
+    const line = node('div', '', 'ref-row');
+    line.append(text(area), button(ref, () => passage(ref), 'button'));
+    references.append(line);
   }
-  if (field.name === "prompt") promptDraft = field.value;
-  if (field.name === "note") noteDraft = field.value;
+  const weekSources = cluster(...Object.entries(LANGUAGES).map(([language, label]) =>
+    button(label, () => open('weeklyText', { language }), 'quiet')));
+  if (data.tlv_link) weekSources.append(link('TLV ↗', data.tlv_link));
+  if (data.companion_reading_source_url) weekSources.append(link('Companion reading ↗', data.companion_reading_source_url));
+  if (data.apocrypha_link) weekSources.append(link('Apocrypha ↗', data.apocrypha_link));
+  stack.append(disclosure('Weekly Scripture', references, weekSources));
+  const context = content.intro?.instructions ? text(content.intro.instructions, 'source-copy') : text('Explore the weekly teaching and outlined readings.');
+  stack.append(disclosure('Study guide', ...(content.intro?.summary ? [text(content.intro.summary, 'source-copy')] : []), context,
+    row('Chapter outlines', 'Browse sections and open a reference', () => open('outline')),
+    row('Commentary', 'Weekly notes and source article', () => open('commentary')),
+    row('Teaching & resources', 'Deeper learning, children, languages and Psalms', () => open('resources'))));
+  const slug = nameKey(data.portion_transliteration);
+  stack.append(disclosure('Listen', row('Scripture audio', 'Source recordings grouped by section', () => open('listen')),
+    ORIENTATIONS.includes(slug)
+      ? row('Weekly orientation', 'HomeGroups audio · plays in the dock', () => playAudio('./corpus/assets/' + slug + '.mp3', 'Weekly orientation · ' + data.portion_transliteration))
+      : text('The source has no bundled weekly orientation for this portion.')));
+  [...stack.children].forEach((item, index) => {
+    item.dataset.section = String(index);
+    item.open = active.openSections.includes(item.dataset.section);
+  });
+  inner.append(stack, text('Weekly cycle based on the HomeGroups reading schedule.', 'meta'));
+  study.replaceChildren(inner);
+}
+
+const preparednessSections = {
+  preparedness: 'workspace', prepLibrary: 'library', prepDocument: 'document', prepRadio: 'radio',
+  prepMap: 'map', prepPrayer: 'prayer', prepResearch: 'research', prepContacts: 'contacts',
+};
+const preparednessRoutes = Object.fromEntries(Object.entries(preparednessSections).map(([type, section]) => [section, type]));
+const legacyPreparedness = { beready: 'prepLibrary', amateurradio: 'prepRadio', radiomap: 'prepMap', prayermap: 'prepPrayer' };
+const learningCards = { learning: 'learning', learningPaths: 'discipleship', learningJourney: 'discipleship',
+  learningArticles: 'articles', learningArticle: 'articles', languageLab: 'language-lab', visualTeachings: 'prezis',
+  topicalTeachings: 'teachings', jesus: 'jesus', origins: 'origins', assessments: 'quizzes',
+  sourcesLibrary: 'sources', research: 'investigations', article: 'investigations', researchBacklog: 'investigations',
+  intertext: 'intertext-quotes', translation: 'scripture', listenShelf: 'listen', listenArticle: 'listen',
+  ancientLibrary: 'ancient-library', ancientDetail: 'ancient-library', ancientRead: 'ancient-library' };
+const referenceFields = { research: ['ref'], article: ['id', 'file', 'anchor'], intertext: ['from'], translation: ['ref'],
+  listenArticle: ['id'], ancientDetail: ['book'], ancientRead: ['book', 'work', 'volume', 'chapter', 'verse', 'q'] };
+const panelParameters = ['card', 'covenant', 'id', 'ref', 'book', 'chapter', 'section', 'zone', 'folder', 'category', 'view', 'file', 'journey', 'language',
+  'from', 'work', 'volume', 'verse', 'q', 'anchor', 'video', 'debate', ...calendarFields];
+const studyCards = { law: 'commandments', covenant: 'commandments', commandment: 'commandments', nt: 'nt', sefaria: 'sefaria',
+  people: 'people', person: 'people', teaching: 'people', debate: 'people' };
+const studyCardFields = {
+  covenant: ['covenant'], commandment: ['id'], sefaria: ['ref'],
+  person: ['id'], teaching: ['id', 'video'], debate: ['debate'],
+};
+function excursionUrl(type, data) {
+  const url = new URL(location.href);
+  if (Object.hasOwn(calendarCards, type)) {
+    for (const key of panelParameters) url.searchParams.delete(key);
+    url.searchParams.set('card', calendarCards[type]);
+    for (const key of calendarFields) if (data[key]) url.searchParams.set(key, data[key]);
+    return url;
+  }
+  if (Object.hasOwn(preparednessSections, type)) {
+    for (const key of panelParameters) url.searchParams.delete(key);
+    url.searchParams.set('card', 'preparedness');
+    url.searchParams.set('section', preparednessSections[type]);
+    for (const key of ['id', 'zone', 'folder', 'category']) {
+      if (data[key]) url.searchParams.set(key, data[key]);
+    }
+    if (data.initial) url.searchParams.set('view', data.initial);
+    return url;
+  }
+  if (Object.hasOwn(learningCards, type)) {
+    for (const key of panelParameters) url.searchParams.delete(key);
+    url.searchParams.set('card', learningCards[type]);
+    if (type === 'learningArticle' && data.file) {
+      url.searchParams.set('file', data.file + (data.anchor ? '#' + encodeURIComponent(data.anchor) : ''));
+    }
+    if (type === 'learningJourney' && data.journey) url.searchParams.set('journey', data.journey);
+    if (type === 'languageLab' && data.language) url.searchParams.set('language', data.language);
+    if (type === 'researchBacklog') url.searchParams.set('view', 'backlog');
+    for (const field of referenceFields[type] ?? []) if (data[field]) url.searchParams.set(field, data[field]);
+    return url;
+  }
+  if (!Object.hasOwn(studyCards, type)) return url;
+  for (const key of panelParameters) url.searchParams.delete(key);
+  url.searchParams.set('card', studyCards[type]);
+  const fields = type === 'nt' ? (data.ref ? ['ref'] : ['book', 'chapter']) : studyCardFields[type] ?? [];
+  for (const field of fields) if (data[field]) url.searchParams.set(field, data[field]);
+  return url;
+}
+async function openLinkedStudyCard() {
+  const url = new URL(location.href);
+  const { searchParams } = url;
+  const card = searchParams.get('card');
+  let type;
+  let data = {};
+  if (card === 'preparedness' || Object.hasOwn(legacyPreparedness, card)) {
+    const section = searchParams.get('section');
+    type = card === 'preparedness' ? (Object.hasOwn(preparednessRoutes, section) ? preparednessRoutes[section] : 'preparedness') :
+      legacyPreparedness[card];
+    data = Object.fromEntries(['id', 'zone', 'folder', 'category'].map(key => [key, searchParams.get(key) || '']));
+    data.initial = searchParams.get('view') || 'plan';
+  } else if (Object.values(calendarCards).includes(card)) {
+    const route = await calendarRoute(card, searchParams);
+    if (url.href !== location.href || frames.length) return;
+    ({ type, data } = route);
+  } else if (card === 'learning') {
+    type = 'learning';
+  } else if (card === 'language-lab' || card === 'alephbet' || card === 'greekalphabet') {
+    type = 'languageLab';
+    data = { language: card === 'greekalphabet' || (card === 'language-lab' && searchParams.get('language') === 'greek') ? 'greek' : 'hebrew' };
+  } else if (card === 'prezis') {
+    type = 'visualTeachings';
+  } else if (card === 'teachings') {
+    type = 'topicalTeachings';
+  } else if (card === 'quizzes') {
+    type = 'assessments';
+  } else if (card === 'sources') {
+    type = 'sourcesLibrary';
+  } else if (card === 'investigations') {
+    const id = searchParams.get('id');
+    const [file, legacyAnchor] = (searchParams.get('file') ?? '').split('#', 2);
+    type = id || file ? 'article' : searchParams.get('view') === 'backlog' ? 'researchBacklog' : 'research';
+    data = { id, file, ref: searchParams.get('ref'), anchor: searchParams.get('anchor') || legacyAnchor || url.hash.slice(1) };
+    url.hash = '';
+  } else if (card === 'intertext-quotes') {
+    type = 'intertext';
+    data = { from: searchParams.get('from') };
+  } else if (card === 'scripture' || card === 'interlinear') {
+    type = 'translation';
+    data = { ref: searchParams.get('ref') };
+  } else if (card === 'listen') {
+    const id = searchParams.get('id');
+    type = id ? 'listenArticle' : 'listenShelf';
+    data = { id };
+  } else if (card === 'ancient-library') {
+    data = Object.fromEntries(['book', 'work', 'volume', 'chapter', 'verse', 'q'].map(key => [key, searchParams.get(key)]));
+    data.verse ||= /^#al-verse-([\w-]+)$/.exec(url.hash)?.[1];
+    type = data.book ? data.chapter ? 'ancientRead' : 'ancientDetail' : 'ancientLibrary';
+    url.hash = '';
+  } else if (card === 'jesus' || card === 'origins') {
+    type = card;
+  } else if (card === 'discipleship') {
+    const journey = searchParams.get('journey');
+    type = journey ? 'learningJourney' : 'learningPaths';
+    data = { journey };
+  } else if (card === 'articles') {
+    const file = searchParams.get('file');
+    type = file ? 'learningArticle' : 'learningArticles';
+    if (file) {
+      data = articleLocation(file.includes('#') ? file : file + url.hash);
+      url.hash = '';
+    }
+  } else if (['people', 'scholars', 'missler'].includes(card)) {
+    const id = searchParams.get('id') || (card === 'missler' ? 'chuck-missler' : '');
+    const video = searchParams.get('video');
+    const debate = searchParams.get('debate');
+    type = debate ? 'debate' : id && video ? 'teaching' : id ? 'person' : 'people';
+    data = debate ? { debate } : { id, video };
+  } else if (card === 'commandments') {
+    const covenant = searchParams.get('covenant');
+    const id = searchParams.get('id');
+    type = id ? 'commandment' : covenant ? 'covenant' : 'law';
+    data = id ? { id } : covenant ? { covenant } : {};
+  } else if (card === 'nt') {
+    type = 'nt';
+    data = { ref: searchParams.get('ref') || '', book: searchParams.get('book') || '', chapter: Number(searchParams.get('chapter')) || 1 };
+  } else if (card === 'sefaria') {
+    type = 'sefaria';
+    data = { ref: searchParams.get('ref') || '' };
+  }
+  if (!type) return;
+  for (const key of panelParameters) searchParams.delete(key);
+  history.replaceState({ panels: [] }, '', url);
+  if (type === 'calendarEvent') open('calendar', { model: data.model });
+  open(type, data);
+}
+
+function open(type, data = {}) {
+  if (!active?.content || pendingClose) return;
+  if (!frames.length) origin = { opener: document.activeElement === document.body ? $('tools-button') : document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
+  else saveFrame(frames.at(-1));
+  const frame = { id: ++frameSequence, type, data, top: 0, expanded: type === 'games' || type === 'preparedness' };
+  frames.push(frame);
+  historyFrames.set(frame.id, frame);
+  history.pushState({ panels: frames.map(({ id }) => id) }, '', excursionUrl(type, data));
+  if (!dialog.open) dialog.showModal();
+  renderPanel(frame);
+}
+function saveFrame(frame) {
+  frame.top = panel.scrollTop;
+  frame.content = [...panel.childNodes];
+  frame.focus = panel.contains(document.activeElement) ? document.activeElement : null;
+}
+function closePanels(after) {
+  if (!frames.length || pendingClose) return;
+  pendingClose = after ?? (() => {});
+  history.go(-frames.length);
+}
+function backPanel() {
+  if (frames.length && !pendingClose) history.back();
+}
+window.addEventListener('popstate', () => {
+  const matchingRoute = readRoute();
+  const ids = matchingRoute.week === week && matchingRoute.face === face ? history.state?.panels ?? [] : [];
+  if (frames.length) saveFrame(frames.at(-1));
+  if (ids.length && ids.every((id) => historyFrames.has(id))) {
+    if (!origin) origin = { opener: document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
+    frames.splice(0, frames.length, ...ids.map((id) => historyFrames.get(id)));
+    if (!dialog.open) dialog.showModal();
+    renderPanel(frames.at(-1));
+  } else if (dialog.open) {
+    frames.length = 0;
+    dialog.close();
+    origin?.opener?.focus({ preventScroll: true });
+    if (origin?.view) origin.view.scrollTop = origin.top;
+    origin = null;
+  }
+  const after = pendingClose;
+  pendingClose = null;
+  if (after) after();
+  else if (catalog) applyRoute();
 });
-dialog.addEventListener("submit", event => {
+dialog.addEventListener('cancel', (event) => {
   event.preventDefault();
-  const form = event.target;
-  const field = form.elements.namedItem(form.id === "note-form" ? "note" : "prompt");
-  const value = field.value.trim();
-  if (!value) {
-    field.focus();
-    return;
+  backPanel();
+});
+$('back').addEventListener('click', backPanel);
+$('close').addEventListener('click', () => closePanels());
+$('expand').addEventListener('click', () => {
+  const frame = frames.at(-1);
+  if (!frame) return;
+  frame.expanded = !frame.expanded;
+  sizePanel(frame);
+});
+function sizePanel(frame) {
+  const full = studyCards[frame.type] === 'commandments' || Object.hasOwn(preparednessSections, frame.type) ||
+    ['learningArticle', 'learningJourney', 'languageLab', 'visualTeachings', 'jesus', 'origins', 'assessments',
+      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle'].includes(frame.type);
+  dialog.dataset.workspace = String(full);
+  dialog.dataset.expanded = String(full || frame.expanded);
+  $('expand').hidden = full;
+  $('expand').setAttribute('aria-pressed', String(frame.expanded));
+  $('expand').textContent = frame.expanded ? 'Shrink' : 'Expand';
+}
+const panelNames = {
+  weeks: 'Choose week', days: 'Daily schedule', tools: 'Study tools', reader: 'Passage reader',
+  verse: 'Passage tools', weeklyText: 'Weekly Scripture', outline: 'Chapter outlines',
+  commentary: 'Weekly commentary', resources: 'Teaching & resources', listen: 'Scripture audio',
+  research: 'Investigations', article: 'Investigation', calendar: 'Calendar studies',
+  calendarEvent: 'Appointed time', fallFeasts: 'Fall Feasts', sukkotCount: 'Sukkot Count',
+  omerCount: 'Omer Count', sacredTime: 'Sacred Time and Biblical History',
+  learning: 'Learning Hub', learningPaths: 'Learning Paths', learningJourney: 'Learning Path',
+  learningArticles: 'Articles', learningArticle: 'Article',
+  languageLab: 'Language Lab', visualTeachings: 'Visual Teachings',
+  topicalTeachings: 'Topical Teachings', jesus: 'Who Is Jesus?', origins: 'Origins',
+  originsDetail: 'Origins notes', assessments: 'Assessments',
+  sourcesLibrary: 'Sources Library', researchBacklog: 'Research backlog',
+  intertext: 'Intertext Explorer', translation: 'Translation Explorer',
+  listenShelf: 'Listen', listenArticle: 'Listen',
+  ancientLibrary: 'Ancient Library', ancientDetail: 'Ancient Library', ancientRead: 'Ancient Library reader',
+  games: 'Invite to Game', preparedness: 'Preparedness', practiceListen: 'Practice recording',
+  practicePlan: 'Practice plan', practiceReadback: 'Practice a read-back',
+  prepLibrary: 'Be Ready library', prepDocument: 'Catalog record', prepRadio: 'Amateur radio resources',
+  prepMap: 'Radio Network Map', prepPrayer: 'Prayer Map', prepResearch: 'Preparedness research', prepContacts: 'Practice contact log',
+  note: 'Personal notes', private: 'Private conversations', dm: 'Private conversation',
+  archive: 'Discussion archives', alignment: 'Interlinear', attach: 'Attach a passage',
+  law: 'Covenants & Commandments', covenant: 'Covenant', commandment: 'Commandment',
+  nt: 'New Testament Notes', sefaria: 'Hebrew Library · Sefaria',
+  people: 'Teachers & Scholars', person: 'Contributor profile', teaching: 'Teaching', debate: 'Debate',
+};
+function activeFrame(frame) {
+  return dialog.open && frames.at(-1) === frame;
+}
+function renderPanel(frame) {
+  $('panel-title').textContent = panelNames[frame.type];
+  $('panel-kicker').textContent = frame.type === 'dm' ? 'Local simulation' :
+    frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
+    Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
+    Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
+  $('back').hidden = frames.length < 2;
+  sizePanel(frame);
+  panel.replaceChildren(...(frame.content ?? []));
+  if (!frame.content || frame.retry) {
+    frame.retry = false;
+    const target = node('div', '', 'panel-content');
+    panel.replaceChildren(target);
+    Promise.resolve().then(() => views[frame.type](target, frame)).catch(() => {
+      target.replaceChildren(text('This source could not be opened.'), button('Try again', () => {
+        if (!activeFrame(frame)) return;
+        frame.content = null;
+        renderPanel(frame);
+      }));
+    });
   }
-  if (form.id === "companion-form") {
-    respondToCompanion(value);
-  } else {
-    library.notes.push(value);
-    const persisted = persistLibrary();
-    noteDraft = "";
-    panel = { key: "library" };
-    renderPanel();
-    const status = document.createElement("p");
-    status.className = "muted";
-    status.setAttribute("role", "status");
-    status.textContent = persisted ? "Note saved on this device" : "Note saved for this visit";
-    panelBody.prepend(status);
-  }
+  frame.refresh?.();
+  panel.scrollTop = frame.top;
+  const focus = frame.focus?.isConnected ? frame.focus : $('panel-title');
+  focus.focus({ preventScroll: true });
+}
+setInterval(() => frames.at(-1)?.refresh?.(), 60_000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) frames.at(-1)?.refresh?.();
 });
 
-playback.addEventListener("click", togglePlayback);
-if (!canNarrate) {
-  playback.disabled = true;
-  playerStatus.textContent = "Read aloud unavailable";
+function setDay(day) {
+  active.openSections = [...study.querySelectorAll('details[open]')].map((detail) => detail.dataset.section);
+  const oldTop = study.scrollTop;
+  const trigger = document.activeElement;
+  active.day = day;
+  renderStudy();
+  [...study.querySelectorAll('.today button')].find((item) => item.textContent === trigger?.textContent)
+    ?.focus({ preventScroll: true });
+  study.scrollTop = oldTop;
 }
-window.addEventListener("pagehide", stopPlayer);
-changeTab("home", false);
+function renderReferenceForm(container, reference, go, label = 'Scripture reference') {
+  const form = node('form');
+  const input = node('input');
+  input.required = true;
+  input.maxLength = 180;
+  input.value = reference;
+  const field = node('label', label);
+  field.append(input);
+  const submit = node('button', label === 'Passage to attach' ? 'Attach Scripture' : 'Open passage', 'button primary');
+  form.append(field, submit);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (input.value.trim()) go(input.value.trim());
+  });
+  container.append(form);
+  return input;
+}
+
+const allowed = new Set('article section div span p h1 h2 h3 h4 h5 h6 b strong i em u s small sup sub ul ol li hr br table thead tbody tr th td blockquote pre code bdi bdo a details summary'.split(' '));
+const ignored = new Set('script style iframe object embed link meta title head noscript template svg canvas input form button img audio video'.split(' '));
+function importLegacy(html, options = {}) {
+  // A template keeps the source inert. Rebuild text and reviewed tags with no copied event handlers or resources.
+  const template = node('template');
+  template.innerHTML = html;
+  const root = node('article', '', 'legacy-text');
+  function transfer(from, to) {
+    for (const original of from.childNodes) {
+      if (original.nodeType === Node.TEXT_NODE) {
+        to.append(document.createTextNode(original.textContent));
+      } else if (original.nodeType === Node.ELEMENT_NODE && original.localName === 'img' && options.image) {
+        const imageLink = options.image(original);
+        if (imageLink) to.append(imageLink);
+      } else if (original.nodeType === Node.ELEMENT_NODE && original.localName === 'button' && options.button) {
+        const control = options.button(original);
+        if (control) to.append(control);
+      } else if (original.nodeType === Node.ELEMENT_NODE && !ignored.has(original.localName)) {
+        if (!allowed.has(original.localName)) {
+          transfer(original, to);
+          continue;
+        }
+        const copied = node(original.localName);
+        options.decorate?.(original, copied);
+        if (original.localName === 'a' && options.anchor) {
+          options.anchor(original, copied);
+        } else if (original.localName === 'a' && webUrl(original.getAttribute('href'))) {
+          Object.assign(copied, { href: webUrl(original.getAttribute('href')), target: '_blank', rel: 'noopener noreferrer' });
+        }
+        if (original.classList.contains('scripture-box')) copied.className = 'scripture-box';
+        if (['ltr', 'rtl', 'auto'].includes(original.dir)) copied.dir = original.dir;
+        if (/^[a-z-]{2,12}$/i.test(original.lang)) copied.lang = original.lang;
+        transfer(original, copied);
+        to.append(copied);
+      }
+    }
+  }
+  transfer(template.content, root);
+  return root;
+}
+
+function playAudio(url, label) {
+  const source = url.startsWith('./corpus/assets/') ? url : webUrl(url);
+  if (!source) return;
+  $('player').hidden = false;
+  $('playing').textContent = label;
+  $('audio-status').textContent = source.startsWith('./') ? 'HomeGroups recording' : 'External recording';
+  if (audio.getAttribute('src') !== source) audio.src = source;
+  audio.play().catch(() => {
+    if (!audio.error && audio.getAttribute('src') === source) $('audio-status').textContent = 'Use Play to start the recording.';
+  });
+}
+audio.addEventListener('error', () => {
+  if (audio.hasAttribute('src')) $('audio-status').textContent = 'This recording is unavailable.';
+});
+$('stop-audio').addEventListener('click', () => {
+  audio.pause();
+  audio.removeAttribute('src');
+  audio.load();
+  $('player').hidden = true;
+});
+
+function posts(key) {
+  return ledger.posts[key] ?? [];
+}
+function threadKey(year = active.year) {
+  return `group:${year}:${week}`;
+}
+function post(author, body, ref = '') {
+  const item = node('article', '', 'message');
+  item.append(node('strong', author), text(body, 'source-copy'));
+  if (ref) item.append(button(ref, () => passage(ref)));
+  return item;
+}
+function composer(host, key, addPost, isPrivate = false) {
+  const form = node('form');
+  const label = node('label', isPrivate ? 'Message' : 'Reply');
+  const field = node('textarea');
+  const draft = ledger.drafts[key] ??= {};
+  field.value = draft.body ?? '';
+  field.maxLength = 1600;
+  label.append(field);
+  const status = text('Prototype data · stored on this device.', 'form-caption');
+  const attachment = node('div');
+  function updateAttachment() {
+    attachment.replaceChildren();
+    if (draft.ref) attachment.append(text('Attached · ' + draft.ref),
+      button('Remove attachment', () => {
+        delete draft.ref;
+        saveLocal(ledger);
+        updateAttachment();
+      }, 'quiet'));
+  }
+  updateAttachment();
+  field.addEventListener('input', () => {
+    draft.body = field.value;
+    if (!saveLocal(ledger)) status.textContent = 'Storage is unavailable. This draft is kept for this session.';
+  });
+  const submit = node('button', isPrivate ? 'Save demo message' : 'Post demo reply', 'button primary');
+  form.append(label, attachment, cluster(button('Attach Scripture', () => open('attach', { draft, updateAttachment })), submit), status);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const message = field.value.trim();
+    if (!message && !draft.ref) {
+      field.focus();
+      return;
+    }
+    const item = { body: message, ref: draft.ref ?? '' };
+    (ledger.posts[key] ??= []).push(item);
+    draft.body = '';
+    delete draft.ref;
+    field.value = '';
+    updateAttachment();
+    const saved = saveLocal(ledger);
+    addPost(item);
+    status.textContent = saved ? 'Saved on this device.' : 'Saved for this session only.';
+  });
+  host.append(form);
+}
+
+function renderFellowship() {
+  const { row: data, year } = active;
+  const archive = year !== liveYear;
+  const inner = node('article', '', 'sheet');
+  inner.append(renderIntro('fellowship-title', `Fellowship · ${year}`, 'Study discussion',
+    `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
+  inner.append(cluster(...(archive ? [] : [button('Preparedness', () => open('preparedness', { initial: 'group' }), 'button primary')]),
+    button('Discussion archives', () => open('archive')), archive
+    ? button('Return to ' + liveYear, () => selectYear(liveYear), 'quiet')
+    : button('Private conversations', () => open('private'), 'quiet')));
+  const group = fixture(year, week, liveYear, cycleWeek, data.portion_transliteration, data.torah_reading);
+  const key = threadKey();
+  const section = node('section', '', 'thread-card');
+  const messages = node('div');
+  if (group) {
+    section.append(node('p', archive ? 'Archived sample thread' : 'Sample group · Prototype', 'eyebrow'),
+      node('h2', group.name));
+    messages.append(post('Miriam Ellis', group.opening, group.reference), post('Daniel Brooks', group.reply));
+  } else {
+    section.append(node('h2', 'No discussion yet'), text(archive
+      ? 'There is no sample discussion for this year and study.'
+      : 'Start a local discussion for this year’s study.'));
+  }
+  for (const item of posts(key)) messages.append(post('You · Demo', item.body, item.ref));
+  section.append(messages);
+  if (!archive) composer(section, key, (item) => messages.append(post('You · Demo', item.body, item.ref)));
+  else section.append(text('Archive · Read only'));
+  section.style.marginTop = '14px';
+  inner.append(section);
+  fellowship.replaceChildren(inner);
+  updateGamesEntry();
+}
+
+function selectYear(year) {
+  active.year = year;
+  renderFellowship();
+  fellowship.scrollTop = 0;
+  if (face === 'fellowship') $('fellowship-title')?.setAttribute('tabindex', '-1');
+  if (face === 'fellowship') $('fellowship-title')?.focus({ preventScroll: true });
+}
+
+const views = {
+  ...createPeopleViews({ node, text, button, link, cluster, row, disclosure, open }),
+  games: createGameView({ node, text, button, cluster, row, disclosure, members, passage }),
+  ...createPreparednessViews({ node, text, button, cluster, disclosure, link, open }),
+  ...createLibraryViews({ node, text, button, cluster, disclosure, link, open }),
+  ...createMapViews({ node, text, button, cluster, disclosure, link, open }),
+  ...createRadioViews({ node, text, button, cluster, disclosure, link, open }),
+  ...createLearningViews({ node, text, button, row, cluster, disclosure, link, open, importLegacy }),
+  ...createLearningEnrichment({ node, text, button, row, cluster, disclosure, link }),
+  ...createTopicalViews({ node, text, button, row, cluster, disclosure, open, importLegacy }),
+  ...createReferenceViews({ node, text, button, row, cluster, disclosure, link, open, importLegacy, defaultRef }),
+  ...createAncientViews({ node, text, button, row, cluster, disclosure, link, open }),
+  ...createCalendarViews({ node, text, button, row, cluster, disclosure, link, open, passage,
+    supplemental: () => catalog.extra, updateUrl(frame) {
+      if (activeFrame(frame)) history.replaceState(history.state, '', excursionUrl(frame.type, frame.data));
+    },
+  }),
+  ...createStudyTools({
+    node, text, button, link, cluster, disclosure, row, open, passage,
+    safeText: (html) => importLegacy(html).textContent,
+  }),
+  weeks(target) {
+    const list = node('div', '', 'rows');
+    const select = (chosen) => closePanels(() => changeRoute(chosen, face));
+    const previous = button('Previous week', () => select(week - 1), 'quiet');
+    previous.disabled = week === 1;
+    const next = button('Next week', () => select(week + 1), 'quiet');
+    next.disabled = week === WEEK_COUNT;
+    target.append(cluster(button('This week', () => {
+      closePanels(() => {
+        if (face === 'fellowship' && week === cycleWeek) selectYear(liveYear);
+        changeRoute(cycleWeek, face);
+      });
+    }, 'button primary'), previous, next));
+    for (const item of catalog.weekly) {
+      const option = row(`${item.week} · ${item.portion_transliteration}`, item.title_english + (+item.week === cycleWeek ? ' · Current' : ''),
+        () => select(+item.week));
+      if (+item.week === week) option.setAttribute('aria-current', 'true');
+      list.append(option);
+    }
+    target.append(list);
+  },
+  days(target) {
+    const list = node('div', '', 'rows');
+    for (let day = 1; day <= 7; day++) {
+      const item = dayRow(day);
+      const option = row(`${dayNames[day - 1]} · Day ${day}`, item?.torah_daily_reading ?? 'No source row',
+        () => closePanels(() => setDay(day)));
+      if (day === active.day) option.setAttribute('aria-current', 'true');
+      list.append(option);
+    }
+    target.append(list);
+  },
+  tools(target) {
+    target.append(text('Start with this week’s reading, or enter another passage.'),
+      row('Passage reader', defaultRef(), () => passage(defaultRef(), dayRow()?.sefaria_bilingual_link)),
+      row('Covenants & Commandments', 'Browse covenants and search the commandments', () => open('law')),
+      row('New Testament Notes', 'Browse available book and chapter notes', () => open('nt')),
+      row('Hebrew Library', 'Open a cited source in Sefaria', () => open('sefaria', { ref: defaultRef() })),
+      row('Teachers & Scholars', 'Profiles, teaching archives and debates', () => open('people')),
+      row('Sources Library', 'Compare witnesses and browse reference works', () => open('sourcesLibrary')),
+      row('Investigations', 'Search published HomeGroups research', () => open('research')),
+      row('Weekly commentary', 'Study the selected portion', () => open('commentary')),
+      row('Learning Hub', 'Guided paths and the article collection', () => open('learning')),
+      row('Preparedness', 'Practice communications and learn with Fellowship', () => open('preparedness', { initial: 'plan' })),
+      row('Prayer Map', 'Explore prayer and community geography', () => open('prepPrayer')),
+      row('Calendar studies', 'Appointed times and supplemental portions', () => open('calendar')),
+      row('Personal notes', 'Saved on this device', () => open('note')));
+  },
+  async reader(target, { data }) {
+    const { ref, source } = data;
+    renderReferenceForm(target, ref, (value) => passage(value));
+    target.append(cluster(button('Use this week’s reading', () => passage(defaultRef(), dayRow()?.sefaria_bilingual_link), 'quiet'),
+      link('KJV source ↗', passageUrl(ref)), ...(source ? [link('Scheduled bilingual source ↗', source)] : [])));
+    const place = node('div', '', 'reader-list');
+    place.append(text('Loading KJV passage…'));
+    target.append(place);
+    try {
+      const groups = await readPassage(ref);
+      const result = document.createDocumentFragment();
+      for (const group of groups) {
+        result.append(node('h3', group.book));
+        for (const chapter of group.chapters) {
+          for (const line of chapter.verses) {
+            const location = `${group.book} ${chapter.chapter}:${line.verse}`;
+            const verse = node('div', '', 'verse');
+            verse.dataset.reference = location;
+            const control = button(`${chapter.chapter}:${line.verse}`, () => open('verse', { ref: location }));
+            control.setAttribute('aria-label', 'Passage tools for ' + location);
+            verse.append(control, text(line.text, 'verse-text'));
+            result.append(verse);
+          }
+        }
+      }
+      place.replaceChildren(result);
+    } catch (error) {
+      place.replaceChildren(text(error.message), button('Open English weekly source', () => open('weeklyText', { language: 'english' })));
+    }
+  },
+  verse(target, { data }) {
+    target.append(node('h3', data.ref),
+      row('Open nearby chapter', 'Read the wider passage', () => passage(data.ref.split(':')[0])),
+      row('Translation Explorer', 'Check the original sample set', () => open('translation', { ref: data.ref })),
+      row('Intertext Explorer', 'Find quotation witnesses', () => open('intertext', { from: data.ref })),
+      row('Interlinear sources', 'Original-language help', () => open('alignment', { ref: data.ref })));
+    if (face === 'study') {
+      target.append(row('Personal note', 'Save with this reference', () => open('note', { ref: data.ref })),
+        row('Investigations', 'Search with this passage in view', () => open('research', { ref: data.ref })));
+    }
+  },
+  alignment(target, { data }) {
+    target.append(text('Validated word alignment is unavailable in this build. Read the original-language weekly source or open the selected verse on Bible Hub.'));
+    const [book, chapter, verse] = data.ref.match(/^(.+?)\s+(\d+):(\d+)$/)?.slice(1) ?? [];
+    if (book) {
+      const slug = book.toLowerCase().replace(/^iii\s+/, '3 ').replace(/^ii\s+/, '2 ').replace(/^i\s+/, '1 ')
+        .replace('revelation of john', 'revelation').replace('song of solomon', 'songs').replaceAll(' ', '_');
+      target.append(link('Bible Hub interlinear ↗', `https://biblehub.com/interlinear/${slug}/${chapter}-${verse}.htm`));
+    }
+    target.append(cluster(button('Hebrew weekly source', () => open('weeklyText', { language: 'hebrew' })),
+      button('Greek weekly source', () => open('weeklyText', { language: 'greek' }))));
+  },
+  async weeklyText(target, { data }) {
+    const { language } = data;
+    const options = cluster(...Object.entries(LANGUAGES).map(([id, label]) => {
+      const option = button(label, () => open('weeklyText', { language: id }), 'pill');
+      option.setAttribute('aria-pressed', String(id === language));
+      option.disabled = id === language;
+      return option;
+    }));
+    target.append(options, text(LANGUAGES[language] + ' · HomeGroups weekly source text'));
+    const result = await getWeeklyText(active.row, language);
+    target.append(result?.html ? importLegacy(result.html) : text('This language source is unavailable for the selected week.'));
+  },
+  outline(target) {
+    const outlines = active.content.sections?.chapter_outlines ?? active.content.chapter_outlines;
+    if (!outlines) target.append(text('The selected week has no source outline.'));
+    for (const [category, entries] of Object.entries(outlines ?? {})) {
+      const body = node('div', '', 'rows');
+      for (const entry of Array.isArray(entries) ? entries : [entries]) {
+        if (typeof entry !== 'string' || !entry.includes('|')) {
+          appendData(body, entry);
+          continue;
+        }
+        const [ref, label] = entry.split('|').map((part) => part.trim());
+        body.append(row(label, ref, () => passage(ref)));
+      }
+      target.append(disclosure(category, body));
+    }
+  },
+  async commentary(target) {
+    const content = active.content;
+    for (const key of ['commentary', 'commentary2']) {
+      const note = content[key] ?? content.sections?.[key];
+      if (note) {
+        const body = node('div');
+        appendData(body, note);
+        target.append(disclosure(key === 'commentary' ? 'Weekly notes' : 'Supplemental notes', body));
+      }
+    }
+    const weekId = week;
+    try {
+      const item = await getCommentary(weekId);
+      target.append(importLegacy(item.html));
+    } catch (error) {
+      if (error.status !== 404) throw error;
+      target.append(text('The source has no standalone commentary article for this week.'));
+    }
+    for (const suffix of ['b']) {
+      if (![21, 22].includes(weekId)) continue;
+      try {
+        const item = await getCommentary(weekId, suffix);
+        target.append(disclosure('Additional source article', importLegacy(item.html)));
+      } catch (error) {
+        if (error.status !== 404) throw error;
+      }
+    }
+  },
+  resources(target) {
+    const content = active.content;
+    const teaching = cluster(...['cOhQVzntlWj', 'cOhQe1ntIfR', 'cOhQePntIj4'].map((id, index) =>
+      link('Part ' + (index + 1) + ' ↗', 'https://go.screenpal.com/player/' + id)));
+    target.append(disclosure('MainStage teaching videos', text('Links retained from the production MainStage shell. Weekly applicability varies.'), teaching));
+    const available = Object.keys(content).concat(Object.keys(content.sections ?? {}));
+    const exclude = new Set(['intro', 'sections', 'audio_playlist', 'scripture_text', 'chapter_outlines',
+      'commentary', 'commentary2', 'english', 'hebrew', 'transliteration', 'week', 'title', 'subtitle', 'first_verse']);
+    for (const key of new Set(available.filter((item) => !exclude.has(item)))) {
+      const data = content[key] ?? content.sections?.[key];
+      if (!data) continue;
+      const body = node('div');
+      appendData(body, data);
+      target.append(disclosure(title(key), body));
+    }
+    if (content.first_verse?.text && !/insert first/i.test(content.first_verse.text)) {
+      const body = node('div');
+      appendData(body, content.first_verse);
+      target.append(disclosure('First verse', body));
+    }
+    if (!target.childElementCount) target.append(text('This week has no supplemental editorial content.'));
+  },
+  listen(target) {
+    const playlist = active.content.sections?.audio_playlist ?? active.content.audio_playlist ?? [];
+    const local = node('div', '', 'rows');
+    const field = node('label', 'Recording language');
+    const select = node('select');
+    for (const [id, label] of Object.entries(LANGUAGES)) {
+      const choice = node('option', label);
+      choice.value = id;
+      select.append(choice);
+    }
+    field.append(select);
+    function renderTracks() {
+      const language = select.value;
+      const legacyField = { english: 'src', hebrew: 'heb', greek: 'grk' }[language];
+      local.replaceChildren();
+      for (const track of playlist) {
+        const source = webUrl(track[legacyField]);
+        if (!source) continue;
+        if (language !== 'english' && /audio\.esv|esvbible\.org/i.test(source)) continue;
+        const label = track.label || 'Source recording';
+        if (/\.mp3(?:[?#]|$)/i.test(source) && !source.includes(',')) {
+          local.append(row(label, 'External · Verify passage in source', () => playAudio(source, label + ' · ' + LANGUAGES[language])));
+        } else {
+          local.append(link(label + ' · Open provider ↗', source));
+        }
+      }
+      if (!local.childElementCount) local.append(text('No matching source recording was found.'));
+    }
+    select.addEventListener('change', renderTracks);
+    target.append(field, text('Some historical recordings are generic, mismatched, or unavailable. Use weekly Scripture for the assigned text.'), local);
+    renderTracks();
+  },
+  note(target, { data }) {
+    const ref = data.ref || defaultRef();
+    const key = String(week);
+    const draftKey = 'note:' + key + ':' + ref;
+    const draft = ledger.drafts[draftKey] ??= {};
+    const form = node('form');
+    const label = node('label', 'Note for ' + ref);
+    const field = node('textarea');
+    field.value = draft.body ?? '';
+    field.maxLength = 2400;
+    label.append(field);
+    const status = text('Personal notes are saved on this browser.');
+    const list = node('div', '', 'notes-list');
+    function display() {
+      list.replaceChildren(...(ledger.notes[key] ?? []).map((note) => post(note.ref, note.body)));
+    }
+    field.addEventListener('input', () => {
+      draft.body = field.value;
+      if (!saveLocal(ledger)) status.textContent = 'Storage is unavailable. Draft is kept for this session.';
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!field.value.trim()) return;
+      (ledger.notes[key] ??= []).unshift({ ref, body: field.value.trim() });
+      field.value = '';
+      delete draft.body;
+      status.textContent = saveLocal(ledger) ? 'Note saved on this device.' : 'Note saved for this session only.';
+      display();
+    });
+    form.append(label, node('button', 'Save note', 'button primary'), status);
+    target.append(form, list);
+    display();
+  },
+  private(target) {
+    target.append(text('Simulated member directory · There is no delivery or account connection.'));
+    for (const member of members) {
+      target.append(row(member.name, 'Wednesday HomeGroup', () => open('dm', { member })));
+    }
+  },
+  dm(target, { data }) {
+    const { member } = data;
+    const key = `private:${liveYear}:${week}:${member.id}`;
+    const messages = node('div');
+    messages.append(post(member.name + ' · Sample', member.hello));
+    for (const item of posts(key)) messages.append(post('You · Demo', item.body, item.ref));
+    target.append(node('h3', member.name), text('Opened from ' + weekLine()), messages);
+    composer(target, key, (item) => messages.append(post('You · Demo', item.body, item.ref)), true);
+  },
+  archive(target) {
+    const years = new Set([liveYear, liveYear - 1, ...Object.keys(ledger.posts).filter((key) => key.startsWith('group:')).map((key) => +key.split(':')[1])]);
+    target.append(text('Open previous discussions for the selected weekly study. Change Week in the header to browse another portion.'));
+    for (const year of [...years].sort((a, b) => b - a)) {
+      const item = row(String(year), year === liveYear ? 'Current discussion year' : 'Year archive',
+        () => closePanels(() => selectYear(year)));
+      if (year === active.year) item.setAttribute('aria-current', 'true');
+      target.append(item);
+    }
+  },
+  attach(target, { data }) {
+    const status = text('Open the passage to verify its reference before attaching.');
+    renderReferenceForm(target, data.draft.ref ?? defaultRef(), async (ref) => {
+      const attachmentFrame = frames.at(-1);
+      try {
+        await readPassage(ref);
+        if (!activeFrame(attachmentFrame)) return;
+        data.draft.ref = ref;
+        saveLocal(ledger);
+        data.updateAttachment();
+        backPanel();
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    }, 'Passage to attach');
+    target.append(status);
+  },
+};
+
+for (const control of document.querySelectorAll('[data-open]')) {
+  control.addEventListener('click', () => open(control.dataset.open));
+}
+$('games-button').addEventListener('click', openFellowshipGames);
+$('flip').addEventListener('click', () => {
+  if (active?.content) changeRoute(week, face === 'study' ? 'fellowship' : 'study');
+});
+
+async function boot() {
+  try {
+    catalog = await schedules();
+    history.replaceState({ panels: [] }, '', location.href);
+    await applyRoute();
+    if (!active?.content) return;
+    const url = new URL(location.href);
+    if (face === 'fellowship' && url.searchParams.get('game') === 'invite') {
+      url.searchParams.delete('game');
+      history.replaceState({ panels: [] }, '', url);
+      $('games-button').focus({ preventScroll: true });
+      openFellowshipGames();
+    } else {
+      await openLinkedStudyCard();
+    }
+  } catch {
+    study.replaceChildren(text('The weekly schedule could not load.', 'loading'), button('Try again', boot));
+  }
+}
+boot();

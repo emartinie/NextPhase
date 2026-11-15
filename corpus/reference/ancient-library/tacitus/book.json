@@ -1,0 +1,131 @@
+{
+  "id": "tacitus",
+  "title": "The Surviving Works of Tacitus",
+  "shortTitle": "Tacitus",
+  "authorityNotice": "Ancient Roman historical literature. It is included for historical study and is not presented as Scripture.",
+  "collectionNotice": "The Annals survive in Books 1–6 and 11–16; Books 7–10 are lost, with additional lacunae in the surviving books. The Histories survive in Books 1–5 and break off during Book 5.",
+  "works": [
+    {
+      "id": "agricola",
+      "title": "Agricola",
+      "file": "agricola.json",
+      "estimatedDate": "c. 98 CE",
+      "purpose": "To honor Tacitus’s father-in-law Agricola, recount his public career and campaigns in Britain, and reflect on virtuous leadership under oppressive rule."
+    },
+    {
+      "id": "germania",
+      "title": "Germania",
+      "file": "germania.json",
+      "estimatedDate": "c. 98 CE",
+      "purpose": "To describe the lands, peoples, customs, and political life of the Germanic tribes for a Roman audience, often using them as a contrast with Roman society."
+    },
+    {
+      "id": "dialogue",
+      "title": "Dialogue on Oratory",
+      "file": "dialogue.json",
+      "estimatedDate": "Probably c. 102 CE; both date and attribution remain debated",
+      "purpose": "To explore why Roman public oratory seemed to have declined and to compare the claims of rhetoric, poetry, education, and political conditions."
+    },
+    {
+      "id": "histories",
+      "title": "Histories",
+      "volumes": [
+        {
+          "id": "book-1",
+          "title": "Book 1",
+          "file": "histories-book-1.json"
+        },
+        {
+          "id": "book-2",
+          "title": "Book 2",
+          "file": "histories-book-2.json"
+        },
+        {
+          "id": "book-3",
+          "title": "Book 3",
+          "file": "histories-book-3.json"
+        },
+        {
+          "id": "book-4",
+          "title": "Book 4",
+          "file": "histories-book-4.json"
+        },
+        {
+          "id": "book-5",
+          "title": "Book 5",
+          "file": "histories-book-5.json"
+        }
+      ],
+      "estimatedDate": "c. 105–110 CE",
+      "purpose": "To narrate Rome’s civil wars and imperial upheaval beginning in 69 CE and to examine how ambition, armies, and court politics shaped imperial power."
+    },
+    {
+      "id": "annals",
+      "title": "Annals",
+      "volumes": [
+        {
+          "id": "book-1",
+          "title": "Book 1",
+          "file": "annals-book-1.json"
+        },
+        {
+          "id": "book-2",
+          "title": "Book 2",
+          "file": "annals-book-2.json"
+        },
+        {
+          "id": "book-3",
+          "title": "Book 3",
+          "file": "annals-book-3.json"
+        },
+        {
+          "id": "book-4",
+          "title": "Book 4",
+          "file": "annals-book-4.json"
+        },
+        {
+          "id": "book-5",
+          "title": "Book 5",
+          "file": "annals-book-5.json"
+        },
+        {
+          "id": "book-6",
+          "title": "Book 6",
+          "file": "annals-book-6.json"
+        },
+        {
+          "id": "book-11",
+          "title": "Book 11",
+          "file": "annals-book-11.json"
+        },
+        {
+          "id": "book-12",
+          "title": "Book 12",
+          "file": "annals-book-12.json"
+        },
+        {
+          "id": "book-13",
+          "title": "Book 13",
+          "file": "annals-book-13.json"
+        },
+        {
+          "id": "book-14",
+          "title": "Book 14",
+          "file": "annals-book-14.json"
+        },
+        {
+          "id": "book-15",
+          "title": "Book 15",
+          "file": "annals-book-15.json"
+        },
+        {
+          "id": "book-16",
+          "title": "Book 16",
+          "file": "annals-book-16.json"
+        }
+      ],
+      "estimatedDate": "c. 110–120 CE",
+      "purpose": "To trace imperial rule from the death of Augustus through the Julio-Claudian emperors, examining power, corruption, resistance, and the loss of republican freedom."
+    }
+  ]
+}

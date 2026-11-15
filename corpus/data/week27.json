@@ -1,0 +1,106 @@
+{
+  "english": "She Will Conceive",
+  "hebrew": "תזריע",
+  "transliteration": "Tazria | תזריע",
+  "week": 27,
+  "title": "Whole Bible Study for Week 27",
+  "intro": {
+    "summary": "This study covers purification after childbirth and the diagnosis of skin disease and contaminated garments in the Torah; Amos’s promise to restore David’s fallen dwelling and Israel’s fortunes in the Prophets; and Hebrews’ teaching about Melchizedek and the superior heavenly priesthood in the New Testament, moving from impurity toward restoration.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esv.org/hw/mq/03012001-03015033.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esv.org/hw/mq/28001001-28001011.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esv.org/hw/mq/40008001-40008001,40004001-40004025,43006008-43006013.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esv.org/hw/mq/66012001-66012017.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Leviticus 12:1 | Purification of Women after Childbirth",
+        "Leviticus 13:1 | Leprosy, Varieties and Symptoms",
+        "Leviticus 15:1 | Concerning Bodily Discharges"
+      ],
+      "Prophets": [
+        "Hosea 1:1 | The Unfaithful Mother"
+      ],
+      "Writings": [
+        "Hosea 1:1 | The Unfaithful Mother"
+      ],
+      "Gospels": [
+        "3 – Baptism Begins the Mission"
+      ],
+      "Letters": [
+        "James 2 – Faith and Works"
+      ],
+      "Revelation": [
+        "Rev 1:1 | The Unfaithful Mother"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Tazria | תזריע"
+}

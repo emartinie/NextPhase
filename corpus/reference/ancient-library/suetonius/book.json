@@ -1,0 +1,117 @@
+{
+  "id": "suetonius",
+  "title": "Works of Suetonius",
+  "shortTitle": "Suetonius",
+  "author": "Suetonius; Alexander Thomson translation, revised by T. Forester",
+  "originalPublication": "Public-domain edition",
+  "authorityNotice": "Roman biographical and historical works presented as ancient witnesses for historical study, not as equal in authority to Scripture.",
+  "works": [
+    {
+      "id": "julius-caesar",
+      "title": "Julius Caesar",
+      "file": "julius-caesar.json",
+      "chapterCount": 89,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Julius Caesar through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "augustus",
+      "title": "Augustus",
+      "file": "augustus.json",
+      "chapterCount": 101,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Augustus through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "tiberius",
+      "title": "Tiberius",
+      "file": "tiberius.json",
+      "chapterCount": 76,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Tiberius through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "caligula",
+      "title": "Caligula",
+      "file": "caligula.json",
+      "chapterCount": 60,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Caligula through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "claudius",
+      "title": "Claudius",
+      "file": "claudius.json",
+      "chapterCount": 46,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Claudius through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "nero",
+      "title": "Nero",
+      "file": "nero.json",
+      "chapterCount": 57,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Nero through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "galba",
+      "title": "Galba",
+      "file": "galba.json",
+      "chapterCount": 23,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Galba through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "otho",
+      "title": "Otho",
+      "file": "otho.json",
+      "chapterCount": 12,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Otho through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "vitellius",
+      "title": "Vitellius",
+      "file": "vitellius.json",
+      "chapterCount": 18,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Vitellius through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "vespasian",
+      "title": "Vespasian",
+      "file": "vespasian.json",
+      "chapterCount": 25,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Vespasian through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "titus",
+      "title": "Titus",
+      "file": "titus.json",
+      "chapterCount": 11,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Titus through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    },
+    {
+      "id": "domitian",
+      "title": "Domitian",
+      "file": "domitian.json",
+      "chapterCount": 23,
+      "estimatedDate": "c. 121 CE",
+      "purpose": "To preserve a biographical portrait of Domitian through ancestry, public career, personal habits, virtues, faults, notable sayings, and reported omens as part of Suetonius’s Lives of the Caesars."
+    }
+  ],
+  "source": {
+    "name": "Project Gutenberg, The Lives of the Twelve Caesars, Complete",
+    "url": "https://www.gutenberg.org/ebooks/6400",
+    "license": "Public Domain in the USA"
+  },
+  "externalSources": [
+    {
+      "name": "Project Gutenberg author collection",
+      "url": "https://www.gutenberg.org/ebooks/author/2024"
+    }
+  ]
+}

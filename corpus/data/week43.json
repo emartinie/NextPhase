@@ -1,0 +1,107 @@
+{
+  "english": "Journeys",
+  "hebrew": "מסעי",
+  "transliteration": "Masei | מסעי",
+  "week": 43,
+  "title": "Bible Study for Week 43",
+  "intro": {
+    "summary": "This study covers Israel’s wilderness stages, boundaries of the land, cities of refuge, and protection of tribal inheritance in the Torah; Isaiah’s assurance that Zion is remembered and will be restored in the Prophets; and James’s warnings against pride, conflict, and judgment in the New Testament, joining ordered inheritance and refuge with humble submission.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esv.org/hw/mq/05001001-05003022.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esv.org/hw/mq/23001001-23001027.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esv.org/hw/mq/41014001-41014016.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esv.org/hw/mq/66022001-66022021.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Deuteronomy 1:9 | Appointment of Tribal Leaders",
+        "Deuteronomy 1:19 | Israel's Refusal to Enter the Land",
+        "Deuteronomy 1:34 | The Penalty for Israel's Rebellion"
+      ],
+      "Prophets": [
+        "Elijah and Elisha",
+        "Isaiah 1:2 | The Wickedness of Judah"
+      ],
+      "Writings": [
+        "Hosea 9 | Ephraimites, the Prophetic Watcmen return to eating unclean food"
+      ],
+      "Gospels": [
+        "Mark 14 | Passover Annointing"
+      ],
+      "Letters": [
+        "James 2 – Faith and Works"
+      ],
+      "Revelation": [
+        "Revelation 22 | Yeshua Is Coming"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Masei | מסעי"
+}

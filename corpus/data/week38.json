@@ -1,0 +1,108 @@
+{
+  "english": "Korah",
+  "hebrew": "קרח",
+  "transliteration": "Korach | קרח",
+  "week": 38,
+  "title": "Bible Study for Week 38",
+  "intro": {
+    "summary": "This study covers Korah’s rebellion, God’s confirmation of Aaron’s priesthood, and the responsibilities of priests and Levites in the Torah; Elijah’s renewed calling and the commissioning of Elisha in the Prophets; and Paul’s teaching about submission to governing authority in the New Testament, showing that God establishes authority and calls faithful servants.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esvbible.org/hw/04016001-04018032.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esvbible.org/hw/23066001-23066024.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esvbible.org/hw/42018035-42019028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esvbible.org/hw/58007001-58007028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Numbers 16:1 | Revolt of Korah, Dathan, and Abiram",
+        "Numbers 18:1 | Responsibility of Priests and Levites",
+        "Numbers 18:8 | The Priests' Portion"
+      ],
+      "Prophets": [
+        "Isaiah 66 | A Nation Born in a Day"
+       ],
+      "Writings": [
+        "1Sa 11:1 | Saul Defeats the Ammonites",
+        "1Sa 12:1 | Samuel's Farewell Address"
+      ],
+      "Gospels": [
+        "Luke 18-19 | Jericho"
+      ],
+      "Letters": [
+        "Revelation 2-3 | Overcome"
+
+      ],
+      "Revelation": [
+        "Revelation 2-3 | Overcome"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Korach | קרח"
+}

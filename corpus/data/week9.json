@@ -1,0 +1,107 @@
+{
+  "english": "He Settled",
+  "hebrew": "וישב",
+  "transliteration": "Vayeshev | וישב",
+  "week": 9,
+  "title": "Bible Study for Week 9",
+  "intro": {
+    "summary": "This study covers Joseph’s dreams, rejection, enslavement, and faithfulness in suffering in the Torah; Ezekiel’s vision of the reunited tribes under one shepherd in the Prophets; and the New Testament’s witness to persevering faith and Yeshua’s anguish before betrayal, linking the rejected son with the hope of reunion.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "http://audio.esvbible.org/hw/mq/01037001-01040023.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "http://audio.esvbible.org/hw/mq/30002001-30003015.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/mq/43003001-43004054.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "http://audio.esvbible.org/hw/mq/46012001-46013013.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Genesis 37:1 | Joseph Dreams of Greatness",
+        "Genesis 37:12 | Joseph Is Sold by His Brothers",
+        "Genesis 39:1 | Joseph and Potiphar's Wife"
+      ],
+      "Prophets": [
+        "Amo 2:6 | Judgment on Israel",
+        "Amo 3:1 | Israel's Guilt and Punishment"
+      ],
+      "Writings": [
+        ""
+      ],
+      "Gospels": [
+        " John 3 | Seeking Truth from the True Husband by one of Israel's teachers"
+      ],
+      "Letters": [
+        "1 Corinthians 13 | Love in the one Temple (Body) of Messiah Jesus/ Yeshua"
+      ],
+      "Revelation": [
+        "Revelation 11:1 | Two Witnesses, Two Olive Trees and 2 Menorahs"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Vayeshev | וישב"
+}

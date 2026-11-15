@@ -1,0 +1,107 @@
+{
+  "english": "He Sent",
+  "hebrew": "וישלח",
+  "transliteration": "Vayishlach | וישלח",
+  "week": 8,
+  "title": "Bible Study for Week 8",
+  "intro": {
+    "summary": "This study covers Jacob’s wrestling, reconciliation with Esau, new identity as Israel, and the tensions within his family in the Torah; Solomon’s request for wisdom and righteous rule in the Writings; and John’s testimony about the Messiah and the calling of His first disciples in the New Testament, emphasizing encounter, transformation, and identity.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esv.org/hw/mq/01032003-01036043.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esv.org/hw/mq/28011007-28012012,31001001-31001021.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esv.org/hw/mq/40002001-40002023.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esv.org/hw/mq/60001001-60001025.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Genesis 32:3 | Jacob Sends Presents to Appease Esau",
+        "Genesis 32:22 | Jacob Wrestles at Peniel",
+        "Genesis 34:1 | The Rape of Dinah"
+      ],
+      "Prophets": [
+        "Hos 11:1 | God's Compassion Despite Israel's Ingratitude",
+        "Hos 12:2 | The Long History of Rebellion"
+      ],
+      "Writings": [
+        "Oba 1:10 | Edom Mistreated His Brother"
+      ],
+      "Gospels": [
+        " Mathew 2 | Many Wise Men (Not 3) Follow His Star"
+      ],
+      "Letters": [
+        "1 Peter 1:13 | A Call to Be Holy"
+      ],
+      "Revelation": [
+        "Revelation 11:19 | Temple of God in heaven was opened"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Vayishlach | וישלח"
+}

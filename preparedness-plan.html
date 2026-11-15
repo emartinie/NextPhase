@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HomeGroups practice card</title>
+<style>
+body { font: 1rem/1.55 system-ui, sans-serif; max-width: 42rem; padding: 1rem; margin: auto; color: #142319; background: #faf8ef; }
+h1 { line-height: 1.12; }
+pre { white-space: pre-wrap; font: inherit; }
+button { font: inherit; min-height: 44px; padding: .4rem .9rem; }
+@media print { body { background: white; color: black; } button { display: none; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Fellowship practice card</h1>
+<button id="print" type="button">Print this card</button>
+<pre id="plan"></pre>
+</main>
+<script type="module">
+import { printablePractice } from './preparedness-model.js';
+document.getElementById('plan').textContent = printablePractice();
+document.getElementById('print').addEventListener('click', () => window.print());
+</script>
+</body>
+</html>

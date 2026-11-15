@@ -1,0 +1,571 @@
+{
+  "revision": "1e31cc4dd984adc638db2aa87571618fee1f3e31",
+  "models": {
+    "Hillel": "The calculated Jewish calendar used for shared observance today. Its months are lunar and leap months keep the year aligned with the seasons.",
+    "Enochian": "A 364-day solar model associated with 1 Enoch and calendar traditions represented among the Dead Sea Scrolls. This card presents one project reference schedule.",
+    "Zedokian": "A project label for priestly-calendar reconstructions associated with Zadok traditions. There is no single agreed modern reconstruction."
+  },
+  "eventDetails": {
+    "passover": {
+      "title": "Passover",
+      "scripture": "Exodus 12:1–14; Leviticus 23:4–5",
+      "body": "Passover remembers deliverance from bondage in Egypt. Scripture centers remembrance, retelling, and the marking of deliverance."
+    },
+    "unleavened_bread": {
+      "title": "Feast of Unleavened Bread",
+      "scripture": "Exodus 12:15–20; Leviticus 23:6–8",
+      "body": "This feast follows Passover, remembering Israel's hurried departure and the removal of leaven."
+    },
+    "first_fruits": {
+      "title": "First Fruits",
+      "scripture": "Leviticus 23:9–14",
+      "body": "First Fruits marks the beginning of harvest through gratitude, offering, and the promise of more to come."
+    },
+    "pentecost": {
+      "title": "Pentecost / Shavuot",
+      "scripture": "Leviticus 23:15–22; Acts 2:1–4",
+      "body": "Shavuot comes after the counting of weeks and is associated with harvest; Acts connects Pentecost with the giving of the Spirit."
+    },
+    "trumpets": {
+      "title": "Trumpets / Yom Teruah",
+      "scripture": "Leviticus 23:23–25; Numbers 29:1–6",
+      "body": "Scripture appoints a day of rest and trumpet blasts, calling the assembly to attention and remembrance."
+    },
+    "atonement": {
+      "title": "Day of Atonement / Yom Kippur",
+      "scripture": "Leviticus 16; Leviticus 23:26–32",
+      "body": "A solemn appointed day centered on atonement, humility, cleansing, and rest."
+    },
+    "tabernacles": {
+      "title": "Tabernacles / Sukkot",
+      "scripture": "Leviticus 23:33–43; Deuteronomy 16:13–15",
+      "body": "Sukkot remembers dwelling in temporary shelters and carries themes of joy, provision, dependence, and God dwelling with His people."
+    }
+  },
+  "events": [
+    [
+      "passover",
+      "Passover",
+      "A night of remembrance, deliverance, and freedom."
+    ],
+    [
+      "unleavened_bread",
+      "Feast of Unleavened Bread",
+      "Leaving bondage behind and walking in a new way."
+    ],
+    [
+      "first_fruits",
+      "First Fruits",
+      "The beginning of harvest and the promise of more to come."
+    ],
+    [
+      "pentecost",
+      "Pentecost / Shavuot",
+      "Weeks counted, harvest celebrated, and the Spirit given in Acts."
+    ],
+    [
+      "trumpets",
+      "Trumpets / Yom Teruah",
+      "A day of rest, trumpet blasts, remembrance, and gathering."
+    ],
+    [
+      "atonement",
+      "Day of Atonement / Yom Kippur",
+      "Atonement, humility, cleansing, mercy, and rest."
+    ],
+    [
+      "tabernacles",
+      "Tabernacles / Sukkot",
+      "Dwelling, joy, provision, and wilderness remembrance."
+    ]
+  ],
+  "modelDates": {
+    "Hillel": [
+      [
+        "2026-04-01T19:00:00",
+        "Begins at sundown on April 1, 2026"
+      ],
+      [
+        "2026-04-02T19:00:00",
+        "April 2–8, 2026"
+      ],
+      [
+        "2026-04-05T09:00:00",
+        "April 4–5, 2026 (sunset to sunset)"
+      ],
+      [
+        "2026-05-24T09:00:00",
+        "Spring / Summer 2026"
+      ],
+      [
+        "2026-09-12T19:00:00",
+        "September 12, 2026"
+      ],
+      [
+        "2026-09-21T19:00:00",
+        "Autumn 2026"
+      ],
+      [
+        "2026-09-26T19:00:00",
+        "Autumn 2026"
+      ]
+    ],
+    "Enochian": [
+      [
+        "2026-03-29T19:00:00",
+        "Begins at sundown on March 29, 2026"
+      ],
+      [
+        "2026-03-30T19:00:00",
+        "March 30–April 5, 2026"
+      ],
+      [
+        "2026-04-02T09:00:00",
+        "April 2, 2026"
+      ],
+      [
+        "2026-05-20T09:00:00",
+        "May 20, 2026"
+      ],
+      [
+        "2026-09-10T19:00:00",
+        "Begins at sundown on September 10, 2026"
+      ],
+      [
+        "2026-09-19T19:00:00",
+        "Begins at sundown on September 19, 2026"
+      ],
+      [
+        "2026-09-24T19:00:00",
+        "Begins at sundown on September 24, 2026"
+      ]
+    ],
+    "Zedokian": [
+      [
+        "2026-04-03T19:00:00",
+        "Begins at sundown on April 3, 2026"
+      ],
+      [
+        "2026-04-04T19:00:00",
+        "April 4–10, 2026"
+      ],
+      [
+        "2026-04-07T09:00:00",
+        "April 7, 2026"
+      ],
+      [
+        "2026-05-26T09:00:00",
+        "May 26, 2026"
+      ],
+      [
+        "2026-09-14T19:00:00",
+        "Begins at sundown on September 14, 2026"
+      ],
+      [
+        "2026-09-23T19:00:00",
+        "Begins at sundown on September 23, 2026"
+      ],
+      [
+        "2026-09-28T19:00:00",
+        "Begins at sundown on September 28, 2026"
+      ]
+    ]
+  },
+  "fall": {
+    "dates": {
+      "YOM_TERUAH": "2026-09-11",
+      "YOM_KIPPUR": "2026-09-20",
+      "SUKKOT": "2026-09-25",
+      "SHEMINI": "2026-10-03"
+    },
+    "phases": {
+      "PRE": {
+        "title": "Preparing for Yom Teruah",
+        "meta": "Awakening is approaching",
+        "detail": "Preparing for the season.",
+        "hebrew": "עונת החגים",
+        "meditationTitle": "Prepare",
+        "meditationText": "The season is approaching.",
+        "meditationPrayer": "Make my heart ready.",
+        "meditationScripture": "Be watchful.",
+        "current": "Yom Teruah",
+        "next": "Yom Kippur",
+        "progress": 10
+      },
+      "TERUAH": {
+        "title": "Yom Teruah",
+        "meta": "Awakening • Trumpets • Return",
+        "detail": "The trumpet has sounded.",
+        "hebrew": "יום תרועה",
+        "meditationTitle": "Awaken",
+        "meditationText": "Return begins.",
+        "meditationPrayer": "Turn my heart toward You.",
+        "meditationScripture": "Return to Me.",
+        "current": "Yom Teruah",
+        "next": "Yom Kippur",
+        "progress": 35
+      },
+      "KIPPUR": {
+        "title": "Yom Kippur",
+        "meta": "Atonement • Cleansing",
+        "detail": "Cleansing and realignment.",
+        "hebrew": "יום כפור",
+        "meditationTitle": "Cleanse",
+        "meditationText": "Create in me a clean heart.",
+        "meditationPrayer": "Cleanse me.",
+        "meditationScripture": "Wash me clean.",
+        "current": "Yom Kippur",
+        "next": "Sukkot",
+        "progress": 60
+      },
+      "SUKKOT": {
+        "title": "Sukkot",
+        "meta": "Dwelling • Joy • Presence",
+        "detail": "Presence becomes near.",
+        "hebrew": "סוכות",
+        "meditationTitle": "Dwelling",
+        "meditationText": "He dwelt among us.",
+        "meditationPrayer": "Abide with me.",
+        "meditationScripture": "Remain in Me.",
+        "current": "Sukkot",
+        "next": "Shemini Atzeret",
+        "progress": 85
+      },
+      "COMPLETE": {
+        "title": "Completion",
+        "meta": "The cycle is complete",
+        "detail": "The feast cycle has closed.",
+        "hebrew": "הושלם",
+        "meditationTitle": "Completion",
+        "meditationText": "The cycle has closed.",
+        "meditationPrayer": "Seal the work.",
+        "meditationScripture": "It is finished.",
+        "current": "Complete",
+        "next": "Next Year",
+        "progress": 100
+      }
+    }
+  },
+  "sukkot": {
+    "start": "2026-09-25",
+    "end": "2026-10-03",
+    "positions": [
+      [
+        10,
+        50
+      ],
+      [
+        25,
+        30
+      ],
+      [
+        40,
+        60
+      ],
+      [
+        55,
+        25
+      ],
+      [
+        70,
+        60
+      ],
+      [
+        85,
+        35
+      ],
+      [
+        92,
+        55
+      ]
+    ],
+    "prepare": {
+      "title": "Prepare the Heart",
+      "text": "Sukkot is approaching.",
+      "prayer": "Prayer: Prepare me.",
+      "scripture": "He will dwell with them."
+    },
+    "daily": {
+      "title": "Dwelling in Joy",
+      "text": "God is present among His people.",
+      "prayer": "Prayer: Teach me joy.",
+      "scripture": "Rejoice before the Lord."
+    }
+  },
+  "omer": {
+    "start": "2026-04-02",
+    "end": "2026-05-21",
+    "positions": [
+      [
+        10,
+        12
+      ],
+      [
+        24,
+        9
+      ],
+      [
+        39,
+        13
+      ],
+      [
+        55,
+        10
+      ],
+      [
+        70,
+        14
+      ],
+      [
+        84,
+        11
+      ],
+      [
+        91,
+        18
+      ],
+      [
+        12,
+        28
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        40,
+        29
+      ],
+      [
+        54,
+        25
+      ],
+      [
+        69,
+        30
+      ],
+      [
+        83,
+        27
+      ],
+      [
+        90,
+        34
+      ],
+      [
+        8,
+        43
+      ],
+      [
+        22,
+        40
+      ],
+      [
+        37,
+        45
+      ],
+      [
+        52,
+        41
+      ],
+      [
+        67,
+        46
+      ],
+      [
+        82,
+        42
+      ],
+      [
+        93,
+        48
+      ],
+      [
+        11,
+        58
+      ],
+      [
+        27,
+        55
+      ],
+      [
+        42,
+        60
+      ],
+      [
+        57,
+        56
+      ],
+      [
+        72,
+        61
+      ],
+      [
+        86,
+        58
+      ],
+      [
+        94,
+        64
+      ],
+      [
+        9,
+        72
+      ],
+      [
+        24,
+        69
+      ],
+      [
+        40,
+        74
+      ],
+      [
+        55,
+        70
+      ],
+      [
+        69,
+        75
+      ],
+      [
+        84,
+        72
+      ],
+      [
+        91,
+        78
+      ],
+      [
+        13,
+        84
+      ],
+      [
+        27,
+        82
+      ],
+      [
+        42,
+        86
+      ],
+      [
+        57,
+        83
+      ],
+      [
+        71,
+        88
+      ],
+      [
+        84,
+        85
+      ],
+      [
+        92,
+        91
+      ],
+      [
+        18,
+        95
+      ],
+      [
+        32,
+        93
+      ],
+      [
+        47,
+        97
+      ],
+      [
+        62,
+        94
+      ],
+      [
+        76,
+        98
+      ],
+      [
+        88,
+        95
+      ],
+      [
+        96,
+        99
+      ]
+    ],
+    "english": [
+      "Chesed",
+      "Gevurah",
+      "Tiferet",
+      "Netzach",
+      "Hod",
+      "Yesod",
+      "Malchut"
+    ],
+    "hebrew": [
+      "חסד",
+      "גבורה",
+      "תפארת",
+      "נצח",
+      "הוד",
+      "יסוד",
+      "מלכות"
+    ],
+    "themes": {
+      "Chesed": {
+        "title": "Mercy / Lovingkindness",
+        "meditation": "Where can I become more generous, gentle, and open-hearted today?",
+        "prayer": "Teach me to give freely without pride, fear, or self-seeking.",
+        "scripture": "Let all that you do be done in love."
+      },
+      "Gevurah": {
+        "title": "Strength / Discipline",
+        "meditation": "What needs restraint, order, honesty, or holy boundaries in my life today?",
+        "prayer": "Give me courage to say yes to what is right and no to what weakens my soul.",
+        "scripture": "Be strong and courageous."
+      },
+      "Tiferet": {
+        "title": "Beauty / Compassion / Harmony",
+        "meditation": "How can truth and mercy meet in the way I speak, judge, and respond today?",
+        "prayer": "Balance zeal with tenderness, and conviction with compassion.",
+        "scripture": "What does the Lord require of you but to do justly, love mercy, and walk humbly?"
+      },
+      "Netzach": {
+        "title": "Endurance / Victory",
+        "meditation": "Where must I keep going faithfully, even if progress feels slow?",
+        "prayer": "Strengthen me to endure with hope, patience, and steadiness.",
+        "scripture": "Let us not grow weary in well-doing."
+      },
+      "Hod": {
+        "title": "Humility / Splendor",
+        "meditation": "Where do I need humility, gratitude, and the grace to listen today?",
+        "prayer": "Deliver me from vanity and teach me the beauty of surrender.",
+        "scripture": "God resists the proud, but gives grace to the humble."
+      },
+      "Yesod": {
+        "title": "Foundation / Bonding",
+        "meditation": "What relationships, habits, and commitments need to be strengthened at the root?",
+        "prayer": "Establish me in faithfulness, integrity, and covenant love.",
+        "scripture": "The righteous shall never be removed."
+      },
+      "Malchut": {
+        "title": "Kingdom / Presence / Noble Action",
+        "meditation": "How can what is within me become real in the world through action, leadership, and presence?",
+        "prayer": "Let what You build in me become fruitful in the world around me.",
+        "scripture": "Your kingdom come. Your will be done."
+      }
+    },
+    "prepare": {
+      "title": "Prepare Your Heart",
+      "text": "The count has not yet begun. Use this time to quiet your heart, make room, and prepare for the journey.",
+      "prayer": "Prayer: Ready me for the discipline, beauty, and transformation of these coming days.",
+      "scripture": "Watch and be ready."
+    },
+    "complete": {
+      "title": "Completion",
+      "text": "The Omer journey is complete. Look back over the path, remember what was purified, strengthened, and revealed.",
+      "prayer": "Prayer: Seal in me what You have grown during these days, and let it bear fruit beyond this season.",
+      "scripture": "He who began a good work in you will carry it on to completion."
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "english": "In the Wilderness",
+  "hebrew": "במדבר",
+  "transliteration": "Bamidbar | במדבר",
+  "week": 34,
+  "title": "Bible Study for Week 34",
+  "theme_verse": {
+    "text": "And Jacob went out from Beersheba…",
+    "reference": "Genesis 28:10"
+  },
+  "intro": {
+    "summary": "This study covers Israel’s census, tribal arrangement, Levitical service, and preparation to travel with the sanctuary in the Torah; Rahab’s courageous protection of Israel’s spies in the Prophets; and New Testament warnings about rejecting God’s vineyard together with the call to become a separated people, preparing a holy community to inherit God’s promise.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "http://audio.esvbible.org/hw/04001001-04004020.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esvbible.org/hw/28002001-28002022.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "https://audio.esvbible.org/hw/42016001-42016001,42017010-42017010,40003001-40003001,40002001-40002023,41001008-41001008.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esvbible.org/hw/46012012-46012012,46016001-46016024,45009001-45011036.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Numbers 1:1 | The First Census of Israel",
+        "Numbers 3:1 | The Sons of Aaron",
+        "Numbers 4:1 | The Kohathites"
+      ],
+      "Prophets": [
+        "Hos 2:2 | Israel's Infidelity, Punishment, and Redemption"
+       ],
+      "Writings": [
+        "2 Kings 17 | The 12 Tribes are divided and dispersed"
+      ],
+      "Gospels": [
+        "Luke 16:1-17:10, Matthew 3:1-2, Mark 1:8| Baptism in the wilderness, Yeshua teaching"
+      ],
+      "Letters": [
+        "Romans 9-11 | The instructions are also for those grafted in to the 12 Tribes",
+        "Acts 26 | Paul discusses with Agrippa regarding the 12 Tribes' promises"
+      ],
+      "Revelation": [
+        "Revelation 7, 12, 14 | Commandments of God + Faith in Jesus"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  }
+}

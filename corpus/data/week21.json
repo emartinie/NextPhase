@@ -1,0 +1,117 @@
+{
+  "english": "When You Lift",
+  "hebrew": "כי תשא",
+  "transliteration": "Ki Tisa | כי תשא",
+  "week": 21,
+  "title": "Bible Study for Week 21",
+  "intro": {
+    "summary": "This study covers the census offering, sacred furnishings, the golden calf, Moses’ intercession, and covenant renewal in the Torah; Isaiah’s exposure of idolatry and proclamation of Israel’s Redeemer in the Prophets; and Hebrews’ call to follow faithful spiritual leadership in the New Testament, showing idolatry broken by renewed covenant mercy.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "http://audio.esvbible.org/hw/02030011-02034035.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "http://audio.esvbible.org/hw/11018001-11018039.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/40009001-40011030.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "http://audio.esvbible.org/hw/66019001-66019021.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Exodus 30:11 | The Half Shekel for the Sanctuary",
+        "Exodus 30:17 | The Bronze Basin",
+        "Exodus 30:22 | The Anointing Oil and Incense",
+        "Exodus 31:1 | Bezalel and Oholiab",
+        "Exodus 31:12 | The Sabbath Law",
+        "Exodus 31:18 | The Two Tablets of the Covenant",
+        "Exodus 30:22 | The Anointing Oil and Incense",
+        "Exodus 32:1 | The Golden Calf" ,    
+        "Exodus 33:1 | The Command to Leave Sinai",
+        "Exodus 30:22 | The Anointing Oil and Incense",
+        "Exodus 33:12 | Moses' Intercession",
+        "Exodus 34:1 | Moses Makes New Tablets",   
+        "Exodus 34:10 | The Covenant Renewed",
+        "Exodus 34:29 | The Shining Face of Moses"           
+      ],
+      "Prophets": [
+        "1Ki 18:1 | Elijah's Message to Ahab",
+        "1Ki 18:20 | Elijah's Triumph over the Priests of Baal"
+      ],
+      "Writings": [
+        "1Ki 18:1 | Elijah's Message to Ahab",
+        "1Ki 18:20 | Elijah's Triumph over the Priests of Baal"
+      ],
+      "Gospels": [
+        "Mathew `10-11 | Instructions to the Twelve, Jesus/ Yeshua Teaches the ways of His Father",
+        "John 14 | The Way to the Father’s House and the Helper"      ],
+      "Letters": [
+        "James 2 – Faith and Works"
+      ],
+      "Revelation": []
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Ki Tisa | כי תשא"
+}

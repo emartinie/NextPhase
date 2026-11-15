@@ -1,0 +1,113 @@
+{
+  "english": "Life of Sarah",
+  "hebrew": "חיי שרה",
+  "transliteration": "Chayei Sarah | חיי שרה",
+  "week": 5,
+  "title": "Bible Study for Week 5",
+  "intro": {
+    "summary": "This study covers Sarah’s death, the purchase of a burial place, Rebekah’s calling, and the continuation of Abraham’s family in the Torah; Hosea’s call for Israel to return to the faithful God in the Prophets; and Matthew’s genealogy of the Messiah in the New Testament, showing covenant faithfulness carrying the promise forward.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "http://audio.esvbible.org/hw/01023001-01025018.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "http://audio.esvbible.org/hw/24031001-24031039.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/41002001-41002028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esv.org/hw/60003001-60003022.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Genesis 18:1| A Son Promised to Abraham and Sarah",
+        "Genesis 18:16| Judgment Pronounced on Sodom",
+        "Genesis 19:12| Sodom and Gomorrah Destroyed"
+      ],
+      "Prophets": [
+        "Jeremiah 23 | THE BRANCH of David Regathers the House of Israel",
+        "Jeremiah 23:5 | The Messiah shall rule and save them."
+      ],
+      "Writings": [
+        "2Ki 4:1 | Elisha and the Widow's Oil"
+      ],
+      "Gospels": [
+        "Mathew 1:1|The genealogy of Jesus/ Yeshua from Abraham to Joseph",
+        "Mathew 1:18|He is miraculously conceived of the Holy Spirit by the Virgin Mary."
+      ],
+      "Letters": [
+        "1 Peter 4 | Suffering of THE BRANCH of David (and Ours)",
+        "1 Peter 4:1 | He exhorts them to cease from sin (trangression of the law) and live for God",
+        "Ephesians 2:1 | By comparing what we were by nature, with what we are by grace,",
+        "Ephesians 2:10 | he declares that we are made for good works: and being brought near by Messiah",
+        "Ephesians 2:19 | We should not live as Gentiles and foreigners, but as citizens of the commmonwealth of Israel with the saints, and the family of God.",
+        "Hebrews 2-3 | THE BRANCH of David Superior to Moses"
+      ],
+      "Revelation": [
+        "Revelation 2-3 | Overcoming the Trial by Fire- A Focus on Ephesus"
+      ]
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Chayei Sarah | חיי שרה"
+}

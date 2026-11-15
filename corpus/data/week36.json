@@ -1,0 +1,110 @@
+{
+  "english": "When You Light",
+  "hebrew": "בהעלתך",
+  "transliteration": "Behaalotcha | בהעלתך",
+  "week": 36,
+  "title": "Bible Study for Week 36",
+  "intro": {
+    "summary": "This study covers the lampstand, Levite dedication, Passover, divine guidance, Israel’s complaints, and challenges to Moses’ leadership in the Torah; Jephthah’s costly deliverance and vow in the Prophets; and New Testament warnings from Israel’s testing together with Revelation’s faithful witnesses, calling God’s people to steadfast witness under pressure.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esvbible.org/hw/04008001-04012015.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "https://audio.esvbible.org/hw/38002001-38004007.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/40005001-40006034.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "https://audio.esvbible.org/hw/66018001-66018024.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Numbers 8:1 | The Seven Lamps",
+        "Numbers 8:5 | Consecration and Service of the Levites",
+        "Numbers 9:1 | The Passover at Sinai",
+        "Numbers 9:15 | The Cloud and the Fire",
+        "Numbers 10:1 | The Silver Trumpets",
+        "Numbers 10:11 | Departure from Sinai",
+        "Numbers 11:1 | Complaining in the Desert",
+        "Numbers 11:16 | The Seventy Elders",
+        "Numbers 11:31 | The Quails",
+        "Numbers 12:1 | Aaron and Miriam Jealous of Moses"
+      ],
+      "Prophets": [
+        "12:12 – Ephraim's Rebellion",
+        "14:4 – Assurance of Forgiveness"
+      ],
+      "Writings": [],
+      "Gospels": [
+        "3 – Baptism Begins the Mission"
+      ],
+      "Letters": [
+        "James 2 – Faith and Works"
+      ],
+      "Revelation": []
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Behaalotcha | בהעלתך"
+}

@@ -1,0 +1,106 @@
+{
+  "english": "Holy Ones",
+  "hebrew": "קדושים",
+  "transliteration": "Kedoshim | קדושים",
+  "week": 30,
+  "title": "HomeGroups© Bible Study for Week 30",
+  "intro": {
+    "summary": "This study covers holiness in worship, family, justice, sexuality, and love of neighbor in the Torah; Jeremiah’s contrast between false trust and the healing found in God in the Prophets; and Hebrews’ teaching about Messiah’s once-for-all sacrificial mediation in the New Testament, forming a holy people cleansed for true worship.",
+    "instructions": "How it works: Read daily, listen to audio, and meet weekly in your HomeGroup."
+  },
+  "sections": {
+    "audio_playlist": [
+      {
+        "label": "Torah",
+        "src": "https://audio.esvbible.org/hw/mq/03019001-03020027.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Prophets",
+        "src": "http://audio.esvbible.org/hw/30009007-30009007,30009001-30009015,26002002-26002010.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Gospels",
+        "src": "http://audio.esvbible.org/hw/43007053-43010021,43010001-43010001,60001013-60001016,60006001-60001020.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      },
+      {
+        "label": "Letters",
+        "src": "http://audio.esvbible.org/hw/58007001-58007028.mp3",
+        "heb": "https://mechon-mamre.org/mp3/t0521.mp3",
+        "grk": "https://info2.sermon-online.com/greek/Bible/Greek-Audio_Bible_Complete_Old_Testament_OT_MP3.mp3"
+      }
+    ],
+    "chapter_outlines": {
+      "Torah": [
+        "Leviticus 19:1 | Ritual and Moral Holiness",
+        "Leviticus 20:1 | Penalties for Violations of Holiness"
+      ],
+      "Prophets": [
+        "Amos 9:1 | The Destruction of Israel",
+        "Amos 9:11 | The Restoration of David's Kingdom",
+        "Ezekiel 20:2-20 | The house of Israel's Rebellion"
+      ],
+      "Writings": [
+        ""
+      ],
+      "Gospels": [
+        "John 7:53-10:21 | The Destruction of Israel"
+
+      ],
+      "Letters": [
+        "1 Peter 1:13-16 | The Restoration of David's Kingdom",
+        "1 Corinthians 6:9-20 | The Restoration of David's Kingdom"      ],
+      "Revelation": []
+    },
+    "commentary": {
+      "quote": "There are few ideal families in the Bible. Jacob's certainly wasn't…",
+      "content": "Jacob's story reveals the struggle between flesh and spirit, and how God redeems broken circumstances through covenant promises..."
+    },
+    "deeper_learning": "Explore the prophetic connections between Jacob's ladder and the Temple Mount. This passage unveils YHVH's sovereignty beyond time and space...",
+    "aleph_tav": "Key occurrences of את reveal divine fingerprints in the text, marking significant covenantal moments...",
+    "kids_study": {
+      "videos": [
+        "https://www.youtube.com/embed/lre-LLz-UzE",
+        "https://www.youtube.com/embed/YzjHjXe-2XU"
+      ],
+      "pdf": "COLORING_PAGES.pdf"
+    },
+    "language_learning": {
+      "hebrew": {
+        "word": "Makom",
+        "text": "מקום",
+        "meaning": "The Place"
+      },
+      "greek": {
+        "word": "Pistis",
+        "text": "πίστις",
+        "meaning": "Faith"
+      },
+      "audio": "YOUR-TEACHING-LINK.mp3"
+    },
+    "psalms_plan": [
+      {
+        "day": "Sunday",
+        "audio": "https://audio.esv.org/hw/mq/19001001-19029011.mp3"
+      },
+      {
+        "day": "Monday",
+        "audio": "https://audio.esv.org/hw/mq/19030001-19050023.mp3"
+      },
+      {
+        "day": "Tuesday",
+        "audio": "https://audio.esv.org/hw/mq/19051001-19072020.mp3"
+      }
+    ]
+  },
+  "first_verse": {
+    "text": "Insert first verse text here...",
+    "reference": "Book Chapter:Verse"
+  },
+  "subtitle": "Kedoshim | קדושים"
+}
