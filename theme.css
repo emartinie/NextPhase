@@ -1,0 +1,168 @@
+:root[data-theme="cosmic"] {
+  --bg: #06070b;
+  --card: #141b2a;
+  --layer: #1c273b;
+  --ink: #eef3ff;
+  --muted: #a8b2c7;
+  --edge: #55647f;
+  --leaf: #7cc7ff;
+  --amber: #f3c878;
+  --on-accent: #071527;
+}
+
+:root[data-theme="sapphire"] {
+  --bg: #060f24;
+  --card: #122b4c;
+  --layer: #1c3c62;
+  --ink: #f2f6ff;
+  --muted: #b6c9e2;
+  --edge: #6e92b9;
+  --leaf: #75c9ff;
+  --amber: #f1c779;
+  --on-accent: #071527;
+}
+
+:root[data-theme="parchment"] {
+  color-scheme: light;
+  --bg: #e8dcc0;
+  --card: #fffaed;
+  --layer: #f4e7cb;
+  --ink: #302519;
+  --muted: #695541;
+  --edge: #96774f;
+  --leaf: #49633f;
+  --amber: #80501e;
+  --on-accent: #fffaed;
+  --dialog-backdrop: #33281980;
+  --dialog-shadow: #33281950;
+  --prayer-marker: #745386;
+}
+
+:root[data-theme="diagnostic"] {
+  color-scheme: light;
+  --bg: #fa00ed;
+  --card: #00e66a;
+  --layer: #00bbd4;
+  --ink: #101010;
+  --muted: #4b0055;
+  --edge: #735b00;
+  --leaf: #00238c;
+  --amber: #602000;
+  --on-accent: #ffffff;
+}
+
+:root[data-theme]:not(:where([data-theme="nextphase"])) {
+  --top-surface: var(--card);
+  --dock-surface: var(--card);
+  --app-icon-surface: var(--layer);
+  --app-icon-border: var(--edge);
+  --action-text: var(--on-accent);
+  --action-border: var(--leaf);
+  --button-hover: var(--card);
+  --selected-surface: var(--layer);
+  --selected-border: var(--leaf);
+  --reading-border: var(--edge);
+  --reading-start: var(--card);
+  --reading-end: var(--layer);
+  --progress-track: var(--edge);
+  --progress-fill: var(--leaf);
+  --summary-text: var(--ink);
+  --row-surface: var(--layer);
+  --row-hover: var(--card);
+  --dock-control: var(--layer);
+  --dialog-border: var(--edge);
+  --dialog-surface: var(--card);
+  --verse-control: var(--layer);
+  --field-surface: var(--bg);
+  --field-border: var(--edge);
+  --current-border: var(--leaf);
+}
+
+:root[data-theme="olam-haba"] {
+  color-scheme: dark;
+  --bg: #060e1c;
+  --card: #101f32;
+  --layer: #172b40;
+  --ink: #eef6fa;
+  --muted: #b1c5d2;
+  --edge: #53778a;
+  --leaf: #8bcbd2;
+  --amber: #c4b8e6;
+  --prayer-marker: var(--amber);
+  --primary: #20526d;
+  --secondary: #194c46;
+  --action-surface: linear-gradient(145deg, var(--primary), var(--secondary));
+  --action-text: var(--ink);
+  --action-border: #6596a2;
+  --glass-surface: #10243a;
+  --glass-raised: #102237;
+  --glass-tint: rgb(16 36 58 / .82);
+  --glass-raised-tint: rgb(16 34 55 / .92);
+  --glass-border: var(--edge);
+  --glass-reflection: linear-gradient(154deg, rgb(212 243 249 / .055), transparent 38%),
+    radial-gradient(ellipse at 82% 110%, rgb(28 116 96 / .18), transparent 65%);
+  --glass-shadow: inset 0 1px rgb(205 238 250 / .12), 0 8px 25px rgb(0 7 19 / .31);
+  --glass-raised-shadow: var(--glass-shadow), 0 25px 80px rgb(0 6 16 / .48);
+  --glass-blur: 12px;
+  --top-surface: var(--glass-surface);
+  --dock-surface: var(--glass-surface);
+  --dialog-surface: var(--glass-raised);
+  --dialog-border: var(--glass-border);
+  --dialog-backdrop: rgb(3 9 21 / .64);
+  --reading-start: #143847;
+  --reading-end: #11273e;
+  --reading-border: var(--glass-border);
+  --field-surface: #0a1729;
+  --row-hover: #1e374b;
+  --button-hover: #1e374b;
+  --selected-surface: #16414a;
+  --atmosphere:
+    radial-gradient(1px 1px at 12% 20%, #c6ddeb 35%, transparent),
+    radial-gradient(1px 1px at 77% 17%, #c6ddeb 35%, transparent),
+    radial-gradient(1px 1px at 91% 28%, #b3badb 35%, transparent),
+    radial-gradient(1px 1px at 24% 11%, #b3badb 35%, transparent),
+    radial-gradient(1px 1px at 61% 29%, #b5dadd 35%, transparent),
+    radial-gradient(1px 1px at 16% 41%, #809cb4 35%, transparent),
+    radial-gradient(1px 1px at 86% 43%, #809cb4 35%, transparent),
+    radial-gradient(ellipse at 88% 3%, rgb(86 65 128 / .31), transparent 46%),
+    radial-gradient(ellipse at 1% 38%, rgb(29 76 121 / .42), transparent 53%),
+    radial-gradient(ellipse at 85% 100%, rgb(23 102 82 / .34), transparent 52%),
+    radial-gradient(ellipse at 33% 75%, rgb(26 80 104 / .26), transparent 51%);
+  background-image: var(--atmosphere);
+}
+
+[data-theme="olam-haba"] :is(.top, .dock, dialog) {
+  background-image: var(--glass-reflection);
+  box-shadow: var(--glass-shadow);
+}
+
+[data-theme="olam-haba"] dialog {
+  box-shadow: var(--glass-raised-shadow);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  :root[data-theme="olam-haba"] {
+    --top-surface: var(--glass-tint);
+    --dock-surface: var(--glass-tint);
+  }
+
+  [data-theme="olam-haba"] dialog[data-expanded="false"] {
+    --dialog-surface: var(--glass-raised-tint);
+  }
+
+  [data-theme="olam-haba"] :is(.top, .dock, dialog[data-expanded="false"]) {
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    backdrop-filter: blur(var(--glass-blur));
+  }
+}
+
+.top-actions { display: flex; align-items: center; gap: 6px; }
+.appearance-button { display: grid; place-items: center; width: 44px; padding: 0; color: var(--leaf); border-radius: 50%; }
+.appearance-button svg { width: 21px; height: 21px; }
+.theme-options { min-width: 0; display: grid; gap: 6px; margin: 0; padding: 10px; border: 1px solid var(--edge); border-radius: 12px; }
+.theme-options legend { color: var(--muted); font-size: 13px; font-weight: 680; }
+.theme-choice { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 7px 10px; cursor: pointer;
+  border: 1px solid var(--edge); border-radius: 10px; background: var(--layer); }
+.theme-choice:has(input:checked) { border-color: var(--leaf); }
+.theme-choice input { width: 18px; height: 18px; min-height: 0; margin: 0; flex: 0 0 auto; accent-color: var(--leaf); }
+.theme-options + .actions button:disabled { opacity: .62; cursor: default; }

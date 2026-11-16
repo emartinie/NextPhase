@@ -5,6 +5,7 @@ import {
 import { fixture, members, loadLocal, saveLocal } from './fellowship.js';
 import { createStudyTools } from './study-tools.js';
 import { createPeopleViews } from './people.js';
+import { initAppearance, bindThemeDiagnostic, createThemeView } from './theme-manager.js';
 import { createGameView } from './games.js';
 import { createPreparednessViews } from './preparedness.js';
 import { createLibraryViews } from './preparedness-library.js';
@@ -279,7 +280,7 @@ const referenceFields = { research: ['ref'], article: ['id', 'file', 'anchor'], 
 const panelParameters = ['card', 'covenant', 'id', 'ref', 'book', 'chapter', 'section', 'zone', 'folder', 'category', 'view', 'file', 'journey', 'language',
   'from', 'work', 'volume', 'verse', 'q', 'anchor', 'video', 'debate', ...calendarFields];
 const studyCards = { law: 'commandments', covenant: 'commandments', commandment: 'commandments', nt: 'nt', sefaria: 'sefaria',
-  people: 'people', person: 'people', teaching: 'people', debate: 'people' };
+  people: 'people', person: 'people', teaching: 'people', debate: 'people', themeManager: 'theme' };
 const studyCardFields = {
   covenant: ['covenant'], commandment: ['id'], sefaria: ['ref'],
   person: ['id'], teaching: ['id', 'video'], debate: ['debate'],
@@ -390,6 +391,8 @@ async function openLinkedStudyCard() {
     const debate = searchParams.get('debate');
     type = debate ? 'debate' : id && video ? 'teaching' : id ? 'person' : 'people';
     data = debate ? { debate } : { id, video };
+  } else if (card === 'theme') {
+    type = 'themeManager';
   } else if (card === 'commandments') {
     const covenant = searchParams.get('covenant');
     const id = searchParams.get('id');
@@ -424,6 +427,7 @@ function saveFrame(frame) {
   frame.top = panel.scrollTop;
   frame.content = [...panel.childNodes];
   frame.focus = panel.contains(document.activeElement) ? document.activeElement : null;
+  frame.onLeave?.();
 }
 function closePanels(after) {
   if (!frames.length || pendingClose) return;
@@ -478,6 +482,7 @@ function sizePanel(frame) {
 }
 const panelNames = {
   weeks: 'Choose week', days: 'Daily schedule', tools: 'Study tools', reader: 'Passage reader',
+  themeManager: 'Theme Manager',
   verse: 'Passage tools', weeklyText: 'Weekly Scripture', outline: 'Chapter outlines',
   commentary: 'Weekly commentary', resources: 'Teaching & resources', listen: 'Scripture audio',
   research: 'Investigations', article: 'Investigation', calendar: 'Calendar studies',
@@ -507,7 +512,7 @@ function activeFrame(frame) {
 }
 function renderPanel(frame) {
   $('panel-title').textContent = panelNames[frame.type];
-  $('panel-kicker').textContent = frame.type === 'dm' ? 'Local simulation' :
+  $('panel-kicker').textContent = frame.type === 'themeManager' ? 'Appearance' : frame.type === 'dm' ? 'Local simulation' :
     frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
     Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
     Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
@@ -726,6 +731,7 @@ function selectYear(year) {
 }
 
 const views = {
+  themeManager: createThemeView({ node, text, button, cluster }),
   ...createPeopleViews({ node, text, button, link, cluster, row, disclosure, open }),
   games: createGameView({ node, text, button, cluster, row, disclosure, members, passage }),
   ...createPreparednessViews({ node, text, button, cluster, disclosure, link, open }),
@@ -1060,4 +1066,9 @@ async function boot() {
     study.replaceChildren(text('The weekly schedule could not load.', 'loading'), button('Try again', boot));
   }
 }
+initAppearance();
+bindThemeDiagnostic(() => {
+  if (frames.at(-1)?.type === 'themeManager') backPanel();
+  else open('themeManager', { diagnostic: true });
+});
 boot();

@@ -5,12 +5,14 @@ NextPhase opens to the current weekly Bible study. It is a development and revie
 - **Study** has the weekly schedule, daily readings, Passage reader, and personal notes.
 - **Study Tools** opens Covenants & Commandments, New Testament Notes, Hebrew Library, Teachers & Scholars, Sources and Investigations, Learning, Preparedness, and Calendar.
 - **Study discussion** flips to the current week's Fellowship. From there you can try game invitations and preparedness drills.
+- The **Theme Manager** in the header previews the original Cosmic Glass, Midnight Sapphire, and Ancient Parchment palettes adapted to the NextPhase layout. Save a theme to keep it in the current browser. Leaving an unsaved preview restores the saved appearance. Open the temporary diagnostic palette with `Ctrl+Alt+Shift+D` or by tapping the study title five times within three seconds. [HomeGroups theme diagnostic](https://github.com/emartinie/HGBibleApp/blob/1e31cc4dd984adc638db2aa87571618fee1f3e31/js/themeDiagnostic.js)
+- **Olam HaBa** (עולם הבא, The World to Come) uses a static gradient atmosphere and shared glass tokens for the app chrome and dialogs. Compact surfaces use blur where available, with solid surfaces as a fallback. Expanded reading panels use solid glass colors. The same glass tokens are available for future floating controls.
 
 ## Local review
 
 Run `node serve-preparedness.cjs` and open [the local preview](http://127.0.0.1:8767/). Node is required for the local server and tests. The app itself is static and loads from the repository root with no build step.
 
-Install Playwright with Chromium to run the seven suites below. Set `NEXTPHASE_PLAYWRIGHT` to an existing Playwright module or `NEXTPHASE_CHROME` to a local Chromium executable. Each suite serves the app under `/NextPhase/` to exercise project-site URLs.
+Install Playwright with Chromium to run the suites below. Set `NEXTPHASE_PLAYWRIGHT` to an existing Playwright module or `NEXTPHASE_CHROME` to a local Chromium executable. Each suite serves the app under `/NextPhase/` to exercise project-site URLs.
 
 ```text
 node check.cjs
@@ -20,6 +22,8 @@ node check-preparedness.cjs
 node check-learning.cjs
 node check-calendar.cjs
 node check-people.cjs
+node check-theme.cjs
+node check-olam-haba.cjs
 ```
 
 The [MainStage notes](MAINSTAGE-REVIEW.md) describe reader and schedule limitations. The [migration notes](LEARNING-MIGRATION.md) record Learning, Calendar, and source curation. The [HomeGroups source license](corpus/LICENSE) is bundled. Third-party source attribution and applicable reuse notices appear with their respective editions.
