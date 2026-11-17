@@ -81,7 +81,7 @@ export function mountFirebaseDiscussion(target, { node, text, firestore, db, uid
         return row;
       });
       feed.replaceChildren(...posts);
-      status.textContent = canPost ? (posts.length ? '' : 'Be the first to post a reply.') : 'Read-only discussion.';
+      status.textContent = canPost ? (posts.length ? '' : 'What stood out in the reading? Share a thought to start the conversation.') : 'Read-only discussion.';
     }, showError);
   }).catch(showError);
 

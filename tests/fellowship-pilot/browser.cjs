@@ -89,7 +89,10 @@ async function run() {
     const normalUrl = new URL(pilot.url);
     normalUrl.searchParams.delete('pilot');
     const demo = await open({}, normalUrl.href);
-    await demo.getByRole('button', { name: 'Invite to Game' }).waitFor();
+    await demo.getByRole('button', { name: 'Fellowship actions' }).click();
+    await demo.getByRole('button', { name: /^Invite to Game/ }).waitFor();
+    await demo.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
+    await demo.getByText('Try the local discussion demo', { exact: true }).click();
     await demo.getByRole('button', { name: 'Post demo reply' }).waitFor();
     assert.deepEqual(pageErrors, []);
     assert.deepEqual(externalRequests, []);
