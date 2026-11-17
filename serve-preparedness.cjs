@@ -16,8 +16,9 @@ const contentTypes = {
   '.svg': 'image/svg+xml',
   '.wav': 'audio/wav',
 };
-function createPreviewServer({ mount = '' } = {}) {
+function createPreviewServer({ mount = '', handleRequest } = {}) {
   return http.createServer((request, response) => {
+    if (handleRequest?.(request, response)) return;
     if (request.method !== 'HEAD' && request.method !== 'GET') {
       response.writeHead(405, { Allow: 'GET, HEAD' }).end();
       return;

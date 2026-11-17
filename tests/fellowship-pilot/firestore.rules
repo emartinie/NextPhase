@@ -1,0 +1,100 @@
+rules_version = '2';
+
+// The test runner seeds a group leader, a member, and the study threads.
+// groups/{groupId}/members/{uid}: presence grants access. Only a seeded leader can invite.
+// New members have role 'member', inviteId, and joinedAt, all immutable.
+// groups/{groupId}/invites/{id}: creatorId, recipientId, createdAt, expiresAt, redeemed.
+// Only the intended person can redeem, in the same batch that creates membership.
+// groups/{groupId}/studyThreads/{threadId}: a discussion with open (boolean, false for archives).
+// .../messages/{messageId}: authorId (authenticated UID), body (1–1600 characters),
+// createdAt (server timestamp). Messages are immutable in the pilot.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function memberPath(groupId, uid) {
+      return /databases/$(database)/documents/groups/$(groupId)/members/$(uid);
+    }
+
+    function invitePath(groupId, id) {
+      return /databases/$(database)/documents/groups/$(groupId)/invites/$(id);
+    }
+
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isMember(groupId) {
+      return request.auth != null
+        && exists(memberPath(groupId, request.auth.uid));
+    }
+
+    function isLeader(groupId) {
+      return isMember(groupId) && get(memberPath(groupId, request.auth.uid)).data.role == 'leader';
+    }
+
+    function validId(id) {
+      return id is string && id.matches('^[a-f0-9]{32}$');
+    }
+
+    function isValidInvite(data, groupId) {
+      let fields = ['creatorId', 'recipientId', 'createdAt', 'expiresAt', 'redeemed'];
+      return data.keys().hasAll(fields) && data.keys().hasOnly(fields)
+        && data.creatorId == request.auth.uid && data.createdAt == request.time
+        && data.recipientId is string && data.recipientId.matches('^[a-zA-Z0-9_-]{1,128}$')
+        && !exists(memberPath(groupId, data.recipientId))
+        && data.expiresAt is timestamp && data.expiresAt > request.time
+        && data.expiresAt <= request.time + duration.value(24, 'h')
+        && data.redeemed == false;
+    }
+
+    function canRedeem(data, uid) {
+      return data.recipientId == uid && data.redeemed == false && data.expiresAt > request.time;
+    }
+
+    function isValidMembership(data, groupId, uid) {
+      let fields = ['role', 'inviteId', 'joinedAt'];
+      return data.keys().hasAll(fields) && data.keys().hasOnly(fields)
+        && data.role == 'member' && validId(data.inviteId) && data.joinedAt == request.time
+        && canRedeem(get(invitePath(groupId, data.inviteId)).data, uid)
+        && getAfter(invitePath(groupId, data.inviteId)).data.redeemed == true;
+    }
+
+    function isValidRedemption(data, groupId, id, uid) {
+      return data.diff(resource.data).affectedKeys().hasOnly(['redeemed']) && data.redeemed == true
+        && !exists(memberPath(groupId, uid))
+        && getAfter(memberPath(groupId, uid)).data.inviteId == id;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['authorId', 'body', 'createdAt'])
+        && data.keys().hasOnly(['authorId', 'body', 'createdAt'])
+        && data.authorId == request.auth.uid
+        && data.body is string && data.body.size() <= 1600
+        && data.body.matches('(?s).*[^\\s].*')
+        && data.createdAt == request.time;
+    }
+
+    match /groups/{groupId}/members/{uid} {
+      allow get: if isSelf(uid);
+      allow create: if isSelf(uid) && isValidMembership(request.resource.data, groupId, uid);
+    }
+
+    match /groups/{groupId}/invites/{id} {
+      allow get: if isLeader(groupId) || isSelf(resource.data.recipientId);
+      allow create: if validId(id) && isLeader(groupId) && isValidInvite(request.resource.data, groupId);
+      allow update: if request.auth != null && canRedeem(resource.data, request.auth.uid)
+        && isValidRedemption(request.resource.data, groupId, id, request.auth.uid);
+    }
+
+    match /groups/{groupId}/studyThreads/{threadId} {
+      allow get: if isMember(groupId);
+
+      match /messages/{messageId} {
+        allow get: if isMember(groupId);
+        allow list: if isMember(groupId) && request.query.limit <= 50;
+        allow create: if isMember(groupId)
+          && get(/databases/$(database)/documents/groups/$(groupId)/studyThreads/$(threadId)).data.open == true
+          && isValidMessage(request.resource.data);
+      }
+    }
+  }
+}

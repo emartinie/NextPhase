@@ -27,3 +27,11 @@ node check-olam-haba.cjs
 ```
 
 The [MainStage notes](MAINSTAGE-REVIEW.md) describe reader and schedule limitations. The [migration notes](LEARNING-MIGRATION.md) record Learning, Calendar, and source curation. The [HomeGroups source license](corpus/LICENSE) is bundled. Third-party source attribution and applicable reuse notices appear with their respective editions.
+
+## Local Fellowship invitation pilot
+
+Set `FIRESTORE_EMULATOR_JAR` to the local Firestore emulator JAR and `JAVA_BIN` to the Java executable if needed. Run `node tests/fellowship-pilot/server.cjs` and open the URL printed in the terminal. The server listens on this computer only. `FELLOWSHIP_PILOT_PORT` overrides its default port of 8769.
+
+Choose **Miriam Ellis**, open **Invite a member**, and create a link. Copy the link to a separate browser tab, choose **Outside Tester**, and accept. The new member can read the discussion and post a reply that appears in Miriam’s tab. The link is valid for one acceptance within 12 hours. The pilot uses simulated sign-in and discards group membership changes, messages, and invitations at restart. The pilot rules must be reviewed and tested with real identities before any hosted rollout.
+
+With the emulator and Playwright configured, run `node tests/fellowship-pilot/check.cjs` for rules checks and `node tests/fellowship-pilot/browser.cjs` for the phone-sized and desktop flows.
