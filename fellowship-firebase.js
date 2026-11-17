@@ -18,7 +18,7 @@ function signInError(error) {
   }
 }
 
-export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath }) {
+export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath, setInviteUser }) {
   const controller = new AbortController();
   const status = text('Connecting to HomeGroups Fellowship…', 'form-caption');
   status.setAttribute('role', 'status');
@@ -61,6 +61,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
     target.append(signIn, signOut, discussion);
     unsubscribe = authSdk.onAuthStateChanged(auth, async user => {
       const currentView = ++view;
+      setInviteUser?.(user);
       stopDiscussion?.();
       discussion.replaceChildren();
       signIn.hidden = Boolean(user);

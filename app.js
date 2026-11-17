@@ -3,6 +3,7 @@ import {
   getWeeklyText, getCommentary, readPassage, webUrl, passageUrl,
 } from './corpus.js';
 import { fixture, members, loadLocal, saveLocal } from './fellowship.js';
+import { mountFellowshipHome } from './fellowship-home.js';
 import { createStudyTools } from './study-tools.js';
 import { createPeopleViews } from './people.js';
 import { initAppearance, bindThemeDiagnostic, createThemeView } from './theme-manager.js';
@@ -33,6 +34,8 @@ const pilotMode = localPreview ? requestedPilot
   : hostedFellowshipPreview && requestedPilot === 'firebase' ? 'firebase' : null;
 const fellowshipPilot = ['fellowship', 'firebase'].includes(pilotMode);
 let stopFellowshipPilot;
+let fellowshipHome;
+let fellowshipInviteUser;
 const cycleWeek = currentWeek(now);
 const today = now.getDay() + 1;
 const liveYear = now.getFullYear();
@@ -198,23 +201,16 @@ function showFace(next) {
   fellowship.inert = !back;
   fellowship.setAttribute('aria-hidden', String(!back));
   $('flip').setAttribute('aria-pressed', String(back));
-  $('flip').innerHTML = back ? 'Back to study <span aria-hidden="true">⇄</span>' : 'Study discussion <span aria-hidden="true">⇄</span>';
+  $('flip').setAttribute('aria-label', back ? 'Back to study' : 'Study discussion');
+  $('flip').innerHTML = back ? 'Study <span aria-hidden="true">⇄</span>' : 'Fellowship <span aria-hidden="true">⇄</span>';
   $('tools-button').hidden = back;
   $('notes-button').hidden = back;
-  $('flip').classList.toggle('only', back);
-  updateGamesEntry();
+  $('fellowship-more').hidden = !back;
+  $('flip').parentElement.setAttribute('aria-label', back ? 'Fellowship navigation' : 'Weekly study actions');
+  if (back) void fellowshipHome?.load();
 }
 
-function updateGamesEntry() {
-  const control = $('games-button');
-  const available = !fellowshipPilot && face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
-  control.hidden = !available;
-  control.parentElement.dataset.games = String(available);
-}
-
-function openFellowshipGames() {
-  if (!$('games-button').hidden) open('games', { scope: threadKey() });
-}
+const gamesAvailable = () => !fellowshipPilot && face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
 
 function renderStudy() {
   const { row: data, content } = active;
@@ -510,6 +506,8 @@ const panelNames = {
   prepLibrary: 'Be Ready library', prepDocument: 'Catalog record', prepRadio: 'Amateur radio resources',
   prepMap: 'Radio Network Map', prepPrayer: 'Prayer Map', prepResearch: 'Preparedness research', prepContacts: 'Practice contact log',
   note: 'Personal notes', private: 'Private conversations', dm: 'Private conversation',
+  conversationInvite: 'Invite to conversation',
+  fellowshipActions: 'Fellowship actions', fellowshipInvitations: 'Invitations', conversationInvitation: 'Conversation invitation',
   archive: 'Discussion archives', alignment: 'Interlinear', attach: 'Attach a passage',
   law: 'Covenants & Commandments', covenant: 'Covenant', commandment: 'Commandment',
   nt: 'New Testament Notes', sefaria: 'Hebrew Library · Sefaria',
@@ -699,22 +697,42 @@ function composer(host, key, addPost, isPrivate = false) {
 
 function renderFellowship() {
   stopFellowshipPilot?.();
+  fellowshipInviteUser = null;
+  fellowshipHome?.close();
   const { row: data, year } = active;
+  const selectedWeek = week;
   const archive = year !== liveYear;
   const inner = node('article', '', 'sheet');
-  inner.append(renderIntro('fellowship-title', `Fellowship · ${year}`, 'Study discussion',
+  inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
     `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
-  if (fellowshipPilot) {
-    const section = node('section', '', 'thread-card');
-    const selectedWeek = week;
-    inner.append(section);
+  const section = node('section', '', 'thread-card fellowship-conversation');
+  section.tabIndex = -1;
+  section.setAttribute('aria-label', 'Weekly conversation');
+  const discussionTitle = archive ? 'Discussion archive' : selectedWeek === cycleWeek ? 'This week’s discussion' : `Week ${selectedWeek} discussion`;
+  section.append(node('h2', discussionTitle));
+  fellowshipHome = archive ? null : mountFellowshipHome(inner, {
+    node, text, button, link, cluster,
+    inviteConversation: (marker, snapshot) => open('conversationInvite', { marker, snapshot, week: selectedWeek }),
+  });
+  const links = cluster(
+    link('Conversations', 'https://homegroups.org/?card=fellowship-live&view=messages'),
+    link('Communities', 'https://homegroups.org/?card=fellowship-live&view=explore'),
+    button('Invitations', () => open('fellowshipInvitations')),
+  );
+  links.classList.add('fellowship-links');
+  const mount = () => {
+    inner.append(section, links);
     fellowship.replaceChildren(inner);
-    updateGamesEntry();
+    if (face === 'fellowship') void fellowshipHome?.load();
+  };
+  if (fellowshipPilot) {
+    mount();
     if (pilotMode === 'firebase') {
       import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
         if (section.isConnected) stopFellowshipPilot = mountFirebaseFellowship(section, {
           node, text, button, year, week: selectedWeek,
           configPath: hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
+          setInviteUser(user) { if (section.isConnected) fellowshipInviteUser = user; },
         });
       }).catch(() => {
         if (section.isConnected) section.append(text('Could not open the Firebase sign-in preview.'));
@@ -722,39 +740,42 @@ function renderFellowship() {
       return;
     }
     import('./fellowship-pilot.js').then(({ mountLocalFellowship }) => {
-      if (section.isConnected) stopFellowshipPilot = mountLocalFellowship(section, {
+      if (!section.isConnected) return;
+      stopFellowshipPilot = mountLocalFellowship(section, {
         node, text, button, cluster, year, week: selectedWeek,
       });
+      if (new URLSearchParams(location.hash.slice(1)).has('invite')) section.scrollIntoView({ block: 'start' });
     }).catch(() => {
       if (section.isConnected) section.append(text('Could not open the local Fellowship pilot.'));
     });
     return;
   }
-  inner.append(cluster(...(archive ? [] : [button('Preparedness', () => open('preparedness', { initial: 'group' }), 'button primary')]),
-    button('Discussion archives', () => open('archive')), archive
-    ? button('Return to ' + liveYear, () => selectYear(liveYear), 'quiet')
-    : button('Private conversations', () => open('private'), 'quiet')));
+  if (archive) section.append(button(`Return to ${liveYear}`, () => selectYear(liveYear), 'quiet'));
+  else {
+    section.append(text('What stood out to you in the reading? Bring a question or share what you noticed.'));
+    section.append(link('Open weekly conversation', localPreview
+      ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${selectedWeek}`
+      : `https://homegroups.org/?card=fellowship-live&view=home&week=${selectedWeek}`));
+  }
   const group = fixture(year, week, liveYear, cycleWeek, data.portion_transliteration, data.torah_reading);
   const key = threadKey();
-  const section = node('section', '', 'thread-card');
   const messages = node('div');
+  const demo = node('div', '', 'thread-card');
+  demo.append(node('p', archive ? 'Sample archive' : 'Fellowship demo', 'eyebrow'));
   if (group) {
-    section.append(node('p', archive ? 'Archived sample thread' : 'Sample group · Prototype', 'eyebrow'),
-      node('h2', group.name));
+    demo.append(node('h3', group.name));
     messages.append(post('Miriam Ellis', group.opening, group.reference), post('Daniel Brooks', group.reply));
   } else {
-    section.append(node('h2', 'No discussion yet'), text(archive
+    demo.append(node('h3', 'No discussion yet'), text(archive
       ? 'There is no sample discussion for this year and study.'
       : 'Start a local discussion for this year’s study.'));
   }
   for (const item of posts(key)) messages.append(post('You · Demo', item.body, item.ref));
-  section.append(messages);
-  if (!archive) composer(section, key, (item) => messages.append(post('You · Demo', item.body, item.ref)));
-  else section.append(text('Archive · Read only'));
-  section.style.marginTop = '14px';
-  inner.append(section);
-  fellowship.replaceChildren(inner);
-  updateGamesEntry();
+  demo.append(messages);
+  if (!archive) composer(demo, key, (item) => messages.append(post('You · Demo', item.body, item.ref)));
+  else demo.append(text('Archive · Read only'));
+  section.append(disclosure(archive ? 'View sample archive' : 'Try the local discussion demo', demo));
+  mount();
 }
 
 function selectYear(year) {
@@ -767,6 +788,99 @@ function selectYear(year) {
 
 const views = {
   themeManager: createThemeView({ node, text, button, cluster }),
+  fellowshipActions(target) {
+    if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
+    target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
+    if (!fellowshipPilot) target.append(row('Private conversations', 'Local demo', () => open('private')));
+    target.append(row('Preparedness', 'Group exercises and resources', () => open('preparedness', { initial: 'group' })));
+  },
+  fellowshipInvitations(target) {
+    target.append(text('Open the link in a Fellowship invitation email to accept or decline.'));
+    if (localPreview) target.append(button('Try a sample invitation', () => open('conversationInvitation', { sample: true })));
+  },
+  async conversationInvitation(target, { data }) {
+    const status = text('Opening the invitation…');
+    status.setAttribute('role', 'status');
+    target.append(status);
+    const sample = data.sample ? { code: 'pending', sender: members[0].name, reading: active.row.torah_reading, week } : null;
+    if (sample) target.prepend(text('Local invitation demo', 'eyebrow'));
+
+    async function respond(decision) {
+      if (sample) {
+        if (decision && sample.code === 'pending') sample.code = decision === 'accept' ? 'accepted' : 'declined';
+        return sample;
+      }
+      const response = await fetch(new URL('./__fellowship-email/respond', location.href), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: data.token, decision }),
+      });
+      return response.json();
+    }
+
+    const choices = cluster();
+    const choice = (label, decision, style) => button(label, async () => {
+      for (const control of choices.querySelectorAll('button')) control.disabled = true;
+      try { display(await respond(decision)); }
+      catch {
+        status.textContent = 'Could not save your choice. Please try again.';
+        for (const control of choices.querySelectorAll('button')) control.disabled = false;
+      }
+    }, style);
+    function display(result) {
+      if (result.code === 'pending') {
+        status.textContent = `${result.sender} invited you to discuss ${result.reading} from Week ${result.week}.`;
+        choices.replaceChildren(choice('Accept', 'accept', 'button primary'), choice('Decline', 'decline', 'quiet'));
+        return;
+      }
+      choices.replaceChildren();
+      if (result.code === 'accepted') {
+        status.textContent = sample ? 'Invitation accepted.' : 'Invitation accepted. Private messaging is still being set up.';
+        if (sample) choices.append(button('Open demo conversation', () => open('dm', { member: members[0] }), 'button primary'));
+      } else if (result.code === 'declined') status.textContent = 'Invitation declined.';
+      else status.textContent = 'This invitation is unavailable. It may have expired.';
+    }
+    target.append(choices);
+    try { display(await respond()); }
+    catch { status.textContent = 'This invitation could not be opened.'; }
+  },
+  async conversationInvite(target, frame) {
+    const user = fellowshipInviteUser;
+    if (!user) {
+      target.append(text(pilotMode === 'firebase' ? 'Sign in with Google in Weekly conversation, then try the invitation again.'
+        : 'Use the signed-in Fellowship preview to email an invitation.'));
+      if (localPreview && pilotMode !== 'firebase') target.append(link('Open signed-in preview',
+        'http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=7'));
+      return;
+    }
+    const status = text('Requesting your email invitation…');
+    status.setAttribute('role', 'status');
+    target.append(status);
+    const messages = {
+      accepted: 'The email service accepted your invitation. The recipient can accept or decline from the email.',
+      'no-address': 'There is no usable email address on file for this listing.',
+      'sign-in': 'Sign in to Fellowship again and try the invitation.',
+      forbidden: 'Email invitations are available to signed-in members of the pilot group.',
+      'refresh-map': 'Refresh the map before inviting this member.',
+      'already-requested': 'You already requested an invitation to this member today.',
+      'daily-limit': 'You reached today’s email invitation limit.',
+      configuration: 'Email sending has not been configured for this preview.',
+    };
+    try {
+      const token = await user.getIdToken();
+      if (!activeFrame(frame)) {
+        status.textContent = 'Invitation canceled before the email request.';
+        return;
+      }
+      const response = await fetch(new URL('./__fellowship-email/invite', location.href), {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(frame.data),
+      });
+      const result = await response.json().catch(() => ({}));
+      const code = [404, 405].includes(response.status) && !result.code ? 'configuration' : result.code;
+      status.textContent = messages[code] ?? 'The email service could not confirm your invitation. Try again later.';
+    } catch {
+      status.textContent = 'The email service could not confirm your invitation. Try again later.';
+    }
+  },
   ...createPeopleViews({ node, text, button, link, cluster, row, disclosure, open }),
   games: createGameView({ node, text, button, cluster, row, disclosure, members, passage }),
   ...createPreparednessViews({ node, text, button, cluster, disclosure, link, open }),
@@ -1077,7 +1191,6 @@ const views = {
 for (const control of document.querySelectorAll('[data-open]')) {
   control.addEventListener('click', () => open(control.dataset.open));
 }
-$('games-button').addEventListener('click', openFellowshipGames);
 $('flip').addEventListener('click', () => {
   if (active?.content) changeRoute(week, face === 'study' ? 'fellowship' : 'study');
 });
@@ -1089,11 +1202,16 @@ async function boot() {
     await applyRoute();
     if (!active?.content) return;
     const url = new URL(location.href);
-    if (face === 'fellowship' && url.searchParams.get('game') === 'invite') {
+    const reviewToken = /^#conversation-invite=([a-f0-9]{64})$/.exec(url.hash)?.[1];
+    if (reviewToken) {
+      url.hash = '';
+      history.replaceState({ panels: [] }, '', url);
+      open('conversationInvitation', { token: reviewToken });
+    } else if (gamesAvailable() && url.searchParams.get('game') === 'invite') {
       url.searchParams.delete('game');
       history.replaceState({ panels: [] }, '', url);
-      $('games-button').focus({ preventScroll: true });
-      openFellowshipGames();
+      $('fellowship-more').focus({ preventScroll: true });
+      open('games', { scope: threadKey() });
     } else {
       await openLinkedStudyCard();
     }

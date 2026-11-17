@@ -60,7 +60,7 @@ async function run() {
       ({ id: index + 1, question: 'Test question ' + (index + 1), hint: 'Genesis 1:1', answer: 'Source answer ' + (index + 1) })) }));
     const tap = (name) => phone.getByRole('button', { name, exact: true }).click();
     const dialog = phone.locator('dialog');
-    const goGames = () => tap('Invite to Game');
+    const goGames = async () => { await tap('Fellowship actions'); await phone.getByRole('button', { name: /^Invite to Game/ }).click(); };
     const send = async (member, type) => {
       await phone.getByLabel('Participant').selectOption(member);
       await phone.getByLabel('Game', {exact:true}).selectOption(type);
@@ -68,6 +68,7 @@ async function run() {
       await phone.getByText(/Invitation pending/).waitFor();
     };
     await phone.goto(url + '?face=fellowship&week=6');
+    await phone.getByText('Try the local discussion demo', { exact: true }).click();
     const reply = phone.getByLabel('Reply', { exact:true });
     await reply.fill('This Fellowship draft should survive.');
     await goGames();
@@ -96,7 +97,7 @@ async function run() {
     await dialog.waitFor({state:'hidden'});
     assert.equal(await reply.inputValue(),'This Fellowship draft should survive.');
     assert.equal(await phone.locator('#fellowship').evaluate(el => el.scrollTop),fellowshipTop);
-    assert.equal(await phone.evaluate(() => document.activeElement.textContent), 'Invite to Game');
+    assert.equal(await phone.evaluate(() => document.activeElement.id), 'fellowship-more');
     await phone.reload();
     await goGames();
     await phone.getByRole('button', {name:/Daniel Brooks In progress/}).click();
@@ -141,8 +142,10 @@ async function run() {
     const labels = (await callHistory.locator('p').textContent()).split(' · ');
     assert.equal(new Set(labels).size,labels.length);
     await tap('Close');
-    await tap('Discussion archives');
+    await tap('Fellowship actions');
+    await phone.getByRole('button', { name: /^Discussion archives/ }).click();
     await phone.getByRole('button',{name:/Year archive/}).click();
+    await phone.getByText('View sample archive', { exact: true }).click();
     await phone.getByText('Archive · Read only',{exact:true}).waitFor();
     assert.equal(await phone.getByRole('button',{name:'Invite to Game',exact:true}).count(),0);
     assert.deepEqual(errors,[]);
@@ -154,16 +157,19 @@ async function run() {
     await desktop.locator('#study-title').waitFor();
     assert.equal(await desktop.getByRole('button',{name:'Invite to Game',exact:true}).count(),0);
     await desktop.getByRole('button',{name:'Study discussion',exact:true}).click();
-    await desktop.getByRole('button',{name:'Invite to Game',exact:true}).click();
+    await desktop.getByRole('button',{name:'Fellowship actions',exact:true}).click();
+    await desktop.getByRole('button',{name:/^Invite to Game/}).click();
     await desktop.getByRole('heading',{name:'Invite someone',exact:true}).waitFor();
     assert.equal(await desktop.getByRole('heading',{name:'Your invitations',exact:true}).count(),0);
+    await desktop.keyboard.press('Escape');
+    await desktop.getByRole('dialog', { name: 'Fellowship actions' }).waitFor();
     await desktop.keyboard.press('Escape');
     await desktop.locator('dialog').waitFor({state:'hidden'});
     await desktop.goto(url + '?face=fellowship&game=invite');
     await desktop.getByRole('heading',{name:'Invite someone',exact:true}).waitFor();
     await desktop.getByRole('button',{name:'Close',exact:true}).click();
     await desktop.locator('dialog').waitFor({state:'hidden'});
-    assert.equal(await desktop.evaluate(() => document.activeElement.id), 'games-button');
+    assert.equal(await desktop.evaluate(() => document.activeElement.id), 'fellowship-more');
     assert.equal(new URL(desktop.url()).searchParams.get('face'), 'fellowship');
     console.log('Passed game rules and phone-sized/desktop Chromium: decline and accept, Trivia completion and hint excursion, Bingo completion and unique calls, resume after reload, archive boundary and Fellowship scroll, draft and focus restoration.');
   } finally {

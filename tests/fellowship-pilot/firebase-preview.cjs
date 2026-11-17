@@ -1,5 +1,6 @@
 const { readFileSync } = require('node:fs');
 const { createPreviewServer, pagesMount } = require('../../serve-preparedness.cjs');
+const { emailRoute, reviewRoute, reply, configureConversationEmail } = require('../../fellowship-email.cjs');
 
 function loadConfig(file) {
   if (!file) throw new Error('Set FELLOWSHIP_FIREBASE_WEB_CONFIG to the saved Firebase web configuration.');
@@ -21,9 +22,16 @@ function loadConfig(file) {
   return config;
 }
 
-function createFirebasePreview(config, port = 8770) {
+function createFirebasePreview(config, port = 8770, invite = null) {
   const configRoute = `${pagesMount}/__fellowship-firebase/config`;
   const server = createPreviewServer({ mount: pagesMount, handleRequest(request, response) {
+    if (request.url === pagesMount + emailRoute || request.url === pagesMount + reviewRoute) {
+      if (!invite) reply(response, 503, 'configuration');
+      else void invite(request, response).catch(() => {
+        if (!response.destroyed && !response.headersSent) reply(response, 502, 'service-unavailable');
+      });
+      return true;
+    }
     if (request.url !== configRoute) return false;
     const actualPort = server.address().port;
     if (request.method !== 'GET' || ![`localhost:${actualPort}`, `127.0.0.1:${actualPort}`].includes(request.headers.host)) {
@@ -38,15 +46,18 @@ function createFirebasePreview(config, port = 8770) {
 }
 
 if (require.main === module) {
-  try {
-    const server = createFirebasePreview(loadConfig(process.env.FELLOWSHIP_FIREBASE_WEB_CONFIG), Number(process.env.FELLOWSHIP_FIREBASE_PORT || 8770));
+  async function main() {
+    const config = loadConfig(process.env.FELLOWSHIP_FIREBASE_WEB_CONFIG);
+    const invite = await configureConversationEmail(config);
+    const server = createFirebasePreview(config, Number(process.env.FELLOWSHIP_FIREBASE_PORT || 8770), invite);
     server.on('listening', () => {
       console.log(`Firebase sign-in preview: http://localhost:${server.address().port}${pagesMount}/?pilot=firebase&face=fellowship&week=7`);
     });
-  } catch (error) {
+  }
+  main().catch(error => {
     console.error(error.message);
     process.exitCode = 1;
-  }
+  });
 }
 
 module.exports = { loadConfig, createFirebasePreview };
