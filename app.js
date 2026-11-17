@@ -25,6 +25,14 @@ const dialog = $('dialog');
 const panel = $('panel-body');
 const audio = $('audio');
 const now = new Date();
+const requestedPilot = new URLSearchParams(location.search).get('pilot');
+const localPreview = ['127.0.0.1', 'localhost'].includes(location.hostname);
+const hostedFellowshipPreview = location.protocol === 'https:'
+  && /^homegroups-fellowship--iphone-pilot-[a-z0-9]+\.web\.app$/.test(location.hostname);
+const pilotMode = localPreview ? requestedPilot
+  : hostedFellowshipPreview && requestedPilot === 'firebase' ? 'firebase' : null;
+const fellowshipPilot = ['fellowship', 'firebase'].includes(pilotMode);
+let stopFellowshipPilot;
 const cycleWeek = currentWeek(now);
 const today = now.getDay() + 1;
 const liveYear = now.getFullYear();
@@ -199,7 +207,7 @@ function showFace(next) {
 
 function updateGamesEntry() {
   const control = $('games-button');
-  const available = face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
+  const available = !fellowshipPilot && face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
   control.hidden = !available;
   control.parentElement.dataset.games = String(available);
 }
@@ -690,11 +698,38 @@ function composer(host, key, addPost, isPrivate = false) {
 }
 
 function renderFellowship() {
+  stopFellowshipPilot?.();
   const { row: data, year } = active;
   const archive = year !== liveYear;
   const inner = node('article', '', 'sheet');
   inner.append(renderIntro('fellowship-title', `Fellowship · ${year}`, 'Study discussion',
     `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
+  if (fellowshipPilot) {
+    const section = node('section', '', 'thread-card');
+    const selectedWeek = week;
+    inner.append(section);
+    fellowship.replaceChildren(inner);
+    updateGamesEntry();
+    if (pilotMode === 'firebase') {
+      import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
+        if (section.isConnected) stopFellowshipPilot = mountFirebaseFellowship(section, {
+          node, text, button, year, week: selectedWeek,
+          configPath: hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
+        });
+      }).catch(() => {
+        if (section.isConnected) section.append(text('Could not open the Firebase sign-in preview.'));
+      });
+      return;
+    }
+    import('./fellowship-pilot.js').then(({ mountLocalFellowship }) => {
+      if (section.isConnected) stopFellowshipPilot = mountLocalFellowship(section, {
+        node, text, button, cluster, year, week: selectedWeek,
+      });
+    }).catch(() => {
+      if (section.isConnected) section.append(text('Could not open the local Fellowship pilot.'));
+    });
+    return;
+  }
   inner.append(cluster(...(archive ? [] : [button('Preparedness', () => open('preparedness', { initial: 'group' }), 'button primary')]),
     button('Discussion archives', () => open('archive')), archive
     ? button('Return to ' + liveYear, () => selectYear(liveYear), 'quiet')
