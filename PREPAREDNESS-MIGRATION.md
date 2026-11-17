@@ -1,7 +1,13 @@
 
 # Preparedness migration ledger
 
-Open **Study → Tools → Preparedness** for the resources, or **Fellowship → Preparedness** for the Wednesday drill. Use **Plan & learn** to reach the catalog, radio resources, maps, and research. Prayer Map also opens directly from Study Tools. The full-size workspace uses the existing panel history, so Back restores your earlier view and Close returns to the Study or Fellowship screen.
+Open **Study → Tools → Preparedness** for the resources, or **Fellowship → ⋯ → Preparedness** for the Wednesday drill. Use **Plan & learn** to reach the catalog, radio resources, maps, research, and The Common Ground. Prayer Map also opens directly from Study Tools. The full-size Emergency Preparedness & Communications workspace uses the existing panel history, so Back restores your earlier view and Close returns to the Study or Fellowship screen.
+
+## The Common Ground
+
+The workspace includes a historical sample based on primary sources. The reader distinguishes confirmed facts, attributed estimates, open questions, and practical implications. Each block links to the relevant original sources. The source list and dated revision history are available in the briefing. **Discuss in Fellowship** opens a separate local reply panel. Browser Back or the panel Back button restores the briefing scroll and focused control. The briefing, its discussion, and the weekly conversation retain separate data.
+
+`corpus/preparedness/common-ground.json` holds versioned, curated sample records. Each record has an event date, source IDs and publication dates, claim verification status, revision history, and an editorial status with room for an approving editor and approval timestamp. The current reader displays explicitly marked samples. Keep future working drafts and AI research outside public assets until the editorial and human approval workflow is agreed. Hosting a real discussion would also require a chosen Fellowship group scope and an authorized shared discussion path.
 
 ## What came over
 

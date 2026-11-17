@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "briefings": [
+    {
+      "id": "crowdstrike-windows-outage-2024-07",
+      "headline": "A Falcon update disrupted Windows systems worldwide",
+      "summary": "An archival example of how a software update affected widely used systems and how official sources reported the disruption.",
+      "eventDate": "2024-07-19",
+      "editorial": {
+        "status": "sample",
+        "createdAt": "2026-11-17T07:34:41Z",
+        "updatedAt": "2026-11-17T07:34:41Z",
+        "approval": null
+      },
+      "sources": [
+        {
+          "id": "crowdstrike",
+          "publisher": "CrowdStrike",
+          "title": "Executive Summary of the Channel File 291 Root Cause Analysis",
+          "date": "2024-08-06",
+          "url": "https://www.crowdstrike.com/wp-content/uploads/2024/08/Executive-Summary_Root-Cause-Analysis_Channel-File-291.pdf",
+          "note": "The vendor’s root-cause findings and changes to its update testing and rollout."
+        },
+        {
+          "id": "microsoft",
+          "publisher": "Microsoft",
+          "title": "Helping our customers through the CrowdStrike outage",
+          "date": "2024-07-20",
+          "url": "https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/",
+          "note": "Microsoft’s estimate of affected Windows devices and its account of recovery work."
+        },
+        {
+          "id": "cisa",
+          "publisher": "CISA",
+          "title": "Widespread IT Outage Due to CrowdStrike Update",
+          "date": "2024-07-19",
+          "url": "https://content.govdelivery.com/accounts/USDHSCISA/bulletins/3a9a578",
+          "note": "The U.S. cybersecurity agency’s bulletin on the outage and phishing activity."
+        }
+      ],
+      "claims": [
+        {
+          "verification": "confirmed",
+          "text": "On July 19, 2024, a CrowdStrike configuration update for its Falcon software caused crashes on affected Windows systems. CrowdStrike traced the crashes to an error in how the software read data. The issue was specific to the Windows version of Falcon.",
+          "sourceIds": ["crowdstrike", "cisa"]
+        },
+        {
+          "verification": "confirmed",
+          "text": "CISA reported a widespread outage and worked with U.S. agencies, critical infrastructure operators, and international partners. For affected customers, it directed organizations to CrowdStrike’s recovery guidance. Microsoft also worked with CrowdStrike and other cloud providers on recovery.",
+          "sourceIds": ["cisa", "microsoft"]
+        },
+        {
+          "verification": "estimate",
+          "text": "On July 20, Microsoft estimated that about 8.5 million Windows devices were affected, under one percent of all Windows machines. The estimate counts devices. Service interruptions at organizations and disruptions to the people they serve are separate measures.",
+          "sourceIds": ["microsoft"]
+        },
+        {
+          "verification": "open-question",
+          "text": "The sources describe recovery work underway. A final worldwide count of service interruptions and the time each organization took to recover remain outside their scope.",
+          "sourceIds": ["cisa", "microsoft"]
+        }
+      ],
+      "implications": [
+        {
+          "text": "CISA reported phishing attempts that exploited the disruption. It advised people to get instructions through trusted channels. During a similar outage, an official vendor or workplace IT channel is the place to verify a recovery message before acting on it.",
+          "sourceIds": ["cisa"]
+        }
+      ],
+      "revisions": [
+        {
+          "id": 1,
+          "kind": "draft",
+          "at": "2026-11-17T07:34:41Z",
+          "note": "Created a historical sample using the vendor incident report, Microsoft’s estimate, and the CISA bulletin."
+        }
+      ],
+      "discussionPrompt": "Where would your HomeGroup check for reliable information if its usual messaging service were unavailable?"
+    }
+  ]
+}
