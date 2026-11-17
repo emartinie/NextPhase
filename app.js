@@ -9,6 +9,7 @@ import { createPeopleViews } from './people.js';
 import { initAppearance, bindThemeDiagnostic, createThemeView } from './theme-manager.js';
 import { createGameView } from './games.js';
 import { createPreparednessViews } from './preparedness.js';
+import { createCommonGroundViews } from './common-ground.js';
 import { createLibraryViews } from './preparedness-library.js';
 import { createMapViews } from './preparedness-map.js';
 import { createRadioViews } from './preparedness-radio.js';
@@ -270,6 +271,7 @@ function renderStudy() {
 const preparednessSections = {
   preparedness: 'workspace', prepLibrary: 'library', prepDocument: 'document', prepRadio: 'radio',
   prepMap: 'map', prepPrayer: 'prayer', prepResearch: 'research', prepContacts: 'contacts',
+  commonGround: 'briefings', commonGroundBriefing: 'briefing', briefingDiscussion: 'briefing-discussion',
 };
 const preparednessRoutes = Object.fromEntries(Object.entries(preparednessSections).map(([type, section]) => [section, type]));
 const legacyPreparedness = { beready: 'prepLibrary', amateurradio: 'prepRadio', radiomap: 'prepMap', prayermap: 'prepPrayer' };
@@ -418,6 +420,7 @@ async function openLinkedStudyCard() {
 
 function open(type, data = {}) {
   if (!active?.content || pendingClose) return;
+  if (type === 'briefingDiscussion') data = { ...data, year: active.year, week };
   if (!frames.length) origin = { opener: document.activeElement === document.body ? $('tools-button') : document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
   else saveFrame(frames.at(-1));
   const frame = { id: ++frameSequence, type, data, top: 0, expanded: type === 'games' || type === 'preparedness' };
@@ -501,10 +504,11 @@ const panelNames = {
   intertext: 'Intertext Explorer', translation: 'Translation Explorer',
   listenShelf: 'Listen', listenArticle: 'Listen',
   ancientLibrary: 'Ancient Library', ancientDetail: 'Ancient Library', ancientRead: 'Ancient Library reader',
-  games: 'Invite to Game', preparedness: 'Preparedness', practiceListen: 'Practice recording',
+  games: 'Invite to Game', preparedness: 'Emergency Preparedness & Communications', practiceListen: 'Practice recording',
   practicePlan: 'Practice plan', practiceReadback: 'Practice a read-back',
   prepLibrary: 'Be Ready library', prepDocument: 'Catalog record', prepRadio: 'Amateur radio resources',
   prepMap: 'Radio Network Map', prepPrayer: 'Prayer Map', prepResearch: 'Preparedness research', prepContacts: 'Practice contact log',
+  commonGround: 'The Common Ground', commonGroundBriefing: 'The Common Ground', briefingDiscussion: 'Fellowship discussion',
   note: 'Personal notes', private: 'Private conversations', dm: 'Private conversation',
   conversationInvite: 'Invite to conversation',
   fellowshipActions: 'Fellowship actions', fellowshipInvitations: 'Invitations', conversationInvitation: 'Conversation invitation',
@@ -519,6 +523,7 @@ function activeFrame(frame) {
 function renderPanel(frame) {
   $('panel-title').textContent = panelNames[frame.type];
   $('panel-kicker').textContent = frame.type === 'themeManager' ? 'Appearance' : frame.type === 'dm' ? 'Local simulation' :
+    frame.type === 'briefingDiscussion' ? `Fellowship · ${weekLine()}` :
     frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
     Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
     Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
@@ -884,6 +889,17 @@ const views = {
   ...createPeopleViews({ node, text, button, link, cluster, row, disclosure, open }),
   games: createGameView({ node, text, button, cluster, row, disclosure, members, passage }),
   ...createPreparednessViews({ node, text, button, cluster, disclosure, link, open }),
+  ...createCommonGroundViews({ node, text, button, row, link, disclosure, open, mountDiscussion(target, item, context) {
+    const key = `briefing:${context.year}:${context.week}:${item.id}`;
+    target.append(text('Local Fellowship discussion · Replies stay in this browser.'));
+    if (frames.at(-2)?.type !== 'commonGroundBriefing') {
+      target.append(button('Read the briefing', () => open('commonGroundBriefing', { id: item.id }), 'quiet'));
+    }
+    const replies = node('div');
+    for (const reply of posts(key)) replies.append(post('You · Local', reply.body, reply.ref));
+    target.append(replies);
+    composer(target, key, reply => replies.append(post('You · Local', reply.body, reply.ref)));
+  } }),
   ...createLibraryViews({ node, text, button, cluster, disclosure, link, open }),
   ...createMapViews({ node, text, button, cluster, disclosure, link, open }),
   ...createRadioViews({ node, text, button, cluster, disclosure, link, open }),

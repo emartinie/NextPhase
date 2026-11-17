@@ -89,7 +89,7 @@ export function createPreparednessViews({ node, text, button, cluster, disclosur
       }));
       controls.setAttribute('aria-label', 'Preparedness views');
       controls.setAttribute('role', 'group');
-      target.append(text('Preparedness resources and the simulated Wednesday HomeGroup drill.'), controls, content, status);
+      target.append(controls, content, status);
 
       function save(message) {
         status.textContent = savePractice(record) ? message : message + ' Browser storage is unavailable. Changes last for this tab.';
@@ -303,6 +303,7 @@ export function createPreparednessViews({ node, text, button, cluster, disclosur
           ['Be Ready library', 'Browse 1,061 original catalog records.', 'prepLibrary'],
           ['Amateur radio resources', 'Licensing, listening, published nets and reference frequencies.', 'prepRadio'],
           ['Radio Network Map', 'Find legacy sample points and published repeater references.', 'prepMap'],
+          ['The Common Ground', 'Read a short briefing with original sources.', 'commonGround'],
           ['Prayer Map', 'Explore community and prayer geography in its own view.', 'prepPrayer'],
           ['Research backlog', 'Explore all 36 original topics and their sources.', 'prepResearch'],
         ];

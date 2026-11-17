@@ -116,6 +116,15 @@ dialog[data-workspace=true] .panel-content > h3 { font: normal clamp(25px, 7vw, 
 .prep-log li + li { border-top: 1px solid var(--edge); }
 .prep-resource { display: grid; gap: 5px; }
 .prep-resource .button { justify-self: start; }
+.common-ground-briefing { display:grid; gap:12px; max-width:65ch; }
+.common-ground-briefing h3 { font:normal clamp(24px,6vw,38px)/1.15 var(--serif); text-wrap:balance; }
+.common-ground-briefing h4 { margin:0; color:var(--leaf); }
+.common-ground-section { border-top:1px solid var(--edge); padding-block-start:10px; }
+.common-ground-section ul { display:grid; gap:10px; margin:6px 0 0; padding-inline-start:18px; }
+.common-ground-citations { display:flex; flex-wrap:wrap; gap:4px; margin-inline-start:-7px; }
+.common-ground-citations .button { padding:4px 7px; background:transparent; border-color:transparent; color:var(--leaf); text-decoration:underline; font-size:12px; }
+.common-ground-source { display:grid; gap:4px; }
+.common-ground-source .button { justify-self:start; }
 .prep-plan { margin: 0; display: grid; gap: 6px; }
 .prep-plan dt { font-weight: 750; color: var(--leaf); }
 .prep-plan dd { margin: 0 0 8px; line-height: 1.45; }
