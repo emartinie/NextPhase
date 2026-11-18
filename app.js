@@ -19,6 +19,7 @@ import { createTopicalViews } from './learning-topical.js';
 import { createReferenceViews } from './learning-references.js';
 import { createAncientViews } from './ancient-library.js';
 import { calendarCards, calendarFields, calendarRoute, createCalendarViews } from './calendar.js';
+import { bindWorkspaceSwipe } from './workspace-swipe.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -48,6 +49,27 @@ const ledger = loadLocal();
 let catalog;
 let active;
 let face = 'study';
+let workspace = 'study';
+let preparednessFace = 'study';
+let learningFace = 'study';
+let learningRecent;
+let learningResumeSlot;
+let learningDiscussionKey;
+const learningTopics = new Map();
+const learningDiscussions = new Map();
+const workspaceOrder = ['study', 'learning', 'preparedness'];
+const workspaceSettings = {
+  study: { title: 'MainStage', stage: 'stage', front: 'study', back: 'fellowship',
+    flipFront: 'Fellowship', flipBack: 'Study', labelFront: 'Study discussion', labelBack: 'Back to study',
+    tools: 'tools', toolsLabel: 'Tools', actions: 'fellowshipActions', actionsLabel: 'Fellowship actions' },
+  learning: { title: 'Learning Hub', stage: 'learning-stage', front: 'learning-study', back: 'learning-fellowship',
+    flipFront: 'Fellowship', flipBack: 'Learning', labelFront: 'Learning Fellowship', labelBack: 'Back to Learning Hub',
+    tools: 'learningTools', toolsLabel: 'Resources', actions: 'learningActions', actionsLabel: 'Learning Fellowship actions' },
+  preparedness: { title: 'Preparedness', stage: 'preparedness-stage', front: 'preparedness-study', back: 'preparedness-fellowship',
+    flipFront: 'Communications', flipBack: 'Preparedness', labelFront: 'Preparedness communications', labelBack: 'Back to preparedness',
+    tools: 'preparednessTools', toolsLabel: 'Resources', actions: 'preparednessActions', actionsLabel: 'Communications actions' },
+};
+let refreshPreparednessView;
 let week;
 let origin;
 let frameSequence = 0;
@@ -137,6 +159,10 @@ function readRoute() {
   return {
     week: Number.isInteger(selected) && selected >= 1 && selected <= WEEK_COUNT ? selected : cycleWeek,
     face: params.get('face') === 'fellowship' ? 'fellowship' : 'study',
+    workspace: workspaceOrder.includes(params.get('workspace')) ? params.get('workspace') : 'study',
+    learningFace: params.get('learningFace') === 'fellowship' ? 'fellowship' : 'study',
+    learningTopic: params.get('learningTopic') || 'learning:general',
+    preparednessFace: params.get('preparednessFace') === 'communications' ? 'fellowship' : 'study',
   };
 }
 function changeRoute(selected, nextFace) {
@@ -156,14 +182,84 @@ function dayRow(number = active?.day) {
 const weekLine = () => `Week ${week} · ${active?.row.portion_transliteration ?? 'Weekly study'}`;
 const defaultRef = () => dayRow()?.torah_daily_reading || active?.row.torah_reading || 'John 1';
 const passage = (ref, source) => open('reader', { ref, source });
-const currentSurface = () => face === 'study' ? study : fellowship;
+const workspaceFace = (id = workspace) => ({ study: face, learning: learningFace, preparedness: preparednessFace })[id];
+const currentSurface = () => $(workspaceSettings[workspace][workspaceFace() === 'study' ? 'front' : 'back']);
+
+function selectWorkspace(next) {
+  if (!workspaceOrder.includes(next) || next === workspace || !active?.content || dialog.open) return;
+  const url = new URL(location.href);
+  if (next !== 'study') url.searchParams.set('workspace', next);
+  else url.searchParams.delete('workspace');
+  history.pushState({ panels: [] }, '', url);
+  applyRoute();
+}
+
+function showWorkspace(next, nextPreparednessFace, nextLearningFace) {
+  workspace = next;
+  preparednessFace = nextPreparednessFace;
+  learningFace = nextLearningFace;
+  $('workspace-track').dataset.workspace = workspace;
+  for (const id of workspaceOrder) {
+    const settings = workspaceSettings[id];
+    const stage = $(settings.stage);
+    stage.inert = id !== workspace;
+    stage.setAttribute('aria-hidden', String(stage.inert));
+    stage.dataset.face = workspaceFace(id);
+    const back = workspaceFace(id) === 'fellowship';
+    for (const [surface, hidden] of [[settings.front, back], [settings.back, !back]]) {
+      $(surface).inert = hidden;
+      $(surface).setAttribute('aria-hidden', String(hidden));
+    }
+  }
+  syncNavigation();
+  refreshPreparedness();
+}
+
+function refreshPreparedness() {
+  if (workspace !== 'preparedness' || preparednessFace !== 'fellowship') return;
+  const surface = $('preparedness-fellowship');
+  const top = surface.scrollTop;
+  refreshPreparednessView?.();
+  surface.scrollTop = top;
+}
+
+function syncNavigation() {
+  const settings = workspaceSettings[workspace];
+  const back = workspaceFace() === 'fellowship';
+  $('week-button').hidden = workspace !== 'study';
+  $('flip').setAttribute('aria-pressed', String(back));
+  $('flip').setAttribute('aria-label', back ? settings.labelBack : settings.labelFront);
+  $('flip').replaceChildren(document.createTextNode((back ? settings.flipBack : settings.flipFront) + ' '), node('span', '⇄'));
+  $('flip').lastChild.setAttribute('aria-hidden', 'true');
+  $('tools-button').hidden = back;
+  $('tools-button').dataset.open = settings.tools;
+  $('tools-button').textContent = settings.toolsLabel;
+  $('notes-button').hidden = workspace !== 'study' || back;
+  $('fellowship-more').hidden = !back;
+  $('fellowship-more').dataset.open = settings.actions;
+  $('fellowship-more').setAttribute('aria-label', settings.actionsLabel);
+  $('flip').parentElement.setAttribute('aria-label', settings.title + ' navigation');
+  const index = workspaceOrder.indexOf(workspace);
+  for (const [id, offset] of [['workspace-previous', -1], ['workspace-switch', 1]]) {
+    const destination = workspaceSettings[workspaceOrder[index + offset]];
+    $(id).hidden = !destination;
+    if (destination) {
+      const label = 'Go to ' + destination.title + ' workspace';
+      $(id).setAttribute('aria-label', label);
+      $(id).title = label;
+    }
+  }
+}
 
 async function applyRoute() {
   const target = readRoute();
-  if (target.face !== face && currentSurface().contains(document.activeElement)) {
+  if ((target.workspace !== workspace || target.face !== face || target.preparednessFace !== preparednessFace || target.learningFace !== learningFace)
+      && currentSurface().contains(document.activeElement)) {
     $('flip').focus({ preventScroll: true });
   }
   showFace(target.face);
+  showWorkspace(target.workspace, target.preparednessFace, target.learningFace);
+  showLearningDiscussion(target.learningTopic);
   if (week === target.week && active?.content) return;
   const sequence = ++renderSequence;
   if (active?.content) {
@@ -201,17 +297,11 @@ function showFace(next) {
   study.setAttribute('aria-hidden', String(back));
   fellowship.inert = !back;
   fellowship.setAttribute('aria-hidden', String(!back));
-  $('flip').setAttribute('aria-pressed', String(back));
-  $('flip').setAttribute('aria-label', back ? 'Back to study' : 'Study discussion');
-  $('flip').innerHTML = back ? 'Study <span aria-hidden="true">⇄</span>' : 'Fellowship <span aria-hidden="true">⇄</span>';
-  $('tools-button').hidden = back;
-  $('notes-button').hidden = back;
-  $('fellowship-more').hidden = !back;
-  $('flip').parentElement.setAttribute('aria-label', back ? 'Fellowship navigation' : 'Weekly study actions');
-  if (back) void fellowshipHome?.load();
+  syncNavigation();
+  if (back && workspace === 'study') void fellowshipHome?.load();
 }
 
-const gamesAvailable = () => !fellowshipPilot && face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
+const gamesAvailable = () => workspace === 'study' && !fellowshipPilot && face === 'fellowship' && active?.year === liveYear && Boolean(active?.content);
 
 function renderStudy() {
   const { row: data, content } = active;
@@ -293,6 +383,7 @@ const studyCardFields = {
 };
 function excursionUrl(type, data) {
   const url = new URL(location.href);
+  if (isLearningResource(type)) url.searchParams.set('workspace', workspace);
   if (Object.hasOwn(calendarCards, type)) {
     for (const key of panelParameters) url.searchParams.delete(key);
     url.searchParams.set('card', calendarCards[type]);
@@ -310,6 +401,7 @@ function excursionUrl(type, data) {
     return url;
   }
   if (Object.hasOwn(learningCards, type)) {
+    url.searchParams.set('workspace', workspace);
     for (const key of panelParameters) url.searchParams.delete(key);
     url.searchParams.set('card', learningCards[type]);
     if (type === 'learningArticle' && data.file) {
@@ -412,18 +504,44 @@ async function openLinkedStudyCard() {
     data = { ref: searchParams.get('ref') || '' };
   }
   if (!type) return;
+  if ((card === 'preparedness' && type !== 'prepPrayer')
+      || ['beready', 'amateurradio', 'radiomap'].includes(card)) {
+    searchParams.set('workspace', 'preparedness');
+  }
+  if (type === 'learning' || (isLearningResource(type) && !searchParams.has('workspace'))) {
+    searchParams.set('workspace', 'learning');
+  }
   for (const key of panelParameters) searchParams.delete(key);
   history.replaceState({ panels: [] }, '', url);
+  await applyRoute();
   if (type === 'calendarEvent') open('calendar', { model: data.model });
   open(type, data);
 }
 
-function open(type, data = {}) {
+function open(type, data = {}, restoredFrame) {
   if (!active?.content || pendingClose) return;
+  if (type === 'learning') {
+    const enter = () => { selectWorkspace('learning'); changeLearningFace('study'); };
+    if (frames.length) closePanels(enter);
+    else enter();
+    return;
+  }
+  if (type === 'preparedness') {
+    const enter = () => {
+      selectWorkspace('preparedness');
+      changePreparednessFace(data.initial === 'group' ? 'fellowship' : 'study');
+      if (['plan', 'listen'].includes(data.initial)) {
+        $('preparedness-study').querySelector(`[data-view="${data.initial}"]`)?.click();
+      }
+    };
+    if (frames.length) closePanels(enter);
+    else enter();
+    return;
+  }
   if (type === 'briefingDiscussion') data = { ...data, year: active.year, week };
   if (!frames.length) origin = { opener: document.activeElement === document.body ? $('tools-button') : document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
   else saveFrame(frames.at(-1));
-  const frame = { id: ++frameSequence, type, data, top: 0, expanded: type === 'games' || type === 'preparedness' };
+  const frame = restoredFrame ?? { id: ++frameSequence, type, data, top: 0, expanded: type === 'games' || type === 'preparedness' };
   frames.push(frame);
   historyFrames.set(frame.id, frame);
   history.pushState({ panels: frames.map(({ id }) => id) }, '', excursionUrl(type, data));
@@ -446,7 +564,9 @@ function backPanel() {
 }
 window.addEventListener('popstate', () => {
   const matchingRoute = readRoute();
-  const ids = matchingRoute.week === week && matchingRoute.face === face ? history.state?.panels ?? [] : [];
+  const ids = matchingRoute.week === week && matchingRoute.face === face
+    && matchingRoute.workspace === workspace && matchingRoute.preparednessFace === preparednessFace && matchingRoute.learningFace === learningFace
+    ? history.state?.panels ?? [] : [];
   if (frames.length) saveFrame(frames.at(-1));
   if (ids.length && ids.every((id) => historyFrames.has(id))) {
     if (!origin) origin = { opener: document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
@@ -464,6 +584,7 @@ window.addEventListener('popstate', () => {
   pendingClose = null;
   if (after) after();
   else if (catalog) applyRoute();
+  refreshPreparedness();
 });
 dialog.addEventListener('cancel', (event) => {
   event.preventDefault();
@@ -495,6 +616,7 @@ const panelNames = {
   research: 'Investigations', article: 'Investigation', calendar: 'Calendar studies',
   calendarEvent: 'Appointed time', fallFeasts: 'Fall Feasts', sukkotCount: 'Sukkot Count',
   omerCount: 'Omer Count', sacredTime: 'Sacred Time and Biblical History',
+  learningTools: 'Learning resources', learningActions: 'Learning Fellowship actions', learningConversations: 'Learning conversations',
   learning: 'Learning Hub', learningPaths: 'Learning Paths', learningJourney: 'Learning Path',
   learningArticles: 'Articles', learningArticle: 'Article',
   languageLab: 'Language Lab', visualTeachings: 'Visual Teachings',
@@ -505,6 +627,7 @@ const panelNames = {
   listenShelf: 'Listen', listenArticle: 'Listen',
   ancientLibrary: 'Ancient Library', ancientDetail: 'Ancient Library', ancientRead: 'Ancient Library reader',
   games: 'Invite to Game', preparedness: 'Emergency Preparedness & Communications', practiceListen: 'Practice recording',
+  preparednessTools: 'Preparedness resources', preparednessActions: 'Communications actions',
   practicePlan: 'Practice plan', practiceReadback: 'Practice a read-back',
   prepLibrary: 'Be Ready library', prepDocument: 'Catalog record', prepRadio: 'Amateur radio resources',
   prepMap: 'Radio Network Map', prepPrayer: 'Prayer Map', prepResearch: 'Preparedness research', prepContacts: 'Practice contact log',
@@ -523,18 +646,21 @@ function activeFrame(frame) {
 function renderPanel(frame) {
   $('panel-title').textContent = panelNames[frame.type];
   $('panel-kicker').textContent = frame.type === 'themeManager' ? 'Appearance' : frame.type === 'dm' ? 'Local simulation' :
-    frame.type === 'briefingDiscussion' ? `Fellowship · ${weekLine()}` :
+    frame.type === 'briefingDiscussion' ? 'Preparedness · Fellowship' :
     frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
     Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
     Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
   $('back').hidden = frames.length < 2;
+  $('learning-discuss').hidden = !isLearningResource(frame.type);
   sizePanel(frame);
   panel.replaceChildren(...(frame.content ?? []));
   if (!frame.content || frame.retry) {
     frame.retry = false;
     const target = node('div', '', 'panel-content');
     panel.replaceChildren(target);
-    Promise.resolve().then(() => views[frame.type](target, frame)).catch(() => {
+    Promise.resolve().then(() => views[frame.type](target, frame)).then(() => {
+      if (activeFrame(frame)) rememberLearning(frame);
+    }).catch(() => {
       target.replaceChildren(text('This source could not be opened.'), button('Try again', () => {
         if (!activeFrame(frame)) return;
         frame.content = null;
@@ -543,6 +669,7 @@ function renderPanel(frame) {
     });
   }
   frame.refresh?.();
+  if (frame.content) rememberLearning(frame);
   panel.scrollTop = frame.top;
   const focus = frame.focus?.isConnected ? frame.focus : $('panel-title');
   focus.focus({ preventScroll: true });
@@ -728,7 +855,7 @@ function renderFellowship() {
   const mount = () => {
     inner.append(section, links);
     fellowship.replaceChildren(inner);
-    if (face === 'fellowship') void fellowshipHome?.load();
+    if (face === 'fellowship' && workspace === 'study') void fellowshipHome?.load();
   };
   if (fellowshipPilot) {
     mount();
@@ -791,13 +918,208 @@ function selectYear(year) {
   if (face === 'fellowship') $('fellowship-title')?.focus({ preventScroll: true });
 }
 
+function isLearningResource(type) {
+  return type !== 'learning' && (Object.hasOwn(learningCards, type) || ['people', 'person', 'teaching', 'debate'].includes(type));
+}
+
+function learningDescriptor(frame, title) {
+  const data = {};
+  for (const field of ['journey', 'file', 'id', 'ref', 'book', 'chapter', 'language', 'from', 'anchor', 'work', 'volume', 'verse', 'q', 'video', 'debate']) {
+    const value = field === 'id' ? frame.data?.id ?? frame.data?.item?.id : frame.data?.[field];
+    if (value !== '' && (typeof value === 'string' || typeof value === 'number')) data[field] = value;
+  }
+  return { key: 'learning:' + frame.type + ':' + JSON.stringify(data), type: frame.type, data,
+    title: title || panelNames[frame.type] };
+}
+
+function learningLabel(frame) {
+  if (['learningJourney', 'learningArticle', 'article', 'ancientDetail', 'ancientRead', 'person', 'teaching', 'debate'].includes(frame.type)) {
+    return panel.querySelector('h3')?.textContent || panelNames[frame.type];
+  }
+  return panelNames[frame.type];
+}
+
+function rememberLearning(frame) {
+  if (!isLearningResource(frame.type)) return;
+  const descriptor = learningDescriptor(frame, learningLabel(frame));
+  learningRecent = { ...descriptor, frame };
+  ledger.learning.recent = descriptor;
+  saveLocal(ledger);
+  renderLearningResume();
+}
+
+function resumeLearning(activity = learningRecent) {
+  if (!activity) return;
+  const resume = () => open(activity.type, activity.data, activity.frame);
+  if (frames.length) closePanels(resume);
+  else resume();
+}
+
+function renderLearningResume() {
+  if (!learningResumeSlot) return;
+  learningResumeSlot.replaceChildren();
+  if (learningRecent) learningResumeSlot.append(row('Continue learning', learningRecent.title, () => resumeLearning()));
+}
+
+function showLearningDiscussion(key = 'learning:general') {
+  const slot = $('learning-discussion');
+  if (!slot) return;
+  const topic = learningTopics.get(key) || learningTopics.get('learning:general');
+  if (!topic || learningDiscussionKey === topic.key) return;
+  const surface = $('learning-fellowship');
+  const previous = learningDiscussions.get(learningDiscussionKey);
+  if (previous) previous.top = surface.scrollTop;
+  let discussion = learningDiscussions.get(topic.key);
+  if (!discussion) {
+    const card = node('section', '', 'thread-card');
+    card.setAttribute('aria-label', 'Learning conversation');
+    card.append(node('h2', topic.title), text('Local Fellowship demo · Replies stay in this browser.'));
+    if (topic.type !== 'learning') card.append(button('Return to resource', () => resumeLearning(learningTopics.get(topic.key)), 'quiet'));
+    const replies = node('div');
+    const empty = text('Bring a question, share a discovery, or ask to work through this together.');
+    if (!posts(topic.key).length) replies.append(empty);
+    for (const reply of posts(topic.key)) replies.append(post('You · Local', reply.body, reply.ref));
+    card.append(replies);
+    composer(card, topic.key, reply => {
+      empty.remove();
+      replies.append(post('You · Local', reply.body, reply.ref));
+    });
+    discussion = { card, top: 0 };
+    learningDiscussions.set(topic.key, discussion);
+  }
+  learningDiscussionKey = topic.key;
+  slot.replaceChildren(discussion.card);
+  surface.scrollTop = discussion.top;
+}
+
+function enterLearningDiscussion(topic) {
+  learningTopics.set(topic.key, topic);
+  ledger.learning.topics = [...learningTopics.values()].filter(item => item.type !== 'learning')
+    .map(({ key, title, type, data }) => ({ key, title, type, data }));
+  saveLocal(ledger);
+  const enter = () => {
+    const url = new URL(location.href);
+    url.searchParams.set('workspace', 'learning');
+    url.searchParams.set('learningFace', 'fellowship');
+    if (topic.key === 'learning:general') url.searchParams.delete('learningTopic');
+    else url.searchParams.set('learningTopic', topic.key);
+    history.pushState({ panels: [] }, '', url);
+    applyRoute();
+  };
+  if (frames.length) closePanels(enter);
+  else enter();
+}
+
+function renderLearningWorkspace() {
+  learningTopics.set('learning:general', { key: 'learning:general', title: 'Learning together', type: 'learning', data: {} });
+  for (const saved of ledger.learning.topics) {
+    if (!saved || !isLearningResource(saved.type)) continue;
+    const topic = learningDescriptor({ type: saved.type, data: saved.data }, saved.title);
+    learningTopics.set(topic.key, topic);
+  }
+  if (ledger.learning.recent && isLearningResource(ledger.learning.recent.type)) {
+    const saved = ledger.learning.recent;
+    learningRecent = learningDescriptor({ type: saved.type, data: saved.data }, saved.title);
+  }
+  const front = node('article', '', 'sheet learning-sheet');
+  front.append(renderIntro('learning-title', '', 'Learning Hub', 'Explore, practice, and continue learning.'));
+  learningResumeSlot = node('div', '', 'learning-resume');
+  const resources = node('div', '', 'rows');
+  views.learning(resources);
+  front.append(learningResumeSlot, resources);
+  $('learning-study').replaceChildren(front);
+  renderLearningResume();
+  const back = node('article', '', 'sheet learning-sheet');
+  back.append(renderIntro('learning-fellowship-title', '', 'Learning together', 'Learning Hub · Fellowship'));
+  const discussion = node('div');
+  discussion.id = 'learning-discussion';
+  back.append(discussion);
+  $('learning-fellowship').replaceChildren(back);
+  showLearningDiscussion(readRoute().learningTopic);
+}
+
+function changeLearningFace(next) {
+  if (learningFace === next || !active?.content || dialog.open) return;
+  const url = new URL(location.href);
+  if (next === 'fellowship') url.searchParams.set('learningFace', 'fellowship');
+  else url.searchParams.delete('learningFace');
+  history.pushState({ panels: [] }, '', url);
+  applyRoute();
+}
+
+function renderPreparednessWorkspace() {
+  const front = node('article', '', 'sheet preparedness-sheet');
+  front.append(renderIntro('preparedness-title', '', 'Preparedness', 'Emergency Preparedness & Communications'));
+  views.preparedness(front, { data: { surface: 'front', initial: 'plan' } });
+  $('preparedness-study').replaceChildren(front);
+
+  const back = node('article', '', 'sheet preparedness-sheet');
+  back.append(renderIntro('communications-title', '', 'Communications', 'Preparedness · Fellowship'));
+  refreshPreparednessView = views.preparedness(back, { data: { surface: 'back' } });
+  const conversation = node('section', '', 'thread-card');
+  conversation.setAttribute('aria-label', 'Preparedness conversation');
+  conversation.append(node('h2', 'Preparedness conversation'),
+    text('Local Fellowship demo · Replies stay in this browser.'));
+  const key = 'preparedness:conversation';
+  const replies = node('div');
+  const empty = text('Share a question or a preparation you’d like to practice together.');
+  if (!posts(key).length) replies.append(empty);
+  for (const reply of posts(key)) replies.append(post('You · Local', reply.body, reply.ref));
+  conversation.append(replies);
+  composer(conversation, key, reply => {
+    empty.remove();
+    replies.append(post('You · Local', reply.body, reply.ref));
+  });
+  back.append(conversation);
+  $('preparedness-fellowship').replaceChildren(back);
+}
+
+function changePreparednessFace(next) {
+  if (preparednessFace === next || !active?.content || dialog.open) return;
+  const url = new URL(location.href);
+  if (next === 'fellowship') url.searchParams.set('preparednessFace', 'communications');
+  else url.searchParams.delete('preparednessFace');
+  history.pushState({ panels: [] }, '', url);
+  applyRoute();
+}
+
 const views = {
   themeManager: createThemeView({ node, text, button, cluster }),
+  learningTools(target) { views.learning(target); },
+  learningActions(target) {
+    const topic = learningTopics.get(learningDiscussionKey);
+    if (topic?.type !== 'learning' && topic) target.append(row('Return to resource', topic.title, () => resumeLearning(topic)));
+    target.append(row('Learning conversations', 'Questions and discoveries by resource', () => open('learningConversations')));
+    if (!fellowshipPilot) target.append(row('Private conversations', 'Existing local Fellowship demo', () => open('private')));
+  },
+  learningConversations(target) {
+    for (const topic of learningTopics.values()) {
+      const count = posts(topic.key).length;
+      const detail = count ? count + (count === 1 ? ' local reply' : ' local replies') : 'Start a local conversation';
+      target.append(row(topic.title, detail, () => enterLearningDiscussion(topic)));
+    }
+  },
+  preparednessTools(target) {
+    target.append(
+      row('Radio Network Map', 'Repeaters and geographic resources', () => open('prepMap')),
+      row('Be Ready library', '1,061 original catalog records', () => open('prepLibrary')),
+      row('Amateur radio resources', 'Licensing, listening and references', () => open('prepRadio')),
+      row('The Common Ground', 'Sourced briefing samples', () => open('commonGround')),
+      row('Research backlog', 'Original preparedness research', () => open('prepResearch')),
+      row('Prayer Map', 'Prayer and community geography', () => open('prepPrayer')));
+  },
+  preparednessActions(target) {
+    target.append(
+      row('Practice plan', 'The existing exercise and fallback plan', () => open('practicePlan')),
+      row('Practice a read-back', 'Log the fictional message', () => open('practiceReadback')),
+      row('Radio Network Map', 'Explore published resources', () => open('prepMap')),
+      row('The Common Ground', 'Read and discuss a briefing', () => open('commonGround')));
+    if (!fellowshipPilot) target.append(row('Private conversations', 'Existing local Fellowship demo', () => open('private')));
+  },
   fellowshipActions(target) {
     if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
     target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
     if (!fellowshipPilot) target.append(row('Private conversations', 'Local demo', () => open('private')));
-    target.append(row('Preparedness', 'Group exercises and resources', () => open('preparedness', { initial: 'group' })));
   },
   fellowshipInvitations(target) {
     target.append(text('Open the link in a Fellowship invitation email to accept or decline.'));
@@ -960,7 +1282,6 @@ const views = {
       row('Investigations', 'Search published HomeGroups research', () => open('research')),
       row('Weekly commentary', 'Study the selected portion', () => open('commentary')),
       row('Learning Hub', 'Guided paths and the article collection', () => open('learning')),
-      row('Preparedness', 'Practice communications and learn with Fellowship', () => open('preparedness', { initial: 'plan' })),
       row('Prayer Map', 'Explore prayer and community geography', () => open('prepPrayer')),
       row('Calendar studies', 'Appointed times and supplemental portions', () => open('calendar')),
       row('Personal notes', 'Saved on this device', () => open('note')));
@@ -1208,7 +1529,21 @@ for (const control of document.querySelectorAll('[data-open]')) {
   control.addEventListener('click', () => open(control.dataset.open));
 }
 $('flip').addEventListener('click', () => {
-  if (active?.content) changeRoute(week, face === 'study' ? 'fellowship' : 'study');
+  if (workspace === 'learning') changeLearningFace(learningFace === 'study' ? 'fellowship' : 'study');
+  else if (workspace === 'preparedness') changePreparednessFace(preparednessFace === 'study' ? 'fellowship' : 'study');
+  else if (active?.content) changeRoute(week, face === 'study' ? 'fellowship' : 'study');
+});
+function moveWorkspace(direction) {
+  selectWorkspace(workspaceOrder[workspaceOrder.indexOf(workspace) + direction]);
+}
+$('workspace-previous').addEventListener('click', () => moveWorkspace(-1));
+$('workspace-switch').addEventListener('click', () => moveWorkspace(1));
+bindWorkspaceSwipe($('workspaces'), moveWorkspace);
+$('learning-discuss').addEventListener('click', () => {
+  const frame = frames.at(-1);
+  if (!frame || !isLearningResource(frame.type)) return;
+  const topic = { ...learningDescriptor(frame, learningLabel(frame)), frame };
+  enterLearningDiscussion(topic);
 });
 
 async function boot() {
@@ -1217,6 +1552,8 @@ async function boot() {
     history.replaceState({ panels: [] }, '', location.href);
     await applyRoute();
     if (!active?.content) return;
+    renderPreparednessWorkspace();
+    renderLearningWorkspace();
     const url = new URL(location.href);
     const reviewToken = /^#conversation-invite=([a-f0-9]{64})$/.exec(url.hash)?.[1];
     if (reviewToken) {

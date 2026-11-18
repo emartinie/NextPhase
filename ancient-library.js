@@ -7,7 +7,7 @@ const lower = value => String(value ?? '').toLowerCase().replace(/\s+/g, ' ').tr
 function chapterAddress(book, work, volume, chapter, verse, q) {
   const url = new URL(location.pathname, location.origin);
   const current = new URLSearchParams(location.search);
-  for (const key of ['week', 'study', 'face']) if (current.has(key)) url.searchParams.set(key, current.get(key));
+  for (const key of ['week', 'study', 'face', 'workspace', 'learningFace', 'learningTopic', 'preparednessFace', 'pilot']) if (current.has(key)) url.searchParams.set(key, current.get(key));
   for (const [key, value] of Object.entries({ card: 'ancient-library', book, work, volume, chapter, verse, q })) {
     if (value) url.searchParams.set(key, value);
   }
@@ -195,7 +195,10 @@ export function createAncientViews({ node, text, row, button, cluster, disclosur
         }));
         reading.append(cluster(...speechControl(reading, verseList, button, text, { canPause: true })), verseList);
         readHost.replaceChildren(reading);
-        if (target.isConnected && location.search.includes('card=ancient-library')) history.replaceState(history.state, '', address(verse));
+        const currentAddress = address(verse);
+        const parameters = new URL(currentAddress).searchParams;
+        for (const field of ['book', 'work', 'volume', 'chapter', 'verse', 'q']) data[field] = parameters.get(field) || '';
+        if (target.isConnected && location.search.includes('card=ancient-library')) history.replaceState(history.state, '', currentAddress);
         if (verse) requestAnimationFrame(() => { if (target.isConnected) focusVerse(verse); });
         else if (!initial) header.focus();
       }

@@ -7,9 +7,10 @@ export const members = [
 export function loadLocal() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
-    return { drafts: saved.drafts ?? {}, posts: saved.posts ?? {}, notes: saved.notes ?? {} };
+    return { drafts: saved.drafts ?? {}, posts: saved.posts ?? {}, notes: saved.notes ?? {},
+      learning: { topics: Array.isArray(saved.learning?.topics) ? saved.learning.topics : [], recent: saved.learning?.recent ?? null } };
   } catch {
-    return { drafts: {}, posts: {}, notes: {} };
+    return { drafts: {}, posts: {}, notes: {}, learning: { topics: [], recent: null } };
   }
 }
 

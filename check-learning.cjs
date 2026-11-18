@@ -11,6 +11,8 @@ const server = createPreviewServer({ mount: pagesMount });
 
 async function checkLanguageLab(phone, url, presentations) {
   await phone.goto(url + '?card=learning');
+  await phone.locator('#learning-title').waitFor({ state: 'visible' });
+  await phone.getByRole('button', { name: 'Resources', exact: true }).click();
   const dialog = phone.locator('dialog');
   const tap = label => dialog.getByRole('button', { name: label, exact: typeof label === 'string' }).click();
   const glyph = dialog.locator('.alphabet-glyph');
@@ -48,12 +50,12 @@ async function checkLanguageLab(phone, url, presentations) {
   assert.equal(await glyph.textContent(), '𐤊');
   assert.equal(await phone.evaluate(() => document.documentElement.scrollWidth), 390);
   await tap('Back');
-  await dialog.getByRole('heading', { name: 'Learning Hub', exact: true }).waitFor();
+  await dialog.getByRole('heading', { name: 'Learning resources', exact: true }).waitFor();
   await tap(/^Visual Teachings Browse/);
   await dialog.getByRole('heading', { name: presentations[0].title, exact: true }).waitFor();
   assert.equal(await dialog.locator('iframe').count(), 0);
   await tap('Back');
-  await dialog.getByRole('heading', { name: 'Learning Hub', exact: true }).waitFor();
+  await dialog.getByRole('heading', { name: 'Learning resources', exact: true }).waitFor();
 
 }
 
@@ -100,6 +102,8 @@ async function checkVisualTeachings(desktop, url, presentations) {
 
 async function checkTopicalTeachings(phone, url) {
   await phone.goto(url + '?card=learning');
+  await phone.locator('#learning-title').waitFor({ state: 'visible' });
+  await phone.getByRole('button', { name: 'Resources', exact: true }).click();
   const dialog = phone.locator('dialog');
   const tap = name => dialog.getByRole('button', { name, exact: typeof name === 'string' }).click();
   const heading = name => dialog.getByRole('heading', { name, exact: true }).waitFor();
@@ -137,7 +141,7 @@ async function checkTopicalTeachings(phone, url) {
   await dialog.getByText('Further reading and audio were planned for this topic.', { exact: true }).waitFor();
   await tap('Back');
   await tap('Back');
-  await dialog.getByRole('heading', { name: 'Learning Hub', exact: true }).waitFor();
+  await dialog.getByRole('heading', { name: 'Learning resources', exact: true }).waitFor();
 }
 
 async function checkAssessments(page, url, questions) {
@@ -250,6 +254,7 @@ async function checkAncientLibrary(desktop, url) {
   await desktop.waitForURL(/volume=book-3/);
   await library.getByRole('heading', { name: 'Book 3 · Chapter 1', exact: true }).waitFor();
   await click('Back');
+  await library.getByRole('heading', { name: 'Book 2 · Chapter 1', exact: true }).waitFor();
   assert.equal(await library.getByLabel('Volume', { exact: true }).inputValue(), 'book-2');
   await desktop.goto(url + '?card=ancient-library&book=shepherd-hermas&chapter=101&verse=3');
   const lastHermas = library.locator('[data-verse="3"]');
@@ -331,13 +336,19 @@ async function run() {
       window.speechSynthesis.resume = () => { window.learningSpeechCalls.resumes++; };
     });
     const dialog = phone.locator('dialog');
-    const tap = name => phone.getByRole('button', { name, exact: typeof name === 'string' }).click();
+    const tap = async name => {
+      const scope = await dialog.isVisible() ? dialog : phone;
+      await scope.getByRole('button', { name, exact: typeof name === 'string' }).click();
+    };
     const heading = name => dialog.getByRole('heading', { name, exact: true }).waitFor();
     const copy = text => dialog.getByText(text, { exact: true }).waitFor();
     await phone.goto(url + '?week=6');
+    await phone.locator('#study-title').waitFor();
     await tap('Tools');
-    await tap(/^Learning Hub Guided paths/);
-    await heading('Learning Hub');
+    await tap(/^Learning Hub/);
+    await phone.locator('#learning-title').waitFor({ state: 'visible' });
+    await tap('Resources');
+    await heading('Learning resources');
     await tap(/^Articles Browse or search/);
     await copy('32 articles');
     const articlesSearch = dialog.getByLabel('Search articles', { exact: true });
