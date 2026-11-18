@@ -17,6 +17,7 @@ import { articleLocation, createLearningViews } from './learning.js';
 import { createLearningEnrichment } from './learning-enrichment.js';
 import { createTopicalViews } from './learning-topical.js';
 import { createReferenceViews } from './learning-references.js';
+import { createReferenceLibraryViews } from './reference-library.js';
 import { createAncientViews } from './ancient-library.js';
 import { calendarCards, calendarFields, calendarRoute, createCalendarViews } from './calendar.js';
 import { bindWorkspaceSwipe } from './workspace-swipe.js';
@@ -368,13 +369,14 @@ const legacyPreparedness = { beready: 'prepLibrary', amateurradio: 'prepRadio', 
 const learningCards = { learning: 'learning', learningPaths: 'discipleship', learningJourney: 'discipleship',
   learningArticles: 'articles', learningArticle: 'articles', languageLab: 'language-lab', visualTeachings: 'prezis',
   topicalTeachings: 'teachings', jesus: 'jesus', origins: 'origins', assessments: 'quizzes',
+  referenceLibrary: 'reference-library', referenceResource: 'reference-resource', dictionary: 'dictionary', dictionaryEntry: 'dictionary-entry', referenceCommentary: 'reference-commentary',
   sourcesLibrary: 'sources', research: 'investigations', article: 'investigations', researchBacklog: 'investigations',
   intertext: 'intertext-quotes', translation: 'scripture', listenShelf: 'listen', listenArticle: 'listen',
   ancientLibrary: 'ancient-library', ancientDetail: 'ancient-library', ancientRead: 'ancient-library' };
-const referenceFields = { research: ['ref'], article: ['id', 'file', 'anchor'], intertext: ['from'], translation: ['ref'],
+const referenceFields = { referenceLibrary: ['ref', 'q', 'view'], referenceResource: ['id', 'ref', 'entry', 'q', 'view'], dictionary: ['ref', 'q', 'view'], dictionaryEntry: ['id', 'ref'], referenceCommentary: ['ref'], research: ['ref'], article: ['id', 'file', 'anchor'], intertext: ['from'], translation: ['ref'],
   listenArticle: ['id'], ancientDetail: ['book'], ancientRead: ['book', 'work', 'volume', 'chapter', 'verse', 'q'] };
 const panelParameters = ['card', 'covenant', 'id', 'ref', 'book', 'chapter', 'section', 'zone', 'folder', 'category', 'view', 'file', 'journey', 'language',
-  'from', 'work', 'volume', 'verse', 'q', 'anchor', 'video', 'debate', ...calendarFields];
+  'from', 'work', 'volume', 'verse', 'q', 'entry', 'anchor', 'video', 'debate', ...calendarFields];
 const studyCards = { law: 'commandments', covenant: 'commandments', commandment: 'commandments', nt: 'nt', sefaria: 'sefaria',
   people: 'people', person: 'people', teaching: 'people', debate: 'people', themeManager: 'theme' };
 const studyCardFields = {
@@ -447,8 +449,12 @@ async function openLinkedStudyCard() {
     type = 'topicalTeachings';
   } else if (card === 'quizzes') {
     type = 'assessments';
+  } else if (['reference-library', 'reference-resource', 'dictionary', 'dictionary-entry', 'reference-commentary'].includes(card)) {
+    type = { 'reference-library': 'referenceLibrary', 'reference-resource': 'referenceResource', dictionary: 'dictionary', 'dictionary-entry': 'dictionaryEntry', 'reference-commentary': 'referenceCommentary' }[card];
+    data = Object.fromEntries(['id', 'ref', 'q', 'view', 'entry'].map(key => [key, searchParams.get(key) || '']));
   } else if (card === 'sources') {
     type = 'sourcesLibrary';
+    data = { ref: searchParams.get('ref') || '' };
   } else if (card === 'investigations') {
     const id = searchParams.get('id');
     const [file, legacyAnchor] = (searchParams.get('file') ?? '').split('#', 2);
@@ -601,7 +607,7 @@ $('expand').addEventListener('click', () => {
 function sizePanel(frame) {
   const full = studyCards[frame.type] === 'commandments' || Object.hasOwn(preparednessSections, frame.type) ||
     ['learningArticle', 'learningJourney', 'languageLab', 'visualTeachings', 'jesus', 'origins', 'assessments',
-      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle'].includes(frame.type);
+      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle', 'dictionaryEntry', 'referenceCommentary'].includes(frame.type);
   dialog.dataset.workspace = String(full);
   dialog.dataset.expanded = String(full || frame.expanded);
   $('expand').hidden = full;
@@ -622,6 +628,7 @@ const panelNames = {
   languageLab: 'Language Lab', visualTeachings: 'Visual Teachings',
   topicalTeachings: 'Topical Teachings', jesus: 'Who Is Jesus?', origins: 'Origins',
   originsDetail: 'Origins notes', assessments: 'Assessments',
+  referenceLibrary: 'Reference Library', referenceResource: 'Reference resource', dictionary: 'Bible dictionary', dictionaryEntry: 'Dictionary entry', referenceCommentary: 'Passage commentary',
   sourcesLibrary: 'Sources Library', researchBacklog: 'Research backlog',
   intertext: 'Intertext Explorer', translation: 'Translation Explorer',
   listenShelf: 'Listen', listenArticle: 'Listen',
@@ -924,7 +931,7 @@ function isLearningResource(type) {
 
 function learningDescriptor(frame, title) {
   const data = {};
-  for (const field of ['journey', 'file', 'id', 'ref', 'book', 'chapter', 'language', 'from', 'anchor', 'work', 'volume', 'verse', 'q', 'video', 'debate']) {
+  for (const field of ['journey', 'file', 'id', 'ref', 'book', 'chapter', 'language', 'from', 'anchor', 'work', 'volume', 'verse', 'q', 'entry', 'view', 'video', 'debate']) {
     const value = field === 'id' ? frame.data?.id ?? frame.data?.item?.id : frame.data?.[field];
     if (value !== '' && (typeof value === 'string' || typeof value === 'number')) data[field] = value;
   }
@@ -933,7 +940,9 @@ function learningDescriptor(frame, title) {
 }
 
 function learningLabel(frame) {
-  if (['learningJourney', 'learningArticle', 'article', 'ancientDetail', 'ancientRead', 'person', 'teaching', 'debate'].includes(frame.type)) {
+  if (frame.type === 'referenceCommentary') return 'Wesley · ' + frame.data.ref;
+  if (frame.type === 'referenceResource' && !frame.data.entry && frame.data.ref) return (panel.querySelector('h3')?.textContent || 'Reference Library') + ' · ' + frame.data.ref;
+  if (['referenceResource', 'dictionaryEntry', 'learningJourney', 'learningArticle', 'article', 'ancientDetail', 'ancientRead', 'person', 'teaching', 'debate'].includes(frame.type)) {
     return panel.querySelector('h3')?.textContent || panelNames[frame.type];
   }
   return panelNames[frame.type];
@@ -950,7 +959,15 @@ function rememberLearning(frame) {
 
 function resumeLearning(activity = learningRecent) {
   if (!activity) return;
-  const resume = () => open(activity.type, activity.data, activity.frame);
+  const resume = async () => {
+    if (activity.journey) {
+      const journey = activity.journey;
+      history.pushState({ panels: [] }, '', journey.url);
+      await applyRoute();
+      for (const saved of journey.frames) open(saved.type, saved.data, saved);
+      origin = journey.origin;
+    } else open(activity.type, activity.data, activity.frame);
+  };
   if (frames.length) closePanels(resume);
   else resume();
 }
@@ -1229,6 +1246,12 @@ const views = {
   ...createLearningEnrichment({ node, text, button, row, cluster, disclosure, link }),
   ...createTopicalViews({ node, text, button, row, cluster, disclosure, open, importLegacy }),
   ...createReferenceViews({ node, text, button, row, cluster, disclosure, link, open, importLegacy, defaultRef }),
+  ...createReferenceLibraryViews({ node, text, button, row, cluster, disclosure, link, open, defaultRef, updateUrl(frame) {
+    if (activeFrame(frame)) {
+      history.replaceState(history.state, '', excursionUrl(frame.type, frame.data));
+      rememberLearning(frame);
+    }
+  } }),
   ...createAncientViews({ node, text, button, row, cluster, disclosure, link, open }),
   ...createCalendarViews({ node, text, button, row, cluster, disclosure, link, open, passage,
     supplemental: () => catalog.extra, updateUrl(frame) {
@@ -1319,6 +1342,9 @@ const views = {
   verse(target, { data }) {
     target.append(node('h3', data.ref),
       row('Open nearby chapter', 'Read the wider passage', () => passage(data.ref.split(':')[0])),
+      row('Reference Library', 'Explore reference material for this verse', () => open('referenceLibrary', { ref: data.ref })),
+      row('Word study', 'Hebrew & Greek · KJV word links', () => open('referenceResource', { id: 'bibles-kjv', ref: data.ref, view: 'words' })),
+      row('Cross-references', 'Follow related Scripture passages', () => open('referenceResource', { id: 'cross-references-bcdxrefs', ref: data.ref })),
       row('Translation Explorer', 'Check the original sample set', () => open('translation', { ref: data.ref })),
       row('Intertext Explorer', 'Find quotation witnesses', () => open('intertext', { from: data.ref })),
       row('Interlinear sources', 'Original-language help', () => open('alignment', { ref: data.ref })));
@@ -1543,6 +1569,12 @@ $('learning-discuss').addEventListener('click', () => {
   const frame = frames.at(-1);
   if (!frame || !isLearningResource(frame.type)) return;
   const topic = { ...learningDescriptor(frame, learningLabel(frame)), frame };
+  if (frame.type === 'referenceResource') {
+    saveFrame(frame);
+    const url = new URL(location.href);
+    for (const field of panelParameters) url.searchParams.delete(field);
+    topic.journey = { url: url.href, frames: [...frames], origin };
+  }
   enterLearningDiscussion(topic);
 });
 

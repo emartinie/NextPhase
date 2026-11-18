@@ -87,6 +87,18 @@ export const getResearch = () => load('research/index.json');
 export const getResearchBacklog = () => load('reference/backlog.json');
 export const getIntertext = () => load('reference/intertext.json');
 export const getReferenceSamples = () => load('reference/samples.json');
+export const getReferenceDirectory = () => load('reference/resource-directory.json');
+export function getFunctionalReferenceData(file = 'catalog.json') {
+  if (!/^[a-z0-9][a-z0-9/-]*\.json$/.test(file)) throw new Error('Invalid reference path');
+  return load('reference/derived/v2/' + file);
+}
+
+export function getReferenceLibraryData(file) {
+  if (!/^(?:catalog\.json|easton\/index\.json|easton\/chunks\/\d{1,2}\.json|easton\/passages\/[a-z]{2,32}\.json|wesley\/[a-z]{2,32}\/\d{1,3}\.json)$/.test(file)) {
+    throw new Error('Invalid reference resource path');
+  }
+  return load('reference/derived/v1/' + file);
+}
 export const getAncientCatalog = () => load('reference/ancient-library/catalog.json');
 export const getAncientText = (book, file = 'book.json') => load('reference/ancient-library/' + book + '/' + file);
 export const getArticle = (id) => load(`research/${id}.json`);

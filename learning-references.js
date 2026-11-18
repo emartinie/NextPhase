@@ -57,7 +57,7 @@ export function createReferenceViews({ node, text, button, row, cluster, disclos
   }
 
   return {
-    sourcesLibrary(target) {
+    sourcesLibrary(target, { data = {} } = {}) {
       const metrics = text('Compare New Testament and Hebrew Scripture witnesses.');
       getIntertext().then(entries => {
         const lxx = entries.filter(entry => entry.ot?.lxx?.text).length;
@@ -65,6 +65,7 @@ export function createReferenceViews({ node, text, button, row, cluster, disclos
         metrics.textContent = entries.length + ' comparisons · ' + lxx + ' Septuagint and ' + mt + ' Masoretic witnesses';
       }).catch(() => {});
       target.append(
+        row('Reference Library', 'Bibles, word study, commentary and reference works', () => open('referenceLibrary', { ref: data.ref || defaultRef() })),
         row('Hebrew Library', 'Read Hebrew and English in Sefaria', () => open('sefaria', { ref: defaultRef() })),
         row('New Testament Notes', 'Browse the original chapter notes', () => open('nt')),
         row('Translation Explorer', 'English, Hebrew and Greek sample verses', () => open('translation')),

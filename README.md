@@ -68,3 +68,11 @@ Set `FIRESTORE_EMULATOR_JAR` to the local Firestore emulator JAR and `JAVA_BIN` 
 Choose **Miriam Ellis**, open **Invite a member**, and create a link. Copy the link to a separate browser tab, choose **Outside Tester**, and accept. The new member can read the discussion and post a reply that appears in Miriam’s tab. The link is valid for one acceptance within 12 hours. The pilot uses simulated sign-in and discards group membership changes, messages, and invitations at restart. The pilot rules must be reviewed and tested with real identities before any hosted rollout.
 
 With the emulator and Playwright configured, run `node tests/fellowship-pilot/check.cjs` for rules checks and `node tests/fellowship-pilot/browser.cjs` for the phone-sized and desktop flows.
+
+## Reference Library
+
+The Sources Library in Learning Hub now opens the supplied reference collection through shared readers: Strong's Hebrew and Greek plus the combined word index, four dictionaries, eight commentaries, nine Bible editions, three topical works, cross-references, and Daily Light. Browse or search entries, look up Strong's numbers and definitions, read passages, follow Scripture links, and return through the existing resource panels. KJV Word study uses the actual supplied phrase tags.
+
+Open **?workspace=learning&card=reference-library**. Content loads by entry, chapter, or requested search shard. The seven unavailable groups remain unavailable; missing text is never silently replaced. [Integration report and source-specific blockers](REFERENCE-LIBRARY.md) · [Original-resource directory](corpus/reference/README.md) · [Conversion ledger](REFERENCE-INTEGRATION-LEDGER.json).
+
+The merge retains the existing validation record: 16 suites passed; three final runs were incomplete because Windows/Node exhausted memory, and further tests were stopped at the user's request. Physical iPhone Safari review and edition-publication permission follow-up remain necessary.

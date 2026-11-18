@@ -156,8 +156,11 @@ async function checkMigration(browser, url, phoneProfile) {
   const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
     await desktop.goto(url + '?face=fellowship');
-    await desktop.getByLabel('Reply', { exact: true }).fill('Preserve this draft.');
-    await desktop.getByRole('button', { name: 'Preparedness', exact: true }).click();
+    await desktop.locator('#fellowship-title').waitFor();
+    await desktop.getByText('Try the local discussion demo', { exact: true }).click();
+    await desktop.locator('#fellowship').getByLabel('Reply', { exact: true }).fill('Preserve this draft.');
+    await desktop.getByRole('button', { name: 'Go to Learning Hub workspace', exact: true }).click();
+    await desktop.getByRole('button', { name: 'Go to Preparedness workspace', exact: true }).click();
     await desktop.getByRole('button', { name: 'Plan & learn', exact: true }).click();
     await desktop.getByRole('button', { name: /Radio Network Map Find legacy/ }).click();
     await desktop.getByText('5 map results', { exact: true }).waitFor();
@@ -167,8 +170,10 @@ async function checkMigration(browser, url, phoneProfile) {
     await desktop.getByRole('heading', { name: 'Radio Network Map', exact: true }).waitFor();
     await desktop.getByRole('button', { name: 'Close', exact: true }).click();
     await desktop.locator('dialog').waitFor({ state: 'hidden' });
-    assert.equal(await desktop.getByLabel('Reply', { exact: true }).inputValue(), 'Preserve this draft.');
-    assert.equal(await desktop.evaluate(() => document.activeElement.textContent), 'Preparedness');
+    await desktop.getByRole('button', { name: 'Go to Learning Hub workspace', exact: true }).click();
+    await desktop.getByRole('button', { name: 'Go to MainStage workspace', exact: true }).click();
+    assert.equal(await desktop.locator('#fellowship').getByLabel('Reply', { exact: true }).inputValue(), 'Preserve this draft.');
+    assert.equal(await desktop.locator('#stage').getAttribute('data-face'), 'fellowship');
   } finally {
     await desktop.close();
   }
@@ -176,3 +181,15 @@ async function checkMigration(browser, url, phoneProfile) {
 }
 
 module.exports = { checkData, checkMigration };
+
+if (require.main === module) {
+  const { chromium, devices } = require(process.env.NEXTPHASE_PLAYWRIGHT || 'playwright');
+  const { createPreviewServer, pagesMount, startPagesCheck } = require('./serve-preparedness.cjs');
+  (async () => {
+    await checkData();
+    const server = createPreviewServer({ mount: pagesMount });
+    const url = await startPagesCheck(server); let browser;
+    try { browser = await chromium.launch({ executablePath: process.env.NEXTPHASE_CHROME || undefined, args: ['--disable-gpu', '--disable-features=BackForwardCache', '--renderer-process-limit=2', '--disk-cache-size=1048576'] }); await checkMigration(browser, url, devices['iPhone 13']); }
+    finally { await browser?.close(); await new Promise(resolve => server.close(resolve)); }
+  })().catch(error => { console.error(error); process.exitCode = 1; });
+}
