@@ -50,11 +50,11 @@ async function run() {
     await phone.goto(url + '?week=7');
     await phone.locator('#study-title').waitFor();
     const studyTop = await study.evaluate(element => { element.scrollTop = 120; return element.scrollTop; });
-    await phone.getByRole('button', { name: 'Tools', exact: true }).click();
-    await choose(/^Preparedness /);
-    await dialog.getByRole('heading', { name: 'Emergency Preparedness & Communications' }).waitFor();
-    for (const label of [/^Be Ready library/, /^Amateur radio resources/, /^Radio Network Map/]) await dialog.getByRole('button', { name: label }).waitFor();
-    await choose(/^The Common Ground /);
+    await phone.getByRole('button', { name: 'Go to Learning Hub workspace' }).click();
+    await phone.getByRole('button', { name: 'Go to Preparedness workspace' }).click();
+    const front = phone.locator('#preparedness-study');
+    for (const label of [/^Be Ready library/, /^Amateur radio resources/, /^Radio Network Map/]) await front.getByRole('button', { name: label }).waitFor();
+    await front.getByRole('button', { name: /^The Common Ground / }).click();
     await dialog.getByText('Facts First. Conclusions Yours.', { exact: true }).waitFor();
     await choose(/^A Falcon update/);
     for (const label of ['Confirmed facts', 'Attributed estimates', 'What remains unclear', 'Practical implications']) {
@@ -88,11 +88,9 @@ async function run() {
     await choose('Close');
     await dialog.waitFor({ state: 'hidden' });
     assert.equal(await study.evaluate(element => element.scrollTop), studyTop);
-    await phone.getByRole('button', { name: 'Study discussion', exact: true }).click();
-    await phone.getByRole('button', { name: 'Fellowship actions' }).click();
-    await choose(/^Preparedness /);
-    await dialog.getByRole('heading', { name: /Storm outreach/ }).waitFor();
-    await choose('Plan & learn');
+    await phone.getByRole('button', { name: 'Preparedness communications', exact: true }).click();
+    await phone.locator('#preparedness-fellowship').getByRole('heading', { name: /Storm outreach/ }).waitFor();
+    await phone.getByRole('button', { name: 'Communications actions' }).click();
     await choose(/^The Common Ground /);
     await choose(/^A Falcon update/);
     await choose('Discuss in Fellowship');

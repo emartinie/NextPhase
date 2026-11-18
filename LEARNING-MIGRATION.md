@@ -1,5 +1,16 @@
-
 # NextPhase Learning Hub
+## Dedicated workspace iteration
+
+The working card order is MainStage, Learning Hub, Preparedness. Learning Hub uses the existing 3D card structure and shared controls. Both swipe directions and compact previous/next buttons navigate adjacent cards. Each card retains its own face, scroll, and open-session controls.
+
+The front directly reuses the learning index and adds access to the existing Teachers & Scholars directory. The reverse reuses the shared local Fellowship ledger and composer. It offers a general learning conversation plus resource-specific discussions, accessible through the compact Discuss control in resource panels. Learning replies use resource keys, separate from weekly-study and preparedness keys in the same local store. Conversation references and drafts survive reloads. No new member accounts or messaging backend are introduced.
+
+Return to resource reattaches the original retained panel so the article scroll, journey step, open reflections, and language-letter selection survive a discussion excursion during the current session. Continue learning resumes that activity from the front. After a reload, the saved resource reference reopens with the progress its original implementation already supports. Exact transient view controls and viewport scroll are session state.
+
+All inherited source content and unavailable-path labels are retained. This iteration adds navigation and context-preserving discussion access. Authenticated learning discussions and cross-device learning state require a separate integration decision. No Firebase rules, production records, or production hosting are changed.
+
+Validation passed with check-learning-workspace.cjs, check-learning.cjs, check-workspaces.cjs, and check-common-ground.cjs on phone-sized and desktop Chromium. The checks include the Ancient Library chapter/volume context fix and saved learning discussions. Browser tests use F: for temporary files. This iteration stays on feature/learning-workspace for local review. Physical iPhone Safari and public publication remain review steps.
+
 
 Open **Study → Tools → Learning Hub**. The Learning Hub is a grouped entry within Study Tools. The article reader and guided journey use the existing full-size excursion pattern.
 

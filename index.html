@@ -20,25 +20,43 @@
       <button id="week-button" class="week-button" data-open="weeks">Choose week</button>
     </div>
   </div></header>
-  <div id="stage" class="stage" data-face="study">
+  <div id="workspaces" class="workspaces" aria-label="MainStage, Learning Hub and Preparedness workspaces">
+  <div id="workspace-track" class="workspace-track" data-workspace="study">
+  <div id="stage" class="stage" data-face="study" aria-label="MainStage workspace">
     <div id="turn" class="turn">
       <main id="study" class="face" aria-labelledby="study-title" tabindex="-1"><p class="loading" role="status">Opening this week’s study…</p></main>
       <section id="fellowship" class="face back" aria-labelledby="fellowship-title" tabindex="-1" inert aria-hidden="true"></section>
     </div>
   </div>
+  <div id="learning-stage" class="stage" data-face="study" aria-label="Learning Hub workspace" inert aria-hidden="true">
+    <div class="turn">
+      <section id="learning-study" class="face" aria-labelledby="learning-title" tabindex="-1"></section>
+      <section id="learning-fellowship" class="face back" aria-labelledby="learning-fellowship-title" tabindex="-1" inert aria-hidden="true"></section>
+    </div>
+  </div>
+  <div id="preparedness-stage" class="stage" data-face="study" aria-label="Preparedness workspace" inert aria-hidden="true">
+    <div class="turn">
+      <section id="preparedness-study" class="face" aria-labelledby="preparedness-title" tabindex="-1"></section>
+      <section id="preparedness-fellowship" class="face back" aria-labelledby="communications-title" tabindex="-1" inert aria-hidden="true"></section>
+    </div>
+  </div>
+  </div>
+  </div>
   <footer class="dock"><div class="dock-inner">
     <div class="player" id="player" hidden><div><strong id="playing"></strong><small id="audio-status" role="status"></small></div><audio id="audio" controls preload="none"></audio><button id="stop-audio" class="quiet" aria-label="Close player">Close</button></div>
     <nav aria-label="Weekly study actions">
+      <button id="workspace-previous" type="button" aria-label="Go to MainStage workspace" title="MainStage workspace" hidden><span aria-hidden="true">‹</span></button>
       <button id="tools-button" data-open="tools">Tools</button>
       <button id="flip" class="flip" type="button" aria-pressed="false">Study discussion <span aria-hidden="true">⇄</span></button>
       <button id="notes-button" data-open="note">Notes</button>
       <button id="fellowship-more" type="button" data-open="fellowshipActions" aria-label="Fellowship actions" aria-haspopup="dialog" hidden><span aria-hidden="true">⋯</span></button>
+      <button id="workspace-switch" type="button" aria-label="Go to Learning Hub workspace" title="Learning Hub workspace"><span aria-hidden="true">›</span></button>
     </nav>
   </div></footer>
 </div>
 <dialog id="dialog" aria-labelledby="panel-title">
   <div class="panel">
-    <header class="panel-header"><button type="button" class="quiet" id="back" hidden>Back</button><div><p id="panel-kicker"></p><h2 id="panel-title" tabindex="-1"></h2></div><button class="quiet" id="expand" type="button" aria-pressed="false">Expand</button><button type="button" class="quiet" id="close">Close</button></header>
+    <header class="panel-header"><button type="button" class="quiet" id="back" hidden>Back</button><div><p id="panel-kicker"></p><h2 id="panel-title" tabindex="-1"></h2></div><button class="quiet" id="expand" type="button" aria-pressed="false">Expand</button><button type="button" class="quiet" id="learning-discuss" aria-label="Discuss in Learning Fellowship" hidden>Discuss</button><button type="button" class="quiet" id="close">Close</button></header>
     <div id="panel-body" class="panel-body"></div>
   </div>
 </dialog>

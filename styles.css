@@ -55,6 +55,27 @@ dialog{position:fixed}
 .source-copy{overflow-wrap:anywhere}
 .face{overflow-x:hidden}
 
+/* Three persistent workspaces share the existing chrome and 3D flip. */
+.workspaces{position:relative;min-height:0;overflow:hidden}
+.workspace-track{position:absolute;inset:0;display:flex;width:300%;transition:transform .3s ease}
+.workspace-track>.stage{flex:0 0 calc(100% / 3);min-width:0;height:100%}
+.workspace-track[data-workspace=learning]{transform:translateX(calc(-100% / 3))}
+.workspace-track[data-workspace=preparedness]{transform:translateX(calc(-200% / 3))}
+.stage[aria-hidden=true]{pointer-events:none}
+#workspace-switch,#workspace-previous{min-width:44px;width:44px;padding:0;font-size:23px}
+.learning-sheet>.rows{gap:7px}
+.learning-resume:not(:empty){margin-bottom:15px}
+.learning-sheet>.thread-card{margin-top:8px}
+.preparedness-sheet>.prep-stack{gap:12px}
+.preparedness-sheet>.thread-card{margin-top:20px}
+@media(prefers-reduced-motion:reduce){.workspace-track{transition:none}}
+@media(max-width:360px){
+  .top-inner{padding-inline:max(12px,env(safe-area-inset-left));gap:6px}
+  .dock nav{gap:4px}
+  .dock nav button{padding-inline:9px}
+  .dock nav #workspace-switch,.dock nav #workspace-previous{padding:0}
+}
+
 
 /* Full-size study workspace. Cited readers share the existing nested panels. */
 dialog[data-workspace=true] {

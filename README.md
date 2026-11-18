@@ -3,10 +3,24 @@
 NextPhase opens to the current weekly Bible study. It is a development and review environment with simulated Fellowship discussions, private conversations, games, and preparedness exercises. Sample activity and drafts are stored in the current browser. The app has no accounts or connection to HomeGroups production data.
 
 - **Study** has the weekly schedule, daily readings, Passage reader, and personal notes.
-- **Study Tools** opens Covenants & Commandments, New Testament Notes, Hebrew Library, Teachers & Scholars, Sources and Investigations, Learning, Emergency Preparedness & Communications, and Calendar. Find The Common Ground under **Preparedness → Plan & learn**.
-- **Study discussion** flips to the current week's Fellowship. From there you can try game invitations and preparedness drills.
+- **Study Tools** opens Covenants & Commandments, New Testament Notes, Hebrew Library, Teachers & Scholars, Sources and Investigations, Learning, Prayer Map, and Calendar.
+- **Study discussion** flips to the current week's Fellowship. Game invitations remain in its contextual actions.
+- The workspace order is **MainStage → Learning Hub → Preparedness**. Swipe across a card surface or use the compact **‹ / ›** dock controls to move to the adjacent workspace. The Preparedness front hosts the existing catalog, Radio Map, radio resources, research, and **The Common Ground**. **Communications** flips to the existing Wednesday drill and a local preparedness conversation. Swipe right or use **‹** to return through Learning Hub to MainStage. Each card keeps its own face, scroll positions, disclosures, and drafts for the open session. Maps, fields, horizontal readers, open panels, and the browser's edge gestures retain their own interactions.
+- All three cards use the existing Theme Manager, media dock, modal excursions, browser history, and local Fellowship reply controls. Preparedness discussions are browser-local demonstrations. Authenticated preparedness membership and delivery require a separately reviewed integration with the existing Fellowship infrastructure.
 - The **Theme Manager** in the header previews the original Cosmic Glass, Midnight Sapphire, and Ancient Parchment palettes adapted to the NextPhase layout. Save a theme to keep it in the current browser. Leaving an unsaved preview restores the saved appearance. Open the temporary diagnostic palette with `Ctrl+Alt+Shift+D` or by tapping the study title five times within three seconds. [HomeGroups theme diagnostic](https://github.com/emartinie/HGBibleApp/blob/1e31cc4dd984adc638db2aa87571618fee1f3e31/js/themeDiagnostic.js)
 - **Olam HaBa** (עולם הבא, The World to Come) uses a static gradient atmosphere and shared glass tokens for the app chrome and dialogs. Compact surfaces use blur where available, with solid surfaces as a fallback. Expanded reading panels use solid glass colors. The same glass tokens are available for future floating controls.
+
+## Learning Hub workspace
+
+Learning Hub reuses the existing Learning Paths, Articles, Hebrew and Greek Language Lab, Visual Teachings, Topical Teachings, Assessments, Teachers & Scholars, Sources Library, Listen, and Investigations. Open **?workspace=learning**, or use the existing Study Tools shortcut.
+
+**Fellowship** flips the card to learning conversations. **Discuss** in a learning-resource panel opens a conversation for that resource. **Return to resource** restores the retained panel and its exact position during the session. **Continue learning** on the front resumes the latest learning activity. Both use the existing readers and shared local Fellowship composer, posts, drafts, and Scripture attachments.
+
+Replies, drafts, conversation references, the latest resource reference, and the original learning-path progress persist in this browser. Exact panel scroll, alphabet selection, and other view controls are retained within the current session. After a reload, the resource opens from its saved reference and its own supported progress. The four unavailable legacy learning paths remain identified as unavailable. Shared authenticated learning conversations require a future approved Fellowship integration.
+
+Learning Hub has its own independent face and scroll state alongside MainStage and Preparedness. The week chooser remains specific to MainStage. Existing contextual Study Tools links continue to work with their original workspace context.
+
+Run **node check-learning-workspace.cjs** for the new interaction checks, **node check-learning.cjs** for the reused learning resources, and **node check-workspaces.cjs** for the shared swipe/flip navigation. Tests use **F:\Development\NextPhase-Temp** when launched with the configured temporary-file environment. Physical iPhone Safari remains a review step.
 
 ## Local review
 
@@ -24,6 +38,9 @@ node check-calendar.cjs
 node check-people.cjs
 node check-theme.cjs
 node check-olam-haba.cjs
+node check-workspaces.cjs
+node check-common-ground.cjs
+node check-learning-workspace.cjs
 ```
 
 The [MainStage notes](MAINSTAGE-REVIEW.md) describe reader and schedule limitations. The [migration notes](LEARNING-MIGRATION.md) record Learning, Calendar, and source curation. The [HomeGroups source license](corpus/LICENSE) is bundled. Third-party source attribution and applicable reuse notices appear with their respective editions.

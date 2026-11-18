@@ -76,19 +76,23 @@ export function createPreparednessViews({ node, text, button, cluster, disclosur
 
   return {
     preparedness(target, { data }) {
-      let view = Object.hasOwn(viewLabels, data.initial) ? data.initial : 'group';
+      const embeddedBack = data.surface === 'back';
+      const labels = data.surface === 'front' ? { plan: 'Plan & learn', listen: 'Listen' } : viewLabels;
+      let view = embeddedBack ? 'group' : Object.hasOwn(labels, data.initial) ? data.initial : Object.keys(labels)[0];
       let role = 'participant';
       let area = preferred;
+      let renderedEntries = record.entries.length;
       const status = text('', 'status');
       status.setAttribute('role', 'status');
       const content = node('div', '', 'prep-stack');
-      const controls = cluster(...Object.entries(viewLabels).map(([key, label]) => {
+      const controls = cluster(...Object.entries(labels).map(([key, label]) => {
         const control = button(label, () => { view = key; status.textContent = ''; render(); }, 'pill');
         control.dataset.view = key;
         return control;
       }));
       controls.setAttribute('aria-label', 'Preparedness views');
       controls.setAttribute('role', 'group');
+      controls.hidden = embeddedBack;
       target.append(controls, content, status);
 
       function save(message) {
@@ -320,8 +324,18 @@ export function createPreparednessViews({ node, text, button, cluster, disclosur
         content.replaceChildren();
         for (const control of controls.children) control.setAttribute('aria-pressed', String(control.dataset.view === view));
         ({ group: groupView, listen: listenView, plan: learnView })[view]();
+        renderedEntries = record.entries.length;
       }
       render();
+      return () => {
+        if (renderedEntries === record.entries.length) return;
+        const expanded = [...content.querySelectorAll('details')].map(item => item.open);
+        const selectedReport = content.querySelector('[aria-label="Practice report for"]')?.value;
+        render();
+        [...content.querySelectorAll('details')].forEach((item, index) => { item.open = Boolean(expanded[index]); });
+        const report = content.querySelector('[aria-label="Practice report for"]');
+        if (report && [...report.options].some(option => option.value === selectedReport)) report.value = selectedReport;
+      };
     },
     practiceListen(target) {
       renderListening(target);

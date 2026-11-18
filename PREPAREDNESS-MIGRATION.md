@@ -1,7 +1,19 @@
 
 # Preparedness migration ledger
 
-Open **Study → Tools → Preparedness** for the resources, or **Fellowship → ⋯ → Preparedness** for the Wednesday drill. Use **Plan & learn** to reach the catalog, radio resources, maps, research, and The Common Ground. Prayer Map also opens directly from Study Tools. The full-size Emergency Preparedness & Communications workspace uses the existing panel history, so Back restores your earlier view and Close returns to the Study or Fellowship screen.
+The card order is MainStage, Learning Hub, Preparedness. Swipe left through Learning Hub or use the compact **›** dock controls to enter Preparedness. Its front keeps **Plan & learn** and **Listen**, with the existing catalog, radio resources, maps, research, and The Common Ground. Flip **Communications** to reach the Wednesday drill and the preparedness conversation. Swipe right or use **‹** to return through Learning Hub to MainStage. Prayer Map retains its distinct purpose and remains available directly from Study Tools too.
+
+## Second workspace review
+
+The three workspace cards remain mounted side by side. Each has the same existing `stage`, `turn`, `face`, and `back` structure, including the animated vertical-axis 3D flip. Switching cards preserves their front/back states, scroll positions, selected tabs, exercise-role selection, open disclosures, and drafts in the current session. Reduced-motion settings suppress both slide and flip animations. A compact dock arrow provides mouse, keyboard, and assistive-technology access alongside touch swiping.
+
+Preparedness resources reuse `createPreparednessViews` directly on the card. They retain their existing readers and nested panels. Browser Back and Forward restore panel content, filters, focus, scroll, workspace, and face. Existing `card=preparedness`, Be Ready, Amateur Radio and Radio Map links open within the Preparedness card. The separate Prayer Map route remains available. A page reload restores the selected workspace and faces from the URL and reads existing local drafts, posts, and drill progress. Exact scroll and transient selections are session state, matching MainStage's existing behavior.
+
+The Communications side uses the existing simulated Wednesday exercise and the shared Fellowship ledger, composer, Scripture attachments, and local participant model. Its conversation has its own topic key in that ledger and stays separate from weekly-study replies. No member accounts, authentication settings, messaging backend, or Firestore rules were added or changed. Live preparedness discussions, permissions, and cross-device drill coordination remain a future integration with the existing Fellowship infrastructure.
+
+The shared media dock remains mounted across workspace switches. The current application does not have a separate persistent Companion chat to migrate. This change retains its existing controls and audio behavior.
+
+The focused review command is `node check-workspaces.cjs`. It exercises touch swiping, independent faces, exact scroll restoration, retained selections and drafts, excursion filters, browser history, keyboard navigation, genuine 3D rotations, shared themes, local progress, and a 320-pixel mobile layout. `node check-common-ground.cjs` checks the relocated briefing and its discussion/return flow. Physical iPhone Safari remains a review step. This working iteration is local and has no publication or merge authorization.
 
 ## The Common Ground
 
@@ -30,7 +42,7 @@ The workspace includes a historical sample based on primary sources. The reader 
 - **Catalog:** Search “field antenna,” open a record, and use Back. Open the first “470 crock pot” record to see a matched archive. Open the Snyder 1917 record for an independently published edition. Compare an empty 9-Comms folder with the populated Comms topic filter.
 - **Radio:** Filter to **Dickson** and compare the two entries. Apply the **Original fixture status** filter to see the legacy point alone. Open **KG4HDZ** for club-published frequency, offset, tone and links. Use Tab and the arrow keys to move the map. The list is an alternative to tapping markers.
 - **Prayer:** Open the distinct **Prayer Map**. Toggle layers, select a county, save a fictional private note and reload. Location is optional and limited to the three example counties.
-- **Research and drill:** Search the backlog for a title such as “CHIRP.” In Fellowship, try the drill and visit a resource, then come back to the drill or close to the ordinary conversation.
+- **Research and drill:** Search the backlog for a title such as “CHIRP.” Flip Preparedness to Communications, try the drill, open a resource, and close it to return to the drill. Swipe right to return to the original Study/Fellowship card.
 - Start the loopback review server on this PC with **node serve-preparedness.cjs**. It defaults to **http://127.0.0.1:8767/?card=preparedness**.
 - Direct entry uses **?card=preparedness** or **?card=preparedness&section=library**. The original card aliases **?card=beready**, **?card=amateurradio**, **?card=radiomap**, and **?card=prayermap** open their equivalents.
 - Run **node check-preparedness.cjs** with the local Playwright settings. The data check tests the catalog's exact Git blob identity, original IDs, folder and skip totals, public source manifest, and boundaries. The browser check exercises the migration and original drill. The map, catalog, and drill run from local assets. Outbound sources need a connection and may require permissions. Cold offline launch and physical iPhone Safari are unverified. The drill still offers its offline text export from an open session.

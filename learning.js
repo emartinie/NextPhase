@@ -41,7 +41,7 @@ function saveProgress(id, currentStepIndex, completedSteps) {
 export function articleUrl(file, anchor) {
   const url = new URL(location.pathname, location.origin);
   const current = new URLSearchParams(location.search);
-  for (const key of ['week', 'study', 'face']) if (current.has(key)) url.searchParams.set(key, current.get(key));
+  for (const key of ['week', 'study', 'face', 'workspace', 'learningFace', 'learningTopic', 'preparednessFace', 'pilot']) if (current.has(key)) url.searchParams.set(key, current.get(key));
   url.searchParams.set('card', 'articles');
   url.searchParams.set('file', file + (anchor ? '#' + encodeURIComponent(anchor) : ''));
   return url.href;
@@ -142,6 +142,7 @@ export function createLearningViews({ node, text, button, row, cluster, disclosu
         row('Visual Teachings', 'Browse the original Prezi presentations', () => open('visualTeachings')),
         row('Topical Teachings', 'Who Is Jesus? and Origins', () => open('topicalTeachings')),
         row('Assessments', 'Practice questions from New Testament Notes', () => open('assessments')),
+        row('Teachers & Scholars', 'Profiles, teaching archives and debates', () => open('people')),
         row('Sources Library', 'Compare witnesses and browse the Ancient Library', () => open('sourcesLibrary')),
         row('Listen', 'Read or hear the original sample shelf', () => open('listenShelf')),
         row('Investigations', 'Search published HomeGroups research', () => open('research')));
