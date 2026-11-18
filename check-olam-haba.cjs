@@ -151,13 +151,15 @@ async function checkOlam(page, url, label) {
   assert.equal(await page.locator('#turn').evaluate(el => getComputedStyle(el).transitionDuration), '0s');
   await tap('Study discussion');
   await page.locator('#fellowship-title').waitFor();
-  const reply = page.getByRole('textbox', { name: 'Reply', exact: true });
+  await page.getByText('Try the local discussion demo', { exact: true }).click();
+  const reply = page.locator('#fellowship').getByRole('textbox', { name: 'Reply', exact: true });
   await reply.fill('Olam HaBa preview draft');
   await fit('#fellowship');
   await snapshot('fellowship');
   await page.reload();
   await page.locator('#fellowship-title').waitFor();
   await active('olam-haba');
+  await page.getByText('Try the local discussion demo', { exact: true }).click();
   assert.equal(await reply.inputValue(), 'Olam HaBa preview draft');
   await page.keyboard.press('Control+Alt+Shift+D');
   await active('diagnostic');

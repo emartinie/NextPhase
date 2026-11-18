@@ -1,0 +1,1675 @@
+{
+  "schemaVersion": 2,
+  "resources": [
+    {
+      "id": "bibles-asv",
+      "title": "American Standard Version (ASV)",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31101,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt0",
+          "bytes": 131,
+          "sha256": "ac14c8930d94f595911870289b0fb5256189d3db244dbc14f322b0d32104e030"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt4",
+          "bytes": 4157938,
+          "sha256": "d2543dae07dcd9ee5eca9112ee5665e78c5c934e2fe64232d5ddd2a6b26bfc16"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt5",
+          "bytes": 158247,
+          "sha256": "6aeaf41ae293d92a4f3b059a265eb185c84653d92f3bb4cecdabda0567487eeb"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt6",
+          "bytes": 1284750,
+          "sha256": "442a738b34a6b64291ba6e90b68105f9a55529a3aadf104d088ffefe58fca5a9"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt7",
+          "bytes": 217714,
+          "sha256": "1e18de3f9e4d4f5adde6f9b18f4cdf3634248143c40992c5a6dfbc0389ea6f9e"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "bibles-bbe",
+      "title": "Bible in Basic English (BBE)",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31102,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt0",
+          "bytes": 131,
+          "sha256": "c31e72fc12c9813cee70d903b6293793b379ff5c608e89833f0369dc1fd25357"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt4",
+          "bytes": 4180833,
+          "sha256": "d4f5c42451e31fe3e4181fbb4375dcbdd6bf4e7d5db9d210d3cff14326562438"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt5",
+          "bytes": 84108,
+          "sha256": "90afe4002f3bd21881ab4e896481b2b91dbb37f1cebc8d1623b415033a56001d"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt6",
+          "bytes": 1352044,
+          "sha256": "00af52529219e28614b822361aca36b7e5d068a73b52f13b6c88edb35035a3c3"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt7",
+          "bytes": 217714,
+          "sha256": "4a9f370b6ec031b2a0866dd687839cc497c003ffeb819e8b7241c214b14b22da"
+        }
+      ],
+      "releaseReview": "edition-permission-review"
+    },
+    {
+      "id": "bibles-darby",
+      "title": "Darby's Translation",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31099,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt0",
+          "bytes": 131,
+          "sha256": "752beb5e944f223b05b1804a6b351f97349aa53865d6155590ea352e5b5e5a76"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt4",
+          "bytes": 4114082,
+          "sha256": "cf48f61449baac27e50694da583a199533ba2c2c7e30d98b5551f02d129e916e"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt5",
+          "bytes": 179810,
+          "sha256": "a6731028c768816a9a7fdd3408e8658c3807dc7c746f83d92c886a2169729c32"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt6",
+          "bytes": 1272852,
+          "sha256": "51bb934a831d51c4a49a3b3ad91540e2e550de13800469f7460d70d4da351e62"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt7",
+          "bytes": 217714,
+          "sha256": "73cc1d74c1930826f655e48da8709ca38c73c0204661b6a52b296cef134c4399"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "bibles-kjv",
+      "title": "King James Version",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31102,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt0",
+          "bytes": 131,
+          "sha256": "0bbd4f28b72586c160a6344ac06b736aff5476de925236034b01bf6158a9aea6"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt4",
+          "bytes": 4812846,
+          "sha256": "fa7ce43b3ce5943cd978276497adbb2bc61584871bd5a744af354cf30148c180"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt5",
+          "bytes": 164154,
+          "sha256": "50168e2d2d844b42ef755c88942b801741bf0943e39b59eb032f281f4bff14e1"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt6",
+          "bytes": 1333696,
+          "sha256": "e53a4190d1336175c0b84a2380ecf14d37d30b38487c01b1ac4a87955a408e1e"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt7",
+          "bytes": 217714,
+          "sha256": "d026cdfadb0499c86fd5cf089f1c5723faef074457472c13d9195a02a8309088"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt8",
+          "bytes": 828024,
+          "sha256": "c3de829d4f06c677b56875316b94b65b68eac304b1fbb4f9b2cef7564ce60e31"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt9",
+          "bytes": 712336,
+          "sha256": "2739a60af282bc163b76a36b268ecc8e84e46b2aa25fd52869ffc6d6dfe1b53d"
+        }
+      ],
+      "qualification": "Every supplied KJV tag count matches its .bt8 code count; links belong to source KJV phrases, not other editions.",
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "bibles-louis-segond-1910",
+      "title": "1910 Louis Segond Version",
+      "state": "blocked",
+      "reason": "No source text file supplied; header/index files cannot supply its missing contents.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/louis-segond-1910/LSV.bt0",
+          "bytes": 131,
+          "sha256": "9fad0060926c7829e372de358c9f5ef9cd13ed75ae7a20ad4a218468c6e0dfd6"
+        },
+        {
+          "path": "corpus/reference/bibles/louis-segond-1910/LSV.bt3",
+          "bytes": 926,
+          "sha256": "f2d24964804b55f240e0d89582560340a4ce5eabeb3a8aae75349bf84870f1cc"
+        }
+      ]
+    },
+    {
+      "id": "bibles-luther-1912",
+      "title": "1912 Luther German Bible",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31102,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt0",
+          "bytes": 131,
+          "sha256": "50ec14e87a654f32f8cee9c8f8dad9ac569db8a03bab6aea4be879fe125cc563"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt3",
+          "bytes": 933,
+          "sha256": "828ac61802b2ef8e900be0c3a3722f61270c27fd5cbbc2ba76a19ddbb8c5b7d8"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt4",
+          "bytes": 4039672,
+          "sha256": "12f165206aabc7d3973b2be3d4b7a507b6c4af4566f205c40ed203772af4cf78"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt5",
+          "bytes": 269496,
+          "sha256": "a386f6728c01633f9b07b846ee448788cd6afac3d75e30478f108109624399ce"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt6",
+          "bytes": 1290088,
+          "sha256": "7024e15fc660e731901818ce509969d08b5e4e8041fc7a1f665455d86d488162"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt7",
+          "bytes": 217714,
+          "sha256": "b155cd859984a07d31b35ad3b25e8aa50779df05b610ad4d863aeb47656c9c43"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "bibles-modern-king-james",
+      "title": "Modern King James Version",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31102,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt0",
+          "bytes": 131,
+          "sha256": "3a7d5b0508b83b33b1711ba3b259265a8b46e153529644feb68d5e3b982d8f10"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt5",
+          "bytes": 155356,
+          "sha256": "236fbc1c34ad288b8c6477be39e294ee12b6d971725f3086c8cf82ce8c6cb62a"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt6",
+          "bytes": 1258120,
+          "sha256": "81acc2b5423edf635b368bd86879d3e4cdcfc933f1a50d870224cc58a7f206ed"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/mkjv.bt4",
+          "bytes": 4043210,
+          "sha256": "403ae397dd8d0c52ec9099c6705240e7308a5164e761e2e4040320d430532a9e"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/mkjv.bt7",
+          "bytes": 217714,
+          "sha256": "9c7b7c22c8c0f080df555d88bae622ec9595619547cc994e9551cf94512de677"
+        }
+      ],
+      "releaseReview": "edition-permission-review"
+    },
+    {
+      "id": "bibles-montgomery-new-testament",
+      "title": "Montgomery's New Testament",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 7949,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt0",
+          "bytes": 131,
+          "sha256": "7aef000cea2d9da6bf6b1ecd11a1261fa0b974f78db5a4e15610583cda3acd1a"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt4",
+          "bytes": 1045710,
+          "sha256": "fcc4c7ba259e704e6e67d32374d1b7f32216cb6bbd17ccd4451a6d0643a464d9"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt5",
+          "bytes": 95330,
+          "sha256": "e51ffd4396c0609a3670fc522e3c1d064a276273d21e67b52eadb0368b0e984f"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt6",
+          "bytes": 336954,
+          "sha256": "f44d9bd1d6849209e0a66a930b63f504df81f505cf3b495086a3969d20677924"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt7",
+          "bytes": 217714,
+          "sha256": "83f7f9170842adec1dd08b1efd2653610a50dec10584ed1191f590df571cbb29"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "bibles-nasb-1995",
+      "title": "New American Standard Bible 95 Update",
+      "state": "blocked",
+      "reason": "Protected/encoded Bible text; no documented decoding or full-edition redistribution permission supplied.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt0",
+          "bytes": 131,
+          "sha256": "6439d832fe9b97b535fe01a3cb790b12b3d79b3dc49586dbb5bbe79305c7a0af"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt4",
+          "bytes": 4064961,
+          "sha256": "8002735f0690b6897a661e591d8b616661e5249e511e308742cbca7d1bb93717"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt5",
+          "bytes": 176894,
+          "sha256": "7563488a6e8057257b5ce389ff97656605de96d7ee50e3314b31bcdbd6e398ff"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt6",
+          "bytes": 1289188,
+          "sha256": "afd96546ca9de28b199b66c6087ecaee75c665dc163e6594a79f158d4d95d1a3"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt7",
+          "bytes": 217714,
+          "sha256": "2f8e838150a15900de222d29fe3f44aaf2abe2f56998dd7fd2475bf7d1aa81ef"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nasb",
+      "title": "New American Standard Bible",
+      "state": "blocked",
+      "reason": "Protected/encoded Bible text; no documented decoding or full-edition redistribution permission supplied.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt0",
+          "bytes": 131,
+          "sha256": "5bb7268713da84549fefdaa9cf5c38b9688068ef424d8979f84abd281b40099a"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt4",
+          "bytes": 4119026,
+          "sha256": "969b1af8a7541560caed407d292086b86666f3c7ab5f6307d8b2a42b4a1dc7b7"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt5",
+          "bytes": 177288,
+          "sha256": "1ffc27fc8c9ccbf7f57fa17f5b8715557e1926dc3778f95651f3f19bd2bb41b7"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt6",
+          "bytes": 1295038,
+          "sha256": "0772d515c41266f0ed4cd15293055ce423d850d79e3f296bd4e4549ff7b8da28"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt7",
+          "bytes": 217714,
+          "sha256": "a561919a7563f95a682ddcee018b8ea2b85523bdafc2cbe790e675251808b44d"
+        }
+      ]
+    },
+    {
+      "id": "bibles-niv",
+      "title": "New International Version",
+      "state": "blocked",
+      "reason": "Protected/encoded Bible text; no documented decoding or full-edition redistribution permission supplied.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt0",
+          "bytes": 131,
+          "sha256": "f9cc8a52a6d6d7d9fc6f93b7507b896bdb68019f02cd56ef729d73fa00eece49"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt4",
+          "bytes": 3988718,
+          "sha256": "f57020d5d5ba6d633315f38ad28a50c14b322c009785a7c2de34f077a9ae6d7d"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt5",
+          "bytes": 183602,
+          "sha256": "5435c6e505adb7b1e74e5f4f73d0a25109a41919f90377904ac41c0722360e31"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt6",
+          "bytes": 1296964,
+          "sha256": "4f51f62931755d8e8a89de5bccad59641dff408c17dc7a2f200c946ce3912f1d"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt7",
+          "bytes": 217714,
+          "sha256": "b57ddc34b22c4f41aaeec217ca2a84fd624430c70913d9f2fca5e475713fab85"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nkjv",
+      "title": "New King James Version",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 31102,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt0",
+          "bytes": 131,
+          "sha256": "b8ff8e55f90901ebb4c9f8bb3c495bd8a55f5a22bb107e15ae5453603945d681"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt4",
+          "bytes": 4081202,
+          "sha256": "b3c475fb8c9b9047f7710e775005e0ebf1e0636eddefa3d0bdb9e40cdd941b7e"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt5",
+          "bytes": 168761,
+          "sha256": "1faa6f12db18145e419e1ba627a66f16b8d76811e07e771a2a82b4cadd387db9"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt6",
+          "bytes": 1280578,
+          "sha256": "8c05fa33e933435238e782f4371fbbeb1ea1544d0785900206c5d96e0c71ca31"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt7",
+          "bytes": 217714,
+          "sha256": "06dbd5f884c4687da328b25f0645ce430501e77444dea66be23fa02f3c39df3e"
+        }
+      ],
+      "releaseReview": "edition-permission-review"
+    },
+    {
+      "id": "bibles-nrsv",
+      "title": "New Revised Standard Version",
+      "state": "blocked",
+      "reason": "Protected/encoded Bible text; no documented decoding or full-edition redistribution permission supplied.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt0",
+          "bytes": 131,
+          "sha256": "df30feaa6a54ec7769d1c7f240f18d5e327c0b9147b3ae89add918ed09a4c14f"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt4",
+          "bytes": 3915212,
+          "sha256": "07a7fb3d076de40019a9d7407389babc69246c707bc7b49d38b0be2d67271aac"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt5",
+          "bytes": 174693,
+          "sha256": "ea50649cfb17b18236673c8f52cef1492b9d6032e9f95307245490ae1fbad0fe"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt6",
+          "bytes": 1255424,
+          "sha256": "77321edb792b4a897d54f57f3cfec10137be74c53c45d4f27099322a17b45265"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt7",
+          "bytes": 217714,
+          "sha256": "4cb7860ff8688c3788788e8f705b5af2d4484813b782e7b2e19baea2cc95fd9a"
+        }
+      ]
+    },
+    {
+      "id": "bibles-twentieth-century-new-testament",
+      "title": "Twentieth Century New Testament",
+      "state": "functional",
+      "kind": "bible",
+      "counts": {
+        "entries": 7954,
+        "citationLinks": 0,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt0",
+          "bytes": 131,
+          "sha256": "2ed2640133d1c7aabd7b024d2cef7c2b8774d3581d073e924ef33b82644c2699"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt3",
+          "bytes": 935,
+          "sha256": "e1c48a1b43f7edee8fc06859429ec4f6c2720554a1bf27129265ba250455dd6a"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt4",
+          "bytes": 1099686,
+          "sha256": "4e764713cb7c03671917e1e1ce7bad8140c6029080d845f77e5f17fdf259d147"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt5",
+          "bytes": 94020,
+          "sha256": "e15d36a29c186b58357eefd974e25b250a536a5b7efbed8a82787ab99d80283c"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt6",
+          "bytes": 352620,
+          "sha256": "b569f6ba6106c57561aa6d641a11c3212d6ba8b95aa090c294face2ca8648b87"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt7",
+          "bytes": 217714,
+          "sha256": "8f89b8a040e2c27c5c043aee1124ed97034fca9ec92688b69d0c7f4604ef4515"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-adam-clarke",
+      "title": "Adam Clarke's Commentary",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 21151,
+        "citationLinks": 25929,
+        "sourceIssues": 6
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct0",
+          "bytes": 97,
+          "sha256": "ffe7b81ba5824c7bb0ea3f0f45354c2fa36e1c9edbfb7646d04e4e62a08bb08b"
+        },
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct4",
+          "bytes": 23032995,
+          "sha256": "ed2fe037217be6af3d47c174956a2a7f7b909bc660eadef86e7c4d683475bd74"
+        },
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct7",
+          "bytes": 248816,
+          "sha256": "5f3135dd3658d7c2a1031fb292360a56d056ff7e5e466bb5d7deaa4be48c0cef"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-albert-barnes",
+      "title": "Albert Barnes' New Testament Commentary",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 7947,
+        "citationLinks": 44373,
+        "sourceIssues": 1
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct0",
+          "bytes": 97,
+          "sha256": "e54eac769dea32426f4654044881c3e78d41cac070713fa6776384f53ba11bcf"
+        },
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct4",
+          "bytes": 15145511,
+          "sha256": "5bf97ed124cc939ff1a52c03eb9b27cb7bf69c8d3add7753d88dd6eab410779a"
+        },
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct7",
+          "bytes": 248816,
+          "sha256": "d0d54c317d3e82dd6aa8efc5e60e05725835397ff3ca00a611d35aa7ac622a9c"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-family-bible-notes",
+      "title": "Family Bible Notes",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 16038,
+        "citationLinks": 9215,
+        "sourceIssues": 66
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct0",
+          "bytes": 97,
+          "sha256": "492d7c3d8c93cc4682a452b4453cea7f19fccbe90a10e5544fcbbfdf21a93ca0"
+        },
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct4",
+          "bytes": 3795513,
+          "sha256": "95b16d84a41ac35785019c58e786f0a2e4ae8a20519fa2c3300f1d6838713864"
+        },
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct7",
+          "bytes": 248816,
+          "sha256": "a88026824150eb13dd66474c07e0922d39c9a2aba5f5558461a0c788a166e468"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-geneva-1599",
+      "title": "1599 Geneva Bible Notes",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 14856,
+        "citationLinks": 2841,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct0",
+          "bytes": 97,
+          "sha256": "d4cb9d68dd67b9d1ed058992918c3bd2459663a09d9a297692ec6ba74c1117a2"
+        },
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct4",
+          "bytes": 4710201,
+          "sha256": "b378f8c4da490ad98f7ae76af4e3736be313fcbff8d1ba229d1322223e227d2b"
+        },
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct7",
+          "bytes": 248816,
+          "sha256": "35dbff22e540c3f99cdc0376af0b696ba98bde602fa20d8c4685f615c511c75a"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-jamieson-fausset-brown",
+      "title": "Jamieson-Fausset-Brown Commentary",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 19754,
+        "citationLinks": 60582,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct0",
+          "bytes": 97,
+          "sha256": "323696e5cdc6ff7043050e571811428a87427a3ddce3bad451908096210cca7d"
+        },
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct4",
+          "bytes": 11127169,
+          "sha256": "b39e8e7a47e377e5075bbbf755a6ec7c1d29002fc4033e5d571a2af81d550695"
+        },
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct7",
+          "bytes": 248816,
+          "sha256": "088b4cb102ae347cc8a6dd080e0f7639b04b97fd88de5338b5a04d2feef0246d"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-john-wesley",
+      "title": "John Wesley's Notes on the Old and New Testaments",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 18374,
+        "citationLinks": 5929,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct0",
+          "bytes": 97,
+          "sha256": "6a2443435558f40fd27b72f7823346216b4e94a2fd7e2c7b764c96065fabd585"
+        },
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct4",
+          "bytes": 5995357,
+          "sha256": "1b564b7eab201e2fbc353ed4332703e126c362f8f8dc4a342f70c4708ce53c74"
+        },
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct7",
+          "bytes": 248816,
+          "sha256": "4f01f7f3138b11de3bd830033411c37c2111b7b2c10f2b63a723f39e7c6000fa"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-matthew-henry-concise",
+      "title": "Matthew Henry's Concise Commentary",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 3572,
+        "citationLinks": 804,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/matthew-henry-concise/MHCC.ct0",
+          "bytes": 97,
+          "sha256": "9ace7099f5a613a614c6bf779c3d92c476356931d29a861577bdf9fdb148a465"
+        },
+        {
+          "path": "corpus/reference/commentaries/matthew-henry-concise/MHCC.ct4",
+          "bytes": 3904022,
+          "sha256": "544cb8732456e9876038a8dcf38d3f49c9b031848f63777e0272e262ad500766"
+        }
+      ],
+      "qualification": "Missing .ct7 rebuilt only from strictly increasing supplied hexadecimal verse keys; text is not substituted.",
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "commentaries-matthew-henry",
+      "title": "Matthew Henry's Commentary on the Whole Bible",
+      "state": "blocked",
+      "reason": "No source text file supplied; header/index files cannot supply its missing contents.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/matthew-henry/MHC.ct0",
+          "bytes": 97,
+          "sha256": "e9247177c7b631040eeb0194f7a15f5da0a223157cc2a2e2b358dc1ef8a75698"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-teachers-commentary",
+      "title": "Teacher's Commentary",
+      "state": "functional",
+      "kind": "commentary",
+      "counts": {
+        "entries": 3380,
+        "citationLinks": 3744,
+        "sourceIssues": 1
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct0",
+          "bytes": 97,
+          "sha256": "9bf26ac62d686f48d6d14156c7b6fa75aec02349aae4323dfb71303a0fe2585c"
+        },
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct4",
+          "bytes": 801175,
+          "sha256": "f3c04cbf079d16d915f13634c691d00ad8d3d0f3dbbe65e27c5c09218e173d80"
+        },
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct7",
+          "bytes": 248816,
+          "sha256": "a7d143fd5001b18d0ddb1f3e60d56a19dea0e007a45382f4f57e2cd297e39e42"
+        }
+      ],
+      "releaseReview": "edition-permission-review"
+    },
+    {
+      "id": "cross-references-bcdxrefs",
+      "title": "BCD cross-reference module (bcdxrefs)",
+      "state": "functional",
+      "kind": "crossrefs",
+      "counts": {
+        "entries": 21991,
+        "citationLinks": 72055,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr0",
+          "bytes": 97,
+          "sha256": "3747053c4bd84c4f013359b537d685909138e9122933cbd75d9cc370dabac8ab"
+        },
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr4",
+          "bytes": 629128,
+          "sha256": "cbf13df11b8def79de2884ca66b427427954272ce1fa3e98020542333aa75d78"
+        },
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr7",
+          "bytes": 248816,
+          "sha256": "6a4a7109e8abf01daa16d1625b1373ee0ae42cdaa4309a2cf8225450d2ed07ff"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "devotionals-bagsters-daily-light",
+      "title": "Bagster's Daily Light",
+      "state": "functional",
+      "kind": "devotional",
+      "counts": {
+        "entries": 732,
+        "citationLinks": 6918,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt0",
+          "bytes": 97,
+          "sha256": "bc3572e6850fe34b91258951cfa1179aa6a81f59d80613f187667b755b5ef0d7"
+        },
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt4",
+          "bytes": 72965,
+          "sha256": "9168d542c050280cb22397dd4db26bcd4b7c70c8a6ad83327dae8c082e1e55e7"
+        },
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt7",
+          "bytes": 5856,
+          "sha256": "9d739ce6881cca47fbd6feeb25730c7594096c2b6255ee335be3b8491f15d145"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "devotionals-morning-and-evening",
+      "title": "Morning and Evening Readings",
+      "state": "blocked",
+      "reason": "No source text file supplied; header/index files cannot supply its missing contents.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/devotionals/morning-and-evening/MER.tt0",
+          "bytes": 97,
+          "sha256": "130da39fe4bd278ea26197f53ebc7c4e76e39890077e123ceb9e1ef84130eb64"
+        },
+        {
+          "path": "corpus/reference/devotionals/morning-and-evening/MER.tt7",
+          "bytes": 5856,
+          "sha256": "a9e0dc7698f0303215cba73ba5525c0c7d97ce37542ed1567094d3acd8e82b11"
+        }
+      ]
+    },
+    {
+      "id": "dictionaries-american-tract-society",
+      "title": "American Tract Society Dictionary",
+      "state": "functional",
+      "kind": "dictionary",
+      "counts": {
+        "entries": 2277,
+        "citationLinks": 13855,
+        "sourceIssues": 4
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt0",
+          "bytes": 97,
+          "sha256": "e71662a47c84909ae43138bcd42121ce1599ebf0a6a257aa148a1b35ec7655f8"
+        },
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt4",
+          "bytes": 1844449,
+          "sha256": "d1e550b575515ab1b4e86487909273e5e8ef7e61796c03313c1d0c488b575b39"
+        },
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt7",
+          "bytes": 18216,
+          "sha256": "f3ccacff3f92249fe89d0480939aae36d14a5e617bca565687b5623d1ef04b70"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "dictionaries-easton",
+      "title": "Easton's Bible Dictionary",
+      "state": "functional",
+      "kind": "dictionary",
+      "counts": {
+        "entries": 3965,
+        "citationLinks": 26353,
+        "sourceIssues": 3
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt0",
+          "bytes": 97,
+          "sha256": "fe43664b5e1d220d796af6c996186c7b9d0cf1888a8e15a88072978469d44da1"
+        },
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt4",
+          "bytes": 2509193,
+          "sha256": "2ae31d10ae30050e1ab529364fd0e0192fea62f9f4e25326202b4cb6e2a0b5b4"
+        },
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt7",
+          "bytes": 31720,
+          "sha256": "45fb6758edf64cc5d75cc1ffb15a9884c3eda1c68f3a648bf5a67ff61e9c6639"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "dictionaries-hitchcock-bible-names",
+      "title": "Hitchcock's Bible Names",
+      "state": "functional",
+      "kind": "dictionary",
+      "counts": {
+        "entries": 2623,
+        "citationLinks": 0,
+        "sourceIssues": 8
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt0",
+          "bytes": 97,
+          "sha256": "04e23acc61ff154c0945503d21198a793b60eda40003a077716e4a659aef90b9"
+        },
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt4",
+          "bytes": 81089,
+          "sha256": "43d244cdfcde063b3d34b10194a7d9ec046a8669b1df9e43d1af7c66386a40c1"
+        },
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt7",
+          "bytes": 20984,
+          "sha256": "b43042a442ae179ba1e10afc1ce4c43257eb6e1a44e44b06cadd8c3b6b741570"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "dictionaries-smith",
+      "title": "Smith's Bible Dictionary",
+      "state": "functional",
+      "kind": "dictionary",
+      "counts": {
+        "entries": 4640,
+        "citationLinks": 18384,
+        "sourceIssues": 4
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt0",
+          "bytes": 97,
+          "sha256": "2d98495580b74a5a670aeb382cd524b441c959ca2ed4958883349a9e17753388"
+        },
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt4",
+          "bytes": 2939197,
+          "sha256": "8ce44035e3d7c7a414fd719ea3a07eb15dd7157429cb0a9e0ad5cc54a9362be5"
+        },
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt7",
+          "bytes": 37120,
+          "sha256": "7c39e7e662150408013dbb0874967f2f30aa173187177d16f86b67a4f1884ef1"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "lexicons-strongs-greek",
+      "title": "Strong's Greek Dictionary",
+      "state": "functional",
+      "kind": "lexicon",
+      "counts": {
+        "entries": 5624,
+        "citationLinks": 7048,
+        "sourceIssues": 4
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx0",
+          "bytes": 97,
+          "sha256": "66bc980a1829cd39725347bfb3d2cbfd13e903b66cebe06c2a64c62b8f7e8193"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx4",
+          "bytes": 695423,
+          "sha256": "24e94698522d5efa8885c993c275224098052310804179b1d5c7a464003f7571"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx7",
+          "bytes": 44992,
+          "sha256": "16b4543839b162ace0f35e7fce4a018f8161d9f577c66f56da3bf619b735d3ab"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "lexicons-strongs-hebrew",
+      "title": "Strong's Hebrew Dictionary",
+      "state": "functional",
+      "kind": "lexicon",
+      "counts": {
+        "entries": 8674,
+        "citationLinks": 7965,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx0",
+          "bytes": 97,
+          "sha256": "a9e5dd8b8a26d15b1dd4574f644c8132cf58adca79bd849f6d2e2e34413182f4"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx4",
+          "bytes": 1064935,
+          "sha256": "8dabecd8372c7bcb4d5f8527ef4656f6f035c0ab9230d0bff6a5bc248d00deab"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx7",
+          "bytes": 69392,
+          "sha256": "92f19634a11d44ab1db2db7742badb5d1fa0d7c0926c7fee31b9dcfe1bc04b5a"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "lexicons-strongs-index",
+      "state": "integrated",
+      "purpose": "Supplied transliterations and pronunciations enrich both Strong dictionaries.",
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd0",
+          "bytes": 8,
+          "sha256": "047fe37ea8b747f9b41188f91324a4551a1c56499a40b16ec6292626c2ab65bb"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd1",
+          "bytes": 171600,
+          "sha256": "c2ea5560b7b769d86e9681e9d2b469bac078dff59bb166ebe2a1a84e2e14416e"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd2",
+          "bytes": 376365,
+          "sha256": "d3646de768e78fd506477b691d7d02a86c9e855808f47537459405293641c970"
+        }
+      ]
+    },
+    {
+      "id": "topics-everyday-life-references",
+      "title": "Everyday Life References",
+      "state": "functional",
+      "kind": "topic",
+      "counts": {
+        "entries": 193,
+        "citationLinks": 2887,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt0",
+          "bytes": 97,
+          "sha256": "6cc7e338795c78eefb0286a4201528157b34510767d54509cdf091cb6c8b4bbc"
+        },
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt4",
+          "bytes": 35123,
+          "sha256": "019e76706fdc81a472dcb4fd9f096d9e6050483ed8d9634aad4773c0c65985e8"
+        },
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt7",
+          "bytes": 1544,
+          "sha256": "8e07ba73194a8ee53abf1306be23b7a43d2b7c2cfeb948f4bd286705de44263e"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "topics-naves-topical-bible",
+      "title": "Nave's Topical Bible",
+      "state": "functional",
+      "kind": "topic",
+      "counts": {
+        "entries": 5322,
+        "citationLinks": 82497,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt0",
+          "bytes": 97,
+          "sha256": "e730930b04dffed393ee08f74952fc6c306788b05449ccefb954832f64b49fb3"
+        },
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt4",
+          "bytes": 1856587,
+          "sha256": "a6e72c8db42f8889ab28345b9828e726bfcfec951a3bdfe52da786300bc27be8"
+        },
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt7",
+          "bytes": 42576,
+          "sha256": "e21a69d1091e4eb277ffb3db6fcb02f80984fbb1cad13b1a7b1d11469d53a627"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    },
+    {
+      "id": "topics-thompson-chain",
+      "title": "Thompson Chain Topics",
+      "state": "functional",
+      "kind": "topic",
+      "counts": {
+        "entries": 3734,
+        "citationLinks": 79960,
+        "sourceIssues": 0
+      },
+      "sourceFiles": [
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt0",
+          "bytes": 97,
+          "sha256": "a5b2af59e8e0759fea09b4d6b404107900278bb7445fb8e799ed96efd08bece6"
+        },
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt4",
+          "bytes": 1590169,
+          "sha256": "37877b9f5de06371f1da295239e9c9b0e3deac6c29ce50ae0d3d3b5e122be59d"
+        },
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt7",
+          "bytes": 29872,
+          "sha256": "a4bff735f4de347218ef8461920b6cf98e7fc7be0cf029e0e7d9dbcaddfa8d27"
+        }
+      ],
+      "releaseReview": "provenance-review"
+    }
+  ],
+  "issues": [
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 15,
+      "message": "Unknown verse-note target 0"
+    },
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 1594,
+      "message": "Unknown verse-note target 0"
+    },
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 2053,
+      "message": "Unknown verse-note target 0"
+    },
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 6510,
+      "message": "Invalid Scripture token 1B50-1A5F"
+    },
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 23145,
+      "message": "Unknown verse-note target 0"
+    },
+    {
+      "resource": "commentaries-adam-clarke",
+      "entry": 30705,
+      "message": "Unknown verse-note target 0"
+    },
+    {
+      "resource": "commentaries-albert-barnes",
+      "entry": 28317,
+      "message": "Invalid Scripture token 72BA-72B9"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 517,
+      "message": "Invalid Scripture token 198-12C"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 667,
+      "message": "Invalid Scripture token 24A-1F1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 695,
+      "message": "Invalid Scripture token 234-1AA"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 1128,
+      "message": "Invalid Scripture token 15B1-13E0"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 1258,
+      "message": "Invalid Scripture token 443-B9"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 1880,
+      "message": "Invalid Scripture token 10AA-10A3"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2167,
+      "message": "Invalid Scripture token 194F-17DD"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2439,
+      "message": "Invalid Scripture token 88E-7D1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2634,
+      "message": "Invalid Scripture token 8E2-6B0"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2641,
+      "message": "Invalid Scripture token 961-81F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2740,
+      "message": "Invalid Scripture token 8EA-7EC"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 2974,
+      "message": "Invalid Scripture token 939-8BD"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 4568,
+      "message": "Invalid Scripture token 10E0-FED"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 4900,
+      "message": "Invalid Scripture token 195-B9"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5001,
+      "message": "Invalid Scripture token 10DF-FDD"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5007,
+      "message": "Invalid Scripture token 1179-F7F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5027,
+      "message": "Invalid Scripture token 808-662"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5040,
+      "message": "Invalid Scripture token 7F4-7EC"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5055,
+      "message": "Invalid Scripture token 7EE-679"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5065,
+      "message": "Invalid Scripture token 80C-710"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5102,
+      "message": "Invalid Scripture token 7C2-697"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5355,
+      "message": "Invalid Scripture token 86F-7C1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5680,
+      "message": "Invalid Scripture token 884-6B0"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5807,
+      "message": "Invalid Scripture token 11D7-100E"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5809,
+      "message": "Invalid Scripture token 10E3-FED"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5818,
+      "message": "Invalid Scripture token 10D9-FED"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5848,
+      "message": "Invalid Scripture token 11DD-1142"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 5898,
+      "message": "Invalid Scripture token CFE-B67"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 6032,
+      "message": "Invalid Scripture token 15D4-1413"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 6035,
+      "message": "Invalid Scripture token 15DE-149A"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 6279,
+      "message": "Invalid Scripture token 11D1-FBA"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 6374,
+      "message": "Invalid Scripture token 1521-149A"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 7270,
+      "message": "Invalid Scripture token 1182-FED"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 7420,
+      "message": "Invalid Scripture token 407-1F1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 7562,
+      "message": "Invalid Scripture token 7C8-79D"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 7776,
+      "message": "Invalid Scripture token D7C-B8B"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8023,
+      "message": "Invalid Scripture token 1F3C-1EE3"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8053,
+      "message": "Invalid Scripture token 1F55-1D3F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8530,
+      "message": "Invalid Scripture token 20F0-207F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8538,
+      "message": "Invalid Scripture token 20EC-1F93"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8587,
+      "message": "Invalid Scripture token 1E42-1DC4"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 8592,
+      "message": "Invalid Scripture token 1F55-1D3F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 11683,
+      "message": "Invalid Scripture token 95B-79D"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 11899,
+      "message": "Invalid Scripture token 2777-2667"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 11906,
+      "message": "Invalid Scripture token 277F-2691"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 12014,
+      "message": "Invalid Scripture token 4C58-4B1C"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 12017,
+      "message": "Invalid Scripture token 4D47-4B44"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 15620,
+      "message": "Invalid Scripture token 1F6-A1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 17811,
+      "message": "Invalid Scripture token 26F3-261E"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 18287,
+      "message": "Invalid Scripture token 2737-26ED"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 19319,
+      "message": "Invalid Scripture token 2E86-2C85"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 24948,
+      "message": "Invalid Scripture token 234-1AA"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 24963,
+      "message": "Invalid Scripture token 491A-45EE"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 26900,
+      "message": "Invalid Scripture token 5B7C-5AAB"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 26982,
+      "message": "Invalid Scripture token 6874-684D"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 27010,
+      "message": "Invalid Scripture token 5E52-5DF8"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 27049,
+      "message": "Invalid Scripture token 6551-6375"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 28001,
+      "message": "Invalid Scripture token 3981-3687"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 28159,
+      "message": "Invalid Scripture token 805-7C1"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 28164,
+      "message": "Invalid Scripture token 2A8-23D"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30002,
+      "message": "Invalid Scripture token 3C66-36DB"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30057,
+      "message": "Invalid Scripture token 234-1AA"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30109,
+      "message": "Invalid Scripture token 89E-79D"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30161,
+      "message": "Invalid Scripture token 149F-1444"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30204,
+      "message": "Invalid Scripture token 1DAD-1D3F"
+    },
+    {
+      "resource": "commentaries-family-bible-notes",
+      "entry": 30243,
+      "message": "Invalid Scripture token 1CB-39"
+    },
+    {
+      "resource": "commentaries-teachers-commentary",
+      "entry": 28726,
+      "message": "Invalid Scripture token 6A54-69ED"
+    },
+    {
+      "resource": "dictionaries-american-tract-society",
+      "entry": 600,
+      "message": "Invalid Scripture token 6BDA-6BC6"
+    },
+    {
+      "resource": "dictionaries-american-tract-society",
+      "entry": 798,
+      "message": "Invalid Scripture token 25AA-2585"
+    },
+    {
+      "resource": "dictionaries-american-tract-society",
+      "entry": 1117,
+      "message": "Invalid Scripture token 648F-648E"
+    },
+    {
+      "resource": "dictionaries-american-tract-society",
+      "entry": 1135,
+      "message": "Invalid Scripture token 6620-6618"
+    },
+    {
+      "resource": "dictionaries-easton",
+      "entry": 1282,
+      "message": "Invalid Scripture token 73E-72C"
+    },
+    {
+      "resource": "dictionaries-easton",
+      "entry": 1864,
+      "message": "Invalid Scripture token 14AB-14A3"
+    },
+    {
+      "resource": "dictionaries-easton",
+      "entry": 3613,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 805,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 956,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 1089,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 1597,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 1654,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 1712,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 2475,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-hitchcock-bible-names",
+      "entry": 2476,
+      "message": "Body retained with no supplied headword."
+    },
+    {
+      "resource": "dictionaries-smith",
+      "entry": 3399,
+      "message": "Invalid Scripture token 1EBA-1EB7"
+    },
+    {
+      "resource": "dictionaries-smith",
+      "entry": 3704,
+      "message": "Invalid Scripture token 11D-119"
+    },
+    {
+      "resource": "dictionaries-smith",
+      "entry": 3721,
+      "message": "Invalid Scripture token 25E3-25D2"
+    },
+    {
+      "resource": "dictionaries-smith",
+      "entry": 4344,
+      "message": "Invalid Scripture token 6B27-6B21"
+    },
+    {
+      "resource": "lexicons-strongs-greek",
+      "entry": 24,
+      "message": "Unknown lexicon target 5689"
+    },
+    {
+      "resource": "lexicons-strongs-greek",
+      "entry": 136,
+      "message": "Unknown lexicon target 5869"
+    },
+    {
+      "resource": "lexicons-strongs-greek",
+      "entry": 3641,
+      "message": "Unknown lexicon target 6590"
+    },
+    {
+      "resource": "lexicons-strongs-greek",
+      "entry": 4459,
+      "message": "Unknown lexicon target 7343"
+    }
+  ],
+  "notes": [
+    "Original bytes preserved and checked against the reviewed Git blobs.",
+    "No protected Bible text was decrypted.",
+    "Original-script font reconstruction is not inferred; Strong transliterations and pronunciations are supplied data.",
+    "Local functionality does not grant redistribution rights. Review edition permissions before any publication."
+  ]
+}

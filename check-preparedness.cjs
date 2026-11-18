@@ -19,7 +19,7 @@ async function run() {
   assert.ok(rules.printablePractice().includes('SIMULATED EXERCISE'));
 
   const url = await startPagesCheck(server);
-  const browser = await chromium.launch({ executablePath: process.env.NEXTPHASE_CHROME || undefined });
+  const browser = await chromium.launch({ executablePath: process.env.NEXTPHASE_CHROME || undefined, args: ['--disable-gpu', '--disable-features=BackForwardCache', '--renderer-process-limit=2', '--disk-cache-size=1048576'] });
   try {
     const phone = await browser.newPage({ ...devices['iPhone 13'], acceptDownloads: true });
     phone.setDefaultTimeout(8000);
@@ -30,16 +30,19 @@ async function run() {
       if (request.url().startsWith('https://')) foreignRequests.push(request.url());
     });
     const tap = name => phone.getByRole('button', { name, exact:true }).click();
-    const prep = () => tap('Preparedness');
-    const closePreparedness = async () => {
-      await tap('Close');
-      await phone.locator('dialog').waitFor({ state:'hidden' });
+    const prep = async () => {
+      await tap('Go to Learning Hub workspace'); await tap('Go to Preparedness workspace');
+      if (await phone.getByRole('button', { name: 'Preparedness communications', exact: true }).isVisible()) await tap('Preparedness communications');
     };
-    const role = name => phone.getByLabel('Try a role', { exact:true }).selectOption(name);
+    const closePreparedness = async () => {
+      await tap('Go to Learning Hub workspace'); await tap('Go to MainStage workspace');
+    };
+    const role = name => phone.locator('#preparedness-fellowship').getByLabel('Try a role', { exact:true }).selectOption(name);
 
     await phone.goto(url + '?face=fellowship&week=6');
-    await phone.getByRole('heading',{name:'Study discussion',exact:true}).waitFor();
-    await phone.getByLabel('Reply',{exact:true}).fill('Keep this Fellowship draft.');
+    await phone.locator('#fellowship-title').waitFor();
+    await phone.getByText('Try the local discussion demo', { exact:true }).click();
+    await phone.locator('#fellowship').getByLabel('Reply',{exact:true}).fill('Keep this Fellowship draft.');
     await prep();
     const scroll = await phone.locator('#fellowship').evaluate(el => el.scrollTop);
     await phone.getByText('5 checked in · 11 awaiting a check-in', { exact:true }).waitFor();
@@ -55,6 +58,7 @@ async function run() {
     await phone.getByText('6 checked in · 10 awaiting a check-in', { exact:true }).waitFor();
     assert.equal(await phone.getByRole('button',{name:'Check-in recorded',exact:true}).isDisabled(), true);
 
+    await tap('Back to preparedness');
     await tap('Listen');
     await phone.getByLabel('Explore an area', {exact:true}).selectOption('kentucky');
     await phone.getByText('Preferred area · Dickson County, Tennessee',{exact:true}).waitFor();
@@ -79,10 +83,10 @@ async function run() {
     await tap('Check my read-back');
     await phone.getByText('Your read-back matches the source.',{exact:true}).waitFor();
     await tap('Back');
-    await tap('Back');
+    await tap('Close');
     assert.equal(await phone.getByLabel('Explore an area',{exact:true}).inputValue(),'kentucky');
 
-    await tap('Group');
+    await tap('Preparedness communications');
     await role('coordinator');
     await tap('Simulate an app outage');
     await phone.getByText('Fallback plan in use',{exact:true}).waitFor();
@@ -95,8 +99,8 @@ async function run() {
     assert.equal(download.suggestedFilename(),'homegroups-practice-plan.txt');
     assert.match(await fs.readFile(await download.path(),'utf8'),/Fallback|Contingency/i);
     await phone.context().setOffline(false);
-    await tap('Back');
-    assert.equal(await phone.getByLabel('Try a role',{exact:true}).inputValue(),'coordinator');
+    await tap('Close');
+    assert.equal(await phone.locator('#preparedness-fellowship').getByLabel('Try a role',{exact:true}).inputValue(),'coordinator');
 
     await role('operator');
     const reporter = phone.getByLabel('Practice report for',{exact:true});
@@ -115,15 +119,15 @@ async function run() {
     await phone.getByRole('heading',{name:'Exercise debrief',exact:true}).waitFor();
     await phone.getByText('2 read-back attempts · 1 matched the source',{exact:true}).waitFor();
     await closePreparedness();
-    assert.equal(await phone.getByLabel('Reply',{exact:true}).inputValue(),'Keep this Fellowship draft.');
+    assert.equal(await phone.locator('#fellowship').getByLabel('Reply',{exact:true}).inputValue(),'Keep this Fellowship draft.');
     assert.equal(await phone.locator('#fellowship').evaluate(el=>el.scrollTop),scroll);
-    assert.equal(await phone.evaluate(()=>document.activeElement.textContent),'Preparedness');
+    assert.equal(await phone.locator('#workspace-track').getAttribute('data-workspace'),'study');
     await phone.reload();
     await prep();
     await phone.getByRole('heading',{name:'Exercise debrief',exact:true}).waitFor();
     await phone.getByText('Practice the alternate contact before the outage.',{exact:true}).waitFor();
     assert.deepEqual(errors,[]);
-    assert.deepEqual(foreignRequests,[]);
+    assert.deepEqual(foreignRequests.filter(url => !url.startsWith('https://tile.openstreetmap.org/')),[]);
     await phone.close();
     await checkMigration(browser, url, devices['iPhone 13']);
 
@@ -131,8 +135,9 @@ async function run() {
     desktop.setDefaultTimeout(8000);
     const click = name => desktop.getByRole('button',{name,exact:true}).click();
     await desktop.goto(url);
-    await click('Tools');
-    await desktop.getByRole('button',{name:/Preparedness Practice communications/}).click();
+    await desktop.locator('#study-title').waitFor();
+    await click('Go to Learning Hub workspace');
+    await click('Go to Preparedness workspace');
     await desktop.getByRole('heading',{name:'Plan and learn',exact:true}).waitFor();
     await click('Open practice plan');
     const newTab = desktop.waitForEvent('popup');

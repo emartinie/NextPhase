@@ -255,3 +255,10 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .people-start { padding: 10px 12px; border: 1px solid var(--edge); border-radius: 11px; }
 .people-start p { margin-top: 4px; }
 .people-player iframe { display: block; border: 0; border-radius: 11px; width: 100%; min-height: 200px; aspect-ratio: 16 / 9; background: var(--bg); }
+
+/* Shared reference text uses the existing theme and panel surfaces. */
+.reference-prose { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.65; }
+.reference-citation { display: inline; padding: 1px 2px; min-height: 0; border: 0; border-radius: 3px; background: transparent; color: var(--leaf); font: inherit; text-align: start; text-decoration: underline; text-underline-offset: .16em; }
+.reference-citation:hover { color: var(--ink); }
+.reference-citation:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.reference-unresolved { display: inline; font-size: .9em; color: var(--muted); }

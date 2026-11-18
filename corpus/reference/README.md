@@ -6,7 +6,13 @@ Upload additional files into `incoming/`. Keep a resource's companion files toge
 
 `uploaded-modules.json` records all 117 files relocated from the repository root, their original names, exact Git blob hashes, sizes, and destinations across 29 resource groups. Fifteen exact root duplicates already had an identical file at their destination and were removed from the root only.
 
-The original binary bytes and filename case are preserved. These legacy files have not been converted into a NextPhase reader or independently verified as complete texts. No application behavior changes accompany this organization.
+The original binary bytes and filename case are preserved. The originals remain unchanged; derived readers now make the viable supplied resources usable as described below. The initial file organization preserved application behavior; the later reader integration is documented separately.
+
+## Functional Reference Library
+
+The local Learning Hub now reads **29 of the 36 resource groups** through shared entry and passage readers. This includes Strong’s Hebrew and Greek, all four dictionaries, eight commentaries, nine Bible editions, three topical works, cross-references, Daily Light, and the integrated Strong’s Word Index.
+
+See [functional integration and remaining blockers](../../REFERENCE-LIBRARY.md), the [integration ledger](../../REFERENCE-INTEGRATION-LEDGER.json), and the [reader catalog](derived/v2/catalog.json). The original [upload manifest](uploaded-modules.json) and [source directory](resource-directory.json) retain their inventory role. The seven unavailable resources have missing text or protected encoding; no replacement edition was substituted. This work remains local until reviewed for publication and permissions.
 
 ## Resource directory
 
@@ -16,72 +22,72 @@ The collection contains **36 legacy module groups (144 files)**, including the e
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [American Standard Version (ASV)](bibles/asv/) | 6 | Parts present; decoding unverified |
-| [Bible in Basic English (BBE)](bibles/bbe/) | 6 | Parts present; decoding unverified |
-| [Darby's Translation](bibles/darby/) | 6 | Parts present; decoding unverified |
-| [King James Version](bibles/kjv/) | 8 | Parts present; decoding unverified |
-| [1910 Louis Segond Version](bibles/louis-segond-1910/) | 2 | **Incomplete — see missing parts below** |
-| [1912 Luther German Bible](bibles/luther-1912/) | 6 | Parts present; decoding unverified |
-| [Modern King James Version](bibles/modern-king-james/) | 6 | Parts present; decoding unverified |
-| [Montgomery's New Testament](bibles/montgomery-new-testament/) | 6 | Parts present; decoding unverified |
-| [New American Standard Bible 95 Update](bibles/nasb-1995/) | 6 | Parts present; decoding unverified |
-| [New American Standard Bible](bibles/nasb/) | 6 | Parts present; decoding unverified |
-| [New International Version](bibles/niv/) | 6 | Parts present; decoding unverified |
-| [New King James Version](bibles/nkjv/) | 6 | Parts present; decoding unverified |
-| [New Revised Standard Version](bibles/nrsv/) | 6 | Parts present; decoding unverified |
-| [Twentieth Century New Testament](bibles/twentieth-century-new-testament/) | 6 | Parts present; decoding unverified |
+| [American Standard Version (ASV)](bibles/asv/) | 6 | Readable locally · bible |
+| [Bible in Basic English (BBE)](bibles/bbe/) | 6 | Readable locally · bible |
+| [Darby's Translation](bibles/darby/) | 6 | Readable locally · bible |
+| [King James Version](bibles/kjv/) | 8 | Readable locally · bible |
+| [1910 Louis Segond Version](bibles/louis-segond-1910/) | 2 | Unavailable · source text missing |
+| [1912 Luther German Bible](bibles/luther-1912/) | 6 | Readable locally · bible |
+| [Modern King James Version](bibles/modern-king-james/) | 6 | Readable locally · bible |
+| [Montgomery's New Testament](bibles/montgomery-new-testament/) | 6 | Readable locally · bible |
+| [New American Standard Bible 95 Update](bibles/nasb-1995/) | 6 | Unavailable · encoded text; see ledger |
+| [New American Standard Bible](bibles/nasb/) | 6 | Unavailable · encoded text; see ledger |
+| [New International Version](bibles/niv/) | 6 | Unavailable · encoded text; see ledger |
+| [New King James Version](bibles/nkjv/) | 6 | Readable locally · bible |
+| [New Revised Standard Version](bibles/nrsv/) | 6 | Unavailable · encoded text; see ledger |
+| [Twentieth Century New Testament](bibles/twentieth-century-new-testament/) | 6 | Readable locally · bible |
 
 ### Commentaries and Bible notes
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [Adam Clarke's Commentary](commentaries/adam-clarke/) | 3 | Parts present; decoding unverified |
-| [Albert Barnes' New Testament Commentary](commentaries/albert-barnes/) | 3 | Parts present; decoding unverified |
-| [Family Bible Notes](commentaries/family-bible-notes/) | 3 | Parts present; decoding unverified |
-| [1599 Geneva Bible Notes](commentaries/geneva-1599/) | 3 | Parts present; decoding unverified |
-| [Jamieson-Fausset-Brown Commentary](commentaries/jamieson-fausset-brown/) | 3 | Parts present; decoding unverified |
-| [John Wesley's Notes on the Old and New Testaments](commentaries/john-wesley/) | 3 | Parts present; decoding unverified |
-| [Matthew Henry's Concise Commentary](commentaries/matthew-henry-concise/) | 2 | **Incomplete — see missing parts below** |
-| [Matthew Henry's Commentary on the Whole Bible](commentaries/matthew-henry/) | 1 | **Incomplete — see missing parts below** |
-| [Teacher's Commentary](commentaries/teachers-commentary/) | 3 | Parts present; decoding unverified |
+| [Adam Clarke's Commentary](commentaries/adam-clarke/) | 3 | Readable locally · commentary |
+| [Albert Barnes' New Testament Commentary](commentaries/albert-barnes/) | 3 | Readable locally · commentary |
+| [Family Bible Notes](commentaries/family-bible-notes/) | 3 | Readable locally · commentary |
+| [1599 Geneva Bible Notes](commentaries/geneva-1599/) | 3 | Readable locally · commentary |
+| [Jamieson-Fausset-Brown Commentary](commentaries/jamieson-fausset-brown/) | 3 | Readable locally · commentary |
+| [John Wesley's Notes on the Old and New Testaments](commentaries/john-wesley/) | 3 | Readable locally · commentary |
+| [Matthew Henry's Concise Commentary](commentaries/matthew-henry-concise/) | 2 | Readable locally · commentary |
+| [Matthew Henry's Commentary on the Whole Bible](commentaries/matthew-henry/) | 1 | Unavailable · source text missing |
+| [Teacher's Commentary](commentaries/teachers-commentary/) | 3 | Readable locally · commentary |
 
 ### Bible dictionaries
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [American Tract Society Dictionary](dictionaries/american-tract-society/) | 3 | Parts present; decoding unverified |
-| [Easton's Bible Dictionary](dictionaries/easton/) | 3 | Parts present; decoding unverified |
-| [Hitchcock's Bible Names](dictionaries/hitchcock-bible-names/) | 3 | Parts present; decoding unverified |
-| [Smith's Bible Dictionary](dictionaries/smith/) | 3 | Parts present; decoding unverified |
+| [American Tract Society Dictionary](dictionaries/american-tract-society/) | 3 | Readable locally · dictionary |
+| [Easton's Bible Dictionary](dictionaries/easton/) | 3 | Readable locally · dictionary |
+| [Hitchcock's Bible Names](dictionaries/hitchcock-bible-names/) | 3 | Readable locally · dictionary |
+| [Smith's Bible Dictionary](dictionaries/smith/) | 3 | Readable locally · dictionary |
 
 ### Original-language dictionaries and indexes
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [Strong's Greek Dictionary](lexicons/strongs-greek/) | 3 | Parts present; decoding unverified |
-| [Strong's Hebrew Dictionary](lexicons/strongs-hebrew/) | 3 | Parts present; decoding unverified |
-| [Strong's supplementary index files](lexicons/strongs-index/) | 3 | Parts present; decoding unverified |
+| [Strong's Greek Dictionary](lexicons/strongs-greek/) | 3 | Readable locally · lexicon |
+| [Strong's Hebrew Dictionary](lexicons/strongs-hebrew/) | 3 | Readable locally · lexicon |
+| [Strong's supplementary index files](lexicons/strongs-index/) | 3 | Integrated with both Strong’s dictionaries |
 
 ### Topical references
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [Everyday Life References](topics/everyday-life-references/) | 3 | Parts present; decoding unverified |
-| [Nave's Topical Bible](topics/naves-topical-bible/) | 3 | Parts present; decoding unverified |
-| [Thompson Chain Topics](topics/thompson-chain/) | 3 | Parts present; decoding unverified |
+| [Everyday Life References](topics/everyday-life-references/) | 3 | Readable locally · topic |
+| [Nave's Topical Bible](topics/naves-topical-bible/) | 3 | Readable locally · topic |
+| [Thompson Chain Topics](topics/thompson-chain/) | 3 | Readable locally · topic |
 
 ### Cross-references
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [BCD cross-reference module (bcdxrefs)](cross-references/bcdxrefs/) | 3 | Parts present; decoding unverified |
+| [BCD cross-reference module (bcdxrefs)](cross-references/bcdxrefs/) | 3 | Readable locally · crossrefs |
 
 ### Devotional readings
 
 | Resource | Files | Upload status |
 |---|---:|---|
-| [Bagster's Daily Light](devotionals/bagsters-daily-light/) | 3 | Parts present; decoding unverified |
-| [Morning and Evening Readings](devotionals/morning-and-evening/) | 2 | **Incomplete — see missing parts below** |
+| [Bagster's Daily Light](devotionals/bagsters-daily-light/) | 3 | Readable locally · devotional |
+| [Morning and Evening Readings](devotionals/morning-and-evening/) | 2 | Unavailable · source text missing |
 
 ### Ancient Library
 

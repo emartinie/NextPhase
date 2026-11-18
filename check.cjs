@@ -111,7 +111,7 @@ async function run() {
     assert.equal(await phone.locator('#study').getAttribute('aria-hidden'), 'true');
     if (process.env.NEXTPHASE_SCREENSHOTS) await phone.screenshot({ path: path.join(process.env.NEXTPHASE_SCREENSHOTS, 'nextphase-mainstage-discussion.png') });
     await phone.getByText('Try the local discussion demo', { exact: true }).click();
-    await phone.getByLabel('Reply', { exact: true }).fill('Keep my unfinished reply');
+    await phone.locator('#fellowship').getByLabel('Reply', { exact: true }).fill('Keep my unfinished reply');
     await tap('Attach Scripture');
     await phone.getByLabel('Passage to attach').fill('John 1:1');
     await phone.locator('dialog').getByRole('button', { name: 'Attach Scripture', exact: true }).click();
@@ -119,7 +119,7 @@ async function run() {
     await tap('Back to study');
     assert.equal(await phone.locator('#study').evaluate((el) => el.scrollTop), studyY);
     await tap('Study discussion');
-    assert.equal(await phone.getByLabel('Reply', { exact: true }).inputValue(), 'Keep my unfinished reply');
+    assert.equal(await phone.locator('#fellowship').getByLabel('Reply', { exact: true }).inputValue(), 'Keep my unfinished reply');
     await tap('Post demo reply');
     const saved = phone.getByRole('article').filter({ hasText: 'Keep my unfinished reply' });
     assert.ok(await saved.count());

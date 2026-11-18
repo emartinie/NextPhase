@@ -1,0 +1,1132 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "9379053401b299d7975acbc1e85474a17c91c390",
+  "categories": [
+    {
+      "id": "bibles",
+      "title": "Bible translations"
+    },
+    {
+      "id": "commentaries",
+      "title": "Commentaries & notes"
+    },
+    {
+      "id": "dictionaries",
+      "title": "Bible dictionaries"
+    },
+    {
+      "id": "lexicons",
+      "title": "Original-language dictionaries"
+    },
+    {
+      "id": "topics",
+      "title": "Topical references"
+    },
+    {
+      "id": "cross-references",
+      "title": "Cross-references"
+    },
+    {
+      "id": "devotionals",
+      "title": "Devotional readings"
+    }
+  ],
+  "resources": [
+    {
+      "id": "bibles-asv",
+      "title": "American Standard Version (ASV)",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/asv",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "7a8d8ba6c176adb0e57b2a488b16b5c05ccc7b7d"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt4",
+          "bytes": 4157938,
+          "gitBlobSha": "7bfef7e3ffb2b0314b6b792c64c5e3e5ed91193e"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt5",
+          "bytes": 158247,
+          "gitBlobSha": "3fc63f733defce4b8a80ce6ca78b8ada164f7ea2"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt6",
+          "bytes": 1284750,
+          "gitBlobSha": "35c438de0624db6887fe306fcc9a908833eb1fd4"
+        },
+        {
+          "path": "corpus/reference/bibles/asv/ASV.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "51debd2560c7f854cf68ade3cc9c55d74d57c0c9"
+        }
+      ]
+    },
+    {
+      "id": "bibles-bbe",
+      "title": "Bible in Basic English (BBE)",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/bbe",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt0",
+          "bytes": 131,
+          "gitBlobSha": "585f97050b26a07bf32262a1038bb8a143db6ad9"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt4",
+          "bytes": 4180833,
+          "gitBlobSha": "b97f3419bb86990e2d9d6da8ed20e27a7491138a"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt5",
+          "bytes": 84108,
+          "gitBlobSha": "693789c17b2e9fa59f114b82f9b3477863590360"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt6",
+          "bytes": 1352044,
+          "gitBlobSha": "a55b8955a823d0bc47844d2f45329b10e50b6a1a"
+        },
+        {
+          "path": "corpus/reference/bibles/bbe/BBE.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "d97e64878df11bcd68b603f3f49dac1b498faa87"
+        }
+      ]
+    },
+    {
+      "id": "bibles-darby",
+      "title": "Darby's Translation",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/darby",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt0",
+          "bytes": 131,
+          "gitBlobSha": "b82363eb6a9d97ffdc25756d590f1f657fdc9e29"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt4",
+          "bytes": 4114082,
+          "gitBlobSha": "0b0dc4bf32055e32c57cb35256df9a56a973fe86"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt5",
+          "bytes": 179810,
+          "gitBlobSha": "a2491e5aabcf0a437fc9f6e0b413e7c9b5be1aae"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt6",
+          "bytes": 1272852,
+          "gitBlobSha": "6ace3a40f87e281ad4aaea38219f473b900555da"
+        },
+        {
+          "path": "corpus/reference/bibles/darby/DBY.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "aa749eea6a5e20ccebcd7525b2972f04cf6f29a9"
+        }
+      ]
+    },
+    {
+      "id": "bibles-kjv",
+      "title": "King James Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/kjv",
+      "status": "awaiting-conversion",
+      "existingReader": "reader",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "33bb7f020bc4eff0f1b24923db30f10eb6dc73c7"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt4",
+          "bytes": 4812846,
+          "gitBlobSha": "a3a0be6bcd230df07bb8584879a6774317b77c8e"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt5",
+          "bytes": 164154,
+          "gitBlobSha": "c2b1c6baa4cfd8f7a305360baf8a1dec934a2836"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt6",
+          "bytes": 1333696,
+          "gitBlobSha": "9a675c6b71e74cf8da3ed8b142b7a3d915ffd2de"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "7d46f33e33bf7ffc45b7b13b72557708ee806ece"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt8",
+          "bytes": 828024,
+          "gitBlobSha": "4174fa1e57a563328c2bc5a4a825e7b0d8cd232c"
+        },
+        {
+          "path": "corpus/reference/bibles/kjv/KJV.bt9",
+          "bytes": 712336,
+          "gitBlobSha": "97adf193421f8ac249256da9e66241fcae4f124d"
+        }
+      ]
+    },
+    {
+      "id": "bibles-louis-segond-1910",
+      "title": "1910 Louis Segond Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/louis-segond-1910",
+      "status": "incomplete",
+      "missingExpectedSuffixes": [
+        ".bt4",
+        ".bt5",
+        ".bt6",
+        ".bt7"
+      ],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/louis-segond-1910/LSV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "a218c2cf7d55d278fe1e6a52a892f760d0c395fc"
+        },
+        {
+          "path": "corpus/reference/bibles/louis-segond-1910/LSV.bt3",
+          "bytes": 926,
+          "gitBlobSha": "db1c5d6927b6055b6def0ea4784f8d7a8f7dd3d7"
+        }
+      ]
+    },
+    {
+      "id": "bibles-luther-1912",
+      "title": "1912 Luther German Bible",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/luther-1912",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt0",
+          "bytes": 131,
+          "gitBlobSha": "150f0d86c42ac27f048a4b29ab48bc01a44cd2c9"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt3",
+          "bytes": 933,
+          "gitBlobSha": "572d4286d489e2975536103294ae856d81813334"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt4",
+          "bytes": 4039672,
+          "gitBlobSha": "4e67d1f4a995892db4c3981706890c7ed0c2a0e6"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt5",
+          "bytes": 269496,
+          "gitBlobSha": "75bb6ae0efe472918773f2edc94c5c78d46fc28e"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt6",
+          "bytes": 1290088,
+          "gitBlobSha": "f89dacb35a5a92bd4fb7fb261e07312c56bcbed0"
+        },
+        {
+          "path": "corpus/reference/bibles/luther-1912/LGB.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "8dff925f8bce340c653600d4231b885c0fa54e62"
+        }
+      ]
+    },
+    {
+      "id": "bibles-modern-king-james",
+      "title": "Modern King James Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/modern-king-james",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "55df6a9a59845247865100a57ef2ed0b1f3868d7"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt5",
+          "bytes": 155356,
+          "gitBlobSha": "37012970dd2e015f32986f822107752815bc8b20"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/MKJV.bt6",
+          "bytes": 1258120,
+          "gitBlobSha": "e5fd440c8cf28d6dd37a80a854974572110336e8"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/mkjv.bt4",
+          "bytes": 4043210,
+          "gitBlobSha": "c14d14fffb5bbb8745a7aa213fef55f80333203a"
+        },
+        {
+          "path": "corpus/reference/bibles/modern-king-james/mkjv.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "b071617180352e230d8079fbcbd298e0f242d9aa"
+        }
+      ]
+    },
+    {
+      "id": "bibles-montgomery-new-testament",
+      "title": "Montgomery's New Testament",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/montgomery-new-testament",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt0",
+          "bytes": 131,
+          "gitBlobSha": "04df8d3e46c0478c7c4cbead790fcad47e356798"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt4",
+          "bytes": 1045710,
+          "gitBlobSha": "bdecda67cd44b5155f8208ec73e5b5366f35b3e8"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt5",
+          "bytes": 95330,
+          "gitBlobSha": "ca082cf3a888394a0bbe13463608d9da28b66899"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt6",
+          "bytes": 336954,
+          "gitBlobSha": "046f2f412a137a508a73b0e3ea240068303a8ab1"
+        },
+        {
+          "path": "corpus/reference/bibles/montgomery-new-testament/MNT.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "3e8bec14e9ce3c10f956117c9a983d44bc4b0fd2"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nasb-1995",
+      "title": "New American Standard Bible 95 Update",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/nasb-1995",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt0",
+          "bytes": 131,
+          "gitBlobSha": "10cb8308ed996742f7e598d886a51b949734d1ee"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt4",
+          "bytes": 4064961,
+          "gitBlobSha": "b3e44b14f94de6f3862a1cae4cc49ef20d5dd95c"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt5",
+          "bytes": 176894,
+          "gitBlobSha": "1beb92b47e5b7c82d794c7df29aefebb597ada7f"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt6",
+          "bytes": 1289188,
+          "gitBlobSha": "2003ee912aeffac491b78075fa5e63c21bee193a"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb-1995/NAS95.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "6f1d2efa06507220d35312c2ba2d8afc50afbf91"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nasb",
+      "title": "New American Standard Bible",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/nasb",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt0",
+          "bytes": 131,
+          "gitBlobSha": "92a7ff66efa2fe3869b46e90d4141413a67b5914"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt4",
+          "bytes": 4119026,
+          "gitBlobSha": "1cf8f2395305abe2f80dc46d8bdd23bee14f8ff4"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt5",
+          "bytes": 177288,
+          "gitBlobSha": "8e24ed62d85ce57c2762ac2bc5d185aff9c49ce5"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt6",
+          "bytes": 1295038,
+          "gitBlobSha": "3c3b41253442d14bdfb9b3a78fe63ebd3aa9516f"
+        },
+        {
+          "path": "corpus/reference/bibles/nasb/NASB.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "cc0403d5e0576d2fbc67de21915aa585713c1771"
+        }
+      ]
+    },
+    {
+      "id": "bibles-niv",
+      "title": "New International Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/niv",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "eafafcbcd0fe01427eb631e0adb5354b60a45939"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt4",
+          "bytes": 3988718,
+          "gitBlobSha": "2589c9bf5379d29f7da17b9c36bb28e44f117ac1"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt5",
+          "bytes": 183602,
+          "gitBlobSha": "ebce22f09272215bab4fe108fcae399d30271682"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt6",
+          "bytes": 1296964,
+          "gitBlobSha": "e9690f99ba3257b7828e85a2498eba42c9d2b74a"
+        },
+        {
+          "path": "corpus/reference/bibles/niv/NIV.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "c6c098164117a0145802311e8b7cd38ce4ef3ab9"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nkjv",
+      "title": "New King James Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/nkjv",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "7de08d2b83623304288f6fb8f004202b6b3f9172"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt4",
+          "bytes": 4081202,
+          "gitBlobSha": "98af23a4f2a78ed44c0fb147a767f82105ef32cb"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt5",
+          "bytes": 168761,
+          "gitBlobSha": "daccd05f98c58557074f79ccf80b6e6b444ce467"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt6",
+          "bytes": 1280578,
+          "gitBlobSha": "1a564da24acfdfb1d290b6746adcf6240d172fc7"
+        },
+        {
+          "path": "corpus/reference/bibles/nkjv/NKJV.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "7b02ef097c874fe86387159a8f0f5763668a2f98"
+        }
+      ]
+    },
+    {
+      "id": "bibles-nrsv",
+      "title": "New Revised Standard Version",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/nrsv",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt0",
+          "bytes": 131,
+          "gitBlobSha": "fc78b156886d60e044f1da5d5580858b096b97b0"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt4",
+          "bytes": 3915212,
+          "gitBlobSha": "935f0fbd70fc2f1f225975ca1cbe32da9676e78f"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt5",
+          "bytes": 174693,
+          "gitBlobSha": "504f00f69b2e0a650adf79a090d81f9b6d2f2498"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt6",
+          "bytes": 1255424,
+          "gitBlobSha": "464cff268423e09ca2c4b18a22caa921779a4438"
+        },
+        {
+          "path": "corpus/reference/bibles/nrsv/NRSV.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "ff552e4653a0ad9b37feea24548a9c4d5ba1e393"
+        }
+      ]
+    },
+    {
+      "id": "bibles-twentieth-century-new-testament",
+      "title": "Twentieth Century New Testament",
+      "category": "bibles",
+      "directory": "corpus/reference/bibles/twentieth-century-new-testament",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt0",
+          "bytes": 131,
+          "gitBlobSha": "eae7be23738d46c51cf387da33de579db1d06591"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt3",
+          "bytes": 935,
+          "gitBlobSha": "e6f5e791c63d78c3a574b1cc0b2a55c05b88fbb4"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt4",
+          "bytes": 1099686,
+          "gitBlobSha": "21b7bb0932a032ab3bc64a9121f9adaadc4645ba"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt5",
+          "bytes": 94020,
+          "gitBlobSha": "25904c49e3e7290cea3b366d3aec7af8ebccecf5"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt6",
+          "bytes": 352620,
+          "gitBlobSha": "717a33d556ae3b154d59e5c9c09416084108ae7a"
+        },
+        {
+          "path": "corpus/reference/bibles/twentieth-century-new-testament/TCNT.bt7",
+          "bytes": 217714,
+          "gitBlobSha": "8d4814317723ab9f9aa70e4efeac7992c2e848ee"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-adam-clarke",
+      "title": "Adam Clarke's Commentary",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/adam-clarke",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct0",
+          "bytes": 97,
+          "gitBlobSha": "020c54da014b4d3278520f05b5d4d216bf23607f"
+        },
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct4",
+          "bytes": 23032995,
+          "gitBlobSha": "92625ef8151b0afcf91e6393464ea7e289935071"
+        },
+        {
+          "path": "corpus/reference/commentaries/adam-clarke/ACC.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "ae6e088ab6e7224aeb4043123ddb58cf7290d5ee"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-albert-barnes",
+      "title": "Albert Barnes' New Testament Commentary",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/albert-barnes",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct0",
+          "bytes": 97,
+          "gitBlobSha": "be188530acc6a6252f32623b872208fcaf97fff8"
+        },
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct4",
+          "bytes": 15145511,
+          "gitBlobSha": "1b4a5957b945e6031eec2cfcd5c93edd3d50497e"
+        },
+        {
+          "path": "corpus/reference/commentaries/albert-barnes/Barnes.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "e8ffcfdd7cde6bafafddf2ab234ddd67bbb0eff0"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-family-bible-notes",
+      "title": "Family Bible Notes",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/family-bible-notes",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct0",
+          "bytes": 97,
+          "gitBlobSha": "58a01b42f83f38b0c9d75f960633cd0cb7d88b06"
+        },
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct4",
+          "bytes": 3795513,
+          "gitBlobSha": "b85d775496dee5f4804e92ee806979acb2747e15"
+        },
+        {
+          "path": "corpus/reference/commentaries/family-bible-notes/FBN.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "4ff6e6b94bacacff3dbac0ac615ce3746951ca08"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-geneva-1599",
+      "title": "1599 Geneva Bible Notes",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/geneva-1599",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct0",
+          "bytes": 97,
+          "gitBlobSha": "dbcd6bb5270ffa2fa1371c995dab2033977e2265"
+        },
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct4",
+          "bytes": 4710201,
+          "gitBlobSha": "423cd13c0a6e80980767b8a4e72d29c55b691bdd"
+        },
+        {
+          "path": "corpus/reference/commentaries/geneva-1599/GBN.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "1ab077fdc02e456a8273637546421654533210aa"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-jamieson-fausset-brown",
+      "title": "Jamieson-Fausset-Brown Commentary",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/jamieson-fausset-brown",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct0",
+          "bytes": 97,
+          "gitBlobSha": "c48963fd6d0550524b2f1a2ceeffd9dc93a91da3"
+        },
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct4",
+          "bytes": 11127169,
+          "gitBlobSha": "81a0283d4cec4d8077cacdcefa45ec814111c908"
+        },
+        {
+          "path": "corpus/reference/commentaries/jamieson-fausset-brown/JFB.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "6f0a5e9d71ccdf4e56068434ee932bc56be8a76d"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-john-wesley",
+      "title": "John Wesley's Notes on the Old and New Testaments",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/john-wesley",
+      "status": "readable",
+      "readView": "referenceCommentary",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct0",
+          "bytes": 97,
+          "gitBlobSha": "3218f85aaccad810a0dab8593021d0ff1f4eedbd"
+        },
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct4",
+          "bytes": 5995357,
+          "gitBlobSha": "ec5e9568ec9daa8c45bf70b205457bb6d33d2d49"
+        },
+        {
+          "path": "corpus/reference/commentaries/john-wesley/JWN.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "83c0eb4b3c2b3c40527d814ee0411c772d752d3f"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-matthew-henry-concise",
+      "title": "Matthew Henry's Concise Commentary",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/matthew-henry-concise",
+      "status": "incomplete",
+      "missingExpectedSuffixes": [
+        ".ct7"
+      ],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/matthew-henry-concise/MHCC.ct0",
+          "bytes": 97,
+          "gitBlobSha": "0fbb0b4f012b6d32b594568eb55214cde6b819fc"
+        },
+        {
+          "path": "corpus/reference/commentaries/matthew-henry-concise/MHCC.ct4",
+          "bytes": 3904022,
+          "gitBlobSha": "9c57dcd1b801d5f11c9f6ea712b9f42961a75e6e"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-matthew-henry",
+      "title": "Matthew Henry's Commentary on the Whole Bible",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/matthew-henry",
+      "status": "incomplete",
+      "missingExpectedSuffixes": [
+        ".ct4",
+        ".ct7"
+      ],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/matthew-henry/MHC.ct0",
+          "bytes": 97,
+          "gitBlobSha": "fb889ea16f2bab9f68d39ff147865b1d9dd6c107"
+        }
+      ]
+    },
+    {
+      "id": "commentaries-teachers-commentary",
+      "title": "Teacher's Commentary",
+      "category": "commentaries",
+      "directory": "corpus/reference/commentaries/teachers-commentary",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct0",
+          "bytes": 97,
+          "gitBlobSha": "11b0d83521c7efdc59f68bb159d55c7a0a73bbcb"
+        },
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct4",
+          "bytes": 801175,
+          "gitBlobSha": "9f9f243aa515aba936821de6cc3abb95e608d1b3"
+        },
+        {
+          "path": "corpus/reference/commentaries/teachers-commentary/Teacher.ct7",
+          "bytes": 248816,
+          "gitBlobSha": "f27d9f2116dd4d682b12c26377c9cd195518ba72"
+        }
+      ]
+    },
+    {
+      "id": "cross-references-bcdxrefs",
+      "title": "BCD cross-reference module (bcdxrefs)",
+      "category": "cross-references",
+      "directory": "corpus/reference/cross-references/bcdxrefs",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr0",
+          "bytes": 97,
+          "gitBlobSha": "ac66db30202b5376e3f17acf1258a359a679cbd6"
+        },
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr4",
+          "bytes": 629128,
+          "gitBlobSha": "b143c8155c570b3445ae5ed40889023d6b7b0c7c"
+        },
+        {
+          "path": "corpus/reference/cross-references/bcdxrefs/bcdxrefs.xr7",
+          "bytes": 248816,
+          "gitBlobSha": "d39a68d1d608442cafb85285faf09ab04da7d8bb"
+        }
+      ]
+    },
+    {
+      "id": "devotionals-bagsters-daily-light",
+      "title": "Bagster's Daily Light",
+      "category": "devotionals",
+      "directory": "corpus/reference/devotionals/bagsters-daily-light",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt0",
+          "bytes": 97,
+          "gitBlobSha": "b0a02ee165ffac8379e7e23fd024e1474aa0ce28"
+        },
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt4",
+          "bytes": 72965,
+          "gitBlobSha": "547d7cd0857afd163bc0f7d8323735d03f9fea90"
+        },
+        {
+          "path": "corpus/reference/devotionals/bagsters-daily-light/Bagster.tt7",
+          "bytes": 5856,
+          "gitBlobSha": "fdfbd09f65fa119184715df3b0cad749ed5eebe7"
+        }
+      ]
+    },
+    {
+      "id": "devotionals-morning-and-evening",
+      "title": "Morning and Evening Readings",
+      "category": "devotionals",
+      "directory": "corpus/reference/devotionals/morning-and-evening",
+      "status": "incomplete",
+      "missingExpectedSuffixes": [
+        ".tt4"
+      ],
+      "files": [
+        {
+          "path": "corpus/reference/devotionals/morning-and-evening/MER.tt0",
+          "bytes": 97,
+          "gitBlobSha": "53bb9243cf101e5f7d79c9410bfc681ce2c459ab"
+        },
+        {
+          "path": "corpus/reference/devotionals/morning-and-evening/MER.tt7",
+          "bytes": 5856,
+          "gitBlobSha": "705f4260a7b76a8ae46c9eaa390c2ba56e779ec6"
+        }
+      ]
+    },
+    {
+      "id": "dictionaries-american-tract-society",
+      "title": "American Tract Society Dictionary",
+      "category": "dictionaries",
+      "directory": "corpus/reference/dictionaries/american-tract-society",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt0",
+          "bytes": 97,
+          "gitBlobSha": "7585aa513e7330ff62dc1da2d970a86672bb3685"
+        },
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt4",
+          "bytes": 1844449,
+          "gitBlobSha": "14d9c01fb02a03dc68fab890019921e064a39d57"
+        },
+        {
+          "path": "corpus/reference/dictionaries/american-tract-society/ATSD.dt7",
+          "bytes": 18216,
+          "gitBlobSha": "2ef72924196570499f5d96ba3f0c20a9e4a104fc"
+        }
+      ]
+    },
+    {
+      "id": "dictionaries-easton",
+      "title": "Easton's Bible Dictionary",
+      "category": "dictionaries",
+      "directory": "corpus/reference/dictionaries/easton",
+      "status": "readable",
+      "readView": "dictionary",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt0",
+          "bytes": 97,
+          "gitBlobSha": "873cf9365b7cea2c8a8f6477d2bf5a0e4851c0c0"
+        },
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt4",
+          "bytes": 2509193,
+          "gitBlobSha": "889103815426b5addec81933d920f983553e9bd6"
+        },
+        {
+          "path": "corpus/reference/dictionaries/easton/Easton.dt7",
+          "bytes": 31720,
+          "gitBlobSha": "4bac3dc50d718770b304933e1536aa5403b99bf1"
+        }
+      ]
+    },
+    {
+      "id": "dictionaries-hitchcock-bible-names",
+      "title": "Hitchcock's Bible Names",
+      "category": "dictionaries",
+      "directory": "corpus/reference/dictionaries/hitchcock-bible-names",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt0",
+          "bytes": 97,
+          "gitBlobSha": "3f443960cdc29bcfebc19b7ff074fbb18d671a7e"
+        },
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt4",
+          "bytes": 81089,
+          "gitBlobSha": "53ca480590d01c2c1b28c42785d464aac532ade6"
+        },
+        {
+          "path": "corpus/reference/dictionaries/hitchcock-bible-names/Names.dt7",
+          "bytes": 20984,
+          "gitBlobSha": "7f513f7ec3e217481f6d461b5cd1301650d4dacc"
+        }
+      ]
+    },
+    {
+      "id": "dictionaries-smith",
+      "title": "Smith's Bible Dictionary",
+      "category": "dictionaries",
+      "directory": "corpus/reference/dictionaries/smith",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt0",
+          "bytes": 97,
+          "gitBlobSha": "dfddf533dfc7691c403eabda90303dcacbe4d63e"
+        },
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt4",
+          "bytes": 2939197,
+          "gitBlobSha": "a4fc36b070ec701ebbb35e5b105de70de70dc774"
+        },
+        {
+          "path": "corpus/reference/dictionaries/smith/Smith.dt7",
+          "bytes": 37120,
+          "gitBlobSha": "4d2c065892653ba09c5925b651e56096615ef8ac"
+        }
+      ]
+    },
+    {
+      "id": "lexicons-strongs-greek",
+      "title": "Strong's Greek Dictionary",
+      "category": "lexicons",
+      "directory": "corpus/reference/lexicons/strongs-greek",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx0",
+          "bytes": 97,
+          "gitBlobSha": "19358edb3a5663c7f6285c9154b85706bfc77a6a"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx4",
+          "bytes": 695423,
+          "gitBlobSha": "fb61d3d62f366ec816bc9a1739aae9e56cf29d36"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-greek/StrGrk.gx7",
+          "bytes": 44992,
+          "gitBlobSha": "d1217dab22ff4209bfbb158712b06c9f5b61bb79"
+        }
+      ]
+    },
+    {
+      "id": "lexicons-strongs-hebrew",
+      "title": "Strong's Hebrew Dictionary",
+      "category": "lexicons",
+      "directory": "corpus/reference/lexicons/strongs-hebrew",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx0",
+          "bytes": 97,
+          "gitBlobSha": "c7156e2f3bde86ebf4dc0a7a46b0a23ba38ea802"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx4",
+          "bytes": 1064935,
+          "gitBlobSha": "779f591cdda46469e5c0ac38f7458c34d34eb32c"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-hebrew/StrHeb.hx7",
+          "bytes": 69392,
+          "gitBlobSha": "00b7bfa9812fd646086705f826802d6819a3f09a"
+        }
+      ]
+    },
+    {
+      "id": "lexicons-strongs-index",
+      "title": "Strong's supplementary index files",
+      "category": "lexicons",
+      "directory": "corpus/reference/lexicons/strongs-index",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd0",
+          "bytes": 8,
+          "gitBlobSha": "06da339c1090056e5f7c8aefadadc0758a75fa78"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd1",
+          "bytes": 171600,
+          "gitBlobSha": "e04ea6b1f797debd2c7fe15d4cd9e13b05713b90"
+        },
+        {
+          "path": "corpus/reference/lexicons/strongs-index/Strongs.sd2",
+          "bytes": 376365,
+          "gitBlobSha": "4c7f6797c58a4d4f6974f923855beef277e0c5c2"
+        }
+      ]
+    },
+    {
+      "id": "topics-everyday-life-references",
+      "title": "Everyday Life References",
+      "category": "topics",
+      "directory": "corpus/reference/topics/everyday-life-references",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt0",
+          "bytes": 97,
+          "gitBlobSha": "e9f61c55a6625837241d52747c8b880bcae0db28"
+        },
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt4",
+          "bytes": 35123,
+          "gitBlobSha": "7135446c50551b3fed3f8b87d967ee80d0f7b595"
+        },
+        {
+          "path": "corpus/reference/topics/everyday-life-references/ELR.tt7",
+          "bytes": 1544,
+          "gitBlobSha": "c1009c0f35d75944f69b9c36b13477accf089cf9"
+        }
+      ]
+    },
+    {
+      "id": "topics-naves-topical-bible",
+      "title": "Nave's Topical Bible",
+      "category": "topics",
+      "directory": "corpus/reference/topics/naves-topical-bible",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt0",
+          "bytes": 97,
+          "gitBlobSha": "73504ba015dfc30e9f995781175150f383a17d67"
+        },
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt4",
+          "bytes": 1856587,
+          "gitBlobSha": "bb0f9df64e0a3106e0f1fb12699396ac1f1033d2"
+        },
+        {
+          "path": "corpus/reference/topics/naves-topical-bible/Nave.tt7",
+          "bytes": 42576,
+          "gitBlobSha": "65d41ed12afe5cc285a85aef5f2578a253934122"
+        }
+      ]
+    },
+    {
+      "id": "topics-thompson-chain",
+      "title": "Thompson Chain Topics",
+      "category": "topics",
+      "directory": "corpus/reference/topics/thompson-chain",
+      "status": "awaiting-conversion",
+      "missingExpectedSuffixes": [],
+      "files": [
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt0",
+          "bytes": 97,
+          "gitBlobSha": "38b8c04ce27057fc8b3b91ba668113ed7a06f556"
+        },
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt4",
+          "bytes": 1590169,
+          "gitBlobSha": "1cc4a0e91b5706454d8e83645f39687d5e30072f"
+        },
+        {
+          "path": "corpus/reference/topics/thompson-chain/Chain.tt7",
+          "bytes": 29872,
+          "gitBlobSha": "e42a972ea819e78442be0922db848d0ee05f41d2"
+        }
+      ]
+    }
+  ]
+}
+

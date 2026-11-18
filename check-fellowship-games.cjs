@@ -69,7 +69,7 @@ async function run() {
     };
     await phone.goto(url + '?face=fellowship&week=6');
     await phone.getByText('Try the local discussion demo', { exact: true }).click();
-    const reply = phone.getByLabel('Reply', { exact:true });
+    const reply = phone.locator('#fellowship').getByLabel('Reply', { exact:true });
     await reply.fill('This Fellowship draft should survive.');
     await goGames();
     const fellowshipTop = await phone.locator('#fellowship').evaluate(el => el.scrollTop);
