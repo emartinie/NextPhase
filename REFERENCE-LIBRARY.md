@@ -82,7 +82,7 @@ Bible offsets are checked against every supplied book/chapter/verse triplet and 
 
 ## Publication and copyright review
 
-This integration is local. No merge, deployment, Firebase configuration, security rules, or live-data changes were performed.
+The integration was developed locally. The user subsequently authorized its merge into the isolated NextPhase repository. No production HomeGroups application, Firebase configuration, security rules, or live-data changes accompany it.
 
 Readable local files do not establish redistribution rights. Full-edition release permissions remain unverified, particularly for NKJV, Modern King James, Bible in Basic English, and the unidentified Teacher's Commentary edition. Historical works also need edition/provenance review before public redistribution. Do not treat a resource's functional flag as a publication license.
 
@@ -93,7 +93,7 @@ Relevant primary references checked during this work:
 - [Thomas Nelson permissions](https://www.thomasnelson.com/about-us/permissions/) returned HTTP 403 during this review; full NKJV digital redistribution permission was not verified.
 - NRSV publisher authorization was not verified. The supplied encoded file remains unavailable.
 
-Any later public release must resolve the applicable permissions and approved payload. No release or licensing permission has been inferred from possession of the uploads.
+Edition-publication permissions remain unresolved and are recorded for follow-up. The approved NextPhase merge does not establish third-party redistribution rights; no licensing permission has been inferred from possession of the uploads.
 
 ## Verification and retained review evidence
 
@@ -110,3 +110,7 @@ Sixteen of the nineteen recorded suites passed, including original-file integrit
 The final reference-reader, Preparedness, and Preparedness migration runs could not complete because Windows/Node exhausted available memory. Some failed before the application could start. These results are retained as incomplete verification, not passes. The user explicitly requested stopping further tests at this point. Previous logs and the consolidated results remain in the F: regression archive. Physical iPhone Safari review is still pending.
 
 Several existing regression scripts needed selector updates for the already-established three-workspace navigation and discussion disclosure. No unrelated application behavior was changed to satisfy those scripts. Large source-integrity checks were separated from browser checks to reduce peak memory.
+
+### Approved merge packaging (2026-11-18)
+
+The user explicitly approved a one-time GitHub packaging job after the initial automation request was rejected by automatic approval review. The job recreated the derived content only from the preserved supplied files, verified source-file hashes and the 29-functional/7-blocked outcomes, and committed the package to the review branch. Its workflow was removed before merging. No skipped regression suite was rerun. REFERENCE-PACKAGE.json records the converted V2 package fingerprint.
