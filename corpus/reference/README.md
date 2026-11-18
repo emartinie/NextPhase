@@ -1,12 +1,126 @@
 # Bible reference uploads
 
-These are the original uploaded Bible-study module files, organized by resource under `bibles/`, `commentaries/`, `dictionaries/`, `topics/`, `devotionals/`, and `lexicons/`. Existing `ancient-library/` content is unchanged.
+These are the original uploaded Bible-study module files, organized by resource under `bibles/`, `commentaries/`, `dictionaries/`, `topics/`, `devotionals/`, `lexicons/`, and `cross-references/`. Existing `ancient-library/` content is unchanged.
 
 Upload additional files into `incoming/`. Keep a resource's companion files together; matching indexes used by different resources are intentional.
 
 `uploaded-modules.json` records all 117 files relocated from the repository root, their original names, exact Git blob hashes, sizes, and destinations across 29 resource groups. Fifteen exact root duplicates already had an identical file at their destination and were removed from the root only.
 
 The original binary bytes and filename case are preserved. These legacy files have not been converted into a NextPhase reader or independently verified as complete texts. No application behavior changes accompany this organization.
+
+## Resource directory
+
+The collection contains **36 legacy module groups (144 files)**, including the earlier uploads and the newly organized resources. Four groups have missing expected companion files. “Parts present” means the usual file set is present; it does **not** confirm that the binary content has been decoded, validated, or integrated into NextPhase. Strong's supplementary indexes are counted as one group, not a separate dictionary.
+
+### Bible translations
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [American Standard Version (ASV)](bibles/asv/) | 6 | Parts present; decoding unverified |
+| [Bible in Basic English (BBE)](bibles/bbe/) | 6 | Parts present; decoding unverified |
+| [Darby's Translation](bibles/darby/) | 6 | Parts present; decoding unverified |
+| [King James Version](bibles/kjv/) | 8 | Parts present; decoding unverified |
+| [1910 Louis Segond Version](bibles/louis-segond-1910/) | 2 | **Incomplete — see missing parts below** |
+| [1912 Luther German Bible](bibles/luther-1912/) | 6 | Parts present; decoding unverified |
+| [Modern King James Version](bibles/modern-king-james/) | 6 | Parts present; decoding unverified |
+| [Montgomery's New Testament](bibles/montgomery-new-testament/) | 6 | Parts present; decoding unverified |
+| [New American Standard Bible 95 Update](bibles/nasb-1995/) | 6 | Parts present; decoding unverified |
+| [New American Standard Bible](bibles/nasb/) | 6 | Parts present; decoding unverified |
+| [New International Version](bibles/niv/) | 6 | Parts present; decoding unverified |
+| [New King James Version](bibles/nkjv/) | 6 | Parts present; decoding unverified |
+| [New Revised Standard Version](bibles/nrsv/) | 6 | Parts present; decoding unverified |
+| [Twentieth Century New Testament](bibles/twentieth-century-new-testament/) | 6 | Parts present; decoding unverified |
+
+### Commentaries and Bible notes
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [Adam Clarke's Commentary](commentaries/adam-clarke/) | 3 | Parts present; decoding unverified |
+| [Albert Barnes' New Testament Commentary](commentaries/albert-barnes/) | 3 | Parts present; decoding unverified |
+| [Family Bible Notes](commentaries/family-bible-notes/) | 3 | Parts present; decoding unverified |
+| [1599 Geneva Bible Notes](commentaries/geneva-1599/) | 3 | Parts present; decoding unverified |
+| [Jamieson-Fausset-Brown Commentary](commentaries/jamieson-fausset-brown/) | 3 | Parts present; decoding unverified |
+| [John Wesley's Notes on the Old and New Testaments](commentaries/john-wesley/) | 3 | Parts present; decoding unverified |
+| [Matthew Henry's Concise Commentary](commentaries/matthew-henry-concise/) | 2 | **Incomplete — see missing parts below** |
+| [Matthew Henry's Commentary on the Whole Bible](commentaries/matthew-henry/) | 1 | **Incomplete — see missing parts below** |
+| [Teacher's Commentary](commentaries/teachers-commentary/) | 3 | Parts present; decoding unverified |
+
+### Bible dictionaries
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [American Tract Society Dictionary](dictionaries/american-tract-society/) | 3 | Parts present; decoding unverified |
+| [Easton's Bible Dictionary](dictionaries/easton/) | 3 | Parts present; decoding unverified |
+| [Hitchcock's Bible Names](dictionaries/hitchcock-bible-names/) | 3 | Parts present; decoding unverified |
+| [Smith's Bible Dictionary](dictionaries/smith/) | 3 | Parts present; decoding unverified |
+
+### Original-language dictionaries and indexes
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [Strong's Greek Dictionary](lexicons/strongs-greek/) | 3 | Parts present; decoding unverified |
+| [Strong's Hebrew Dictionary](lexicons/strongs-hebrew/) | 3 | Parts present; decoding unverified |
+| [Strong's supplementary index files](lexicons/strongs-index/) | 3 | Parts present; decoding unverified |
+
+### Topical references
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [Everyday Life References](topics/everyday-life-references/) | 3 | Parts present; decoding unverified |
+| [Nave's Topical Bible](topics/naves-topical-bible/) | 3 | Parts present; decoding unverified |
+| [Thompson Chain Topics](topics/thompson-chain/) | 3 | Parts present; decoding unverified |
+
+### Cross-references
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [BCD cross-reference module (bcdxrefs)](cross-references/bcdxrefs/) | 3 | Parts present; decoding unverified |
+
+### Devotional readings
+
+| Resource | Files | Upload status |
+|---|---:|---|
+| [Bagster's Daily Light](devotionals/bagsters-daily-light/) | 3 | Parts present; decoding unverified |
+| [Morning and Evening Readings](devotionals/morning-and-evening/) | 2 | **Incomplete — see missing parts below** |
+
+### Ancient Library
+
+The [Ancient Library catalog](ancient-library/catalog.json) contains **18 entries**. Twelve have stored reader texts or collections; the remaining six are edition-review entries or planned reference guides. The status labels below are catalog/source-confirmed, not a fresh runtime test. Inclusion does not imply scriptural authority.
+
+| Resource | Current availability |
+|---|---|
+| [1 Enoch](ancient-library/1-enoch/) | In-app reader available; JSON files stored here |
+| [Jubilees](ancient-library/jubilees/) | In-app reader available; JSON files stored here |
+| [Testaments of the Twelve Patriarchs](ancient-library/testaments-twelve-patriarchs/) | In-app reader available; JSON files stored here |
+| [Life of Adam and Eve](ancient-library/catalog.json) | Edition review required |
+| [Psalms of Solomon](ancient-library/psalms-solomon/) | In-app reader available; JSON files stored here |
+| [4 Ezra](ancient-library/4-ezra/) | In-app reader available; JSON files stored here |
+| [2 Baruch](ancient-library/catalog.json) | Edition review required |
+| [Flavius Josephus](ancient-library/josephus/) | In-app collection available; JSON files stored here |
+| [Philo of Alexandria](ancient-library/philo/) | In-app collection available; JSON files stored here |
+| [Tacitus](ancient-library/tacitus/) | In-app collection available; JSON files stored here |
+| [Suetonius](ancient-library/suetonius/) | In-app collection available; JSON files stored here |
+| [Didache](ancient-library/didache/) | In-app reader available; JSON files stored here |
+| [1 Clement](ancient-library/1-clement/) | In-app reader available; JSON files stored here |
+| [Shepherd of Hermas](ancient-library/shepherd-hermas/) | In-app reader available; JSON files stored here |
+| [The Biblical Book of Jashar](ancient-library/catalog.json) | Reference guide planned; no surviving text |
+| [Later Books Called Jasher](ancient-library/catalog.json) | Comparison guide planned |
+| [Book of the Wars of the LORD](ancient-library/catalog.json) | Reference guide planned; no surviving text |
+| [Other Lost Works Mentioned in Scripture](ancient-library/catalog.json) | Reference catalog planned |
+
+The Josephus collection includes Antiquities, Jewish War, Life, and Against Apion. Philo, Tacitus, and Suetonius have their own collection manifests and individual work files. Edition and original-source links are retained in the catalog and book manifests.
+
+### Supporting study and research data
+
+| Resource | What is available |
+|---|---|
+| [New Testament / Old Testament intertext comparisons](intertext.json) | 310 stored comparison records, including Septuagint and Masoretic renderings. |
+| [Translation and listening samples](samples.json) | Three translation samples — Leviticus 21:1, Ezekiel 44:15, and Matthew 26:2 — plus listening sample metadata. These are not a general word-aligned interlinear. |
+| [Investigation research backlog](backlog.json) | 1,940 topic records for future research; not 1,940 completed articles. |
+| [Biblical references to non-canonical and lost sources](../research/biblical-references-to-non-canonical-and-lost-sources.json) | Related structured research stored alongside the reference collection. |
+| [Upload manifest](uploaded-modules.json) | Original filenames, destinations, sizes, hashes, and incomplete-set notes for the 117 recently organized files. |
+
+The existing [readable KJV corpus](../kjv/) is separate from the legacy KJV binary module above. Files stored in these folders do not automatically become new options in the application's readers or search tools.
 
 ## Incomplete uploaded sets
 
