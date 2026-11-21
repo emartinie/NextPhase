@@ -27,14 +27,14 @@ async function main() {
         },{height,width,top,smallHeight});
         await page.waitForFunction(({height,width,top,smallHeight})=>{
           const app=document.querySelector('.app').getBoundingClientRect();
-          return Math.abs(app.width-width)<1&&Math.abs(app.top-top)<1&&app.height<=Math.min(height,smallHeight||height)+1;
+          return Math.abs(app.width-width)<1&&Math.abs(app.top)<1&&app.height<=Math.min(height+Math.max(0,top),smallHeight||innerHeight)+1;
         },{height,width,top,smallHeight});
       }
       async function chromeFits() {
         await page.waitForFunction(()=>{
           const app=document.querySelector('.app').getBoundingClientRect();
           return [...document.querySelectorAll('.dock nav button:not([hidden]),#week-button,#theme-button')].filter(node=>node.getClientRects().length).every(node=>{
-            const box=node.getBoundingClientRect();return box.left>=app.left-1&&box.right<=app.right+1&&box.top>=app.top-1&&box.bottom<=app.bottom+1;
+            const box=node.getBoundingClientRect();return box.left>=Math.max(0,app.left-1)&&box.right<=Math.min(innerWidth,app.right+1)&&box.top>=Math.max(0,app.top-1)&&box.bottom<=Math.min(innerHeight,app.bottom+1);
           });
         });
         const result=await page.evaluate(()=>{
@@ -54,6 +54,24 @@ async function main() {
         },title);await page.touchscreen.tap(point.x,point.y);
       }
       await layout(640);await chromeFits();
+      await page.evaluate(async()=>{
+        window.__setViewport({offsetTop:-70,height:640});
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      });
+      assert.ok((await page.locator('.top').boundingBox()).y>=0,'A transient negative viewport offset must not remove the header');
+      await layout(640);
+      await layout(640,390,70,640);await chromeFits();
+      assert.equal((await page.locator('.top').boundingBox()).y,0,'A stale positive offset must not translate the header');
+      await layout(640);
+      await page.evaluate(async()=>{
+        document.body.style.height='1100px';
+        document.getElementById('study').scrollTop=41;
+        window.scrollTo(0,70);
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      });
+      await page.waitForFunction(()=>scrollY===0&&document.querySelector('.top').getBoundingClientRect().top>=0);
+      assert.equal(await page.locator('#study').evaluate(node=>node.scrollTop),41,'Root scroll recovery preserves workspace reading position');
+      await page.evaluate(()=>document.body.style.removeProperty('height'));
       await orbitControl('Park player at screen edge');
       await page.getByRole('button',{name:'Open communications',exact:true}).click();
       await page.getByRole('button',{name:'Minimize communications',exact:true}).click();
@@ -105,14 +123,24 @@ async function main() {
       });
       assert.equal(await page.locator('#panel-body').evaluate(node=>node.scrollTop),readingTop,'Viewport changes preserve the reader position');
       await page.locator('#close').click();
-      const oldStyle=await page.locator('html').getAttribute('style');
+      const oldStyle=await page.locator('html').evaluate(node=>[node.style.getPropertyValue('--workspace-layout-width'),node.style.getPropertyValue('--workspace-layout-visible-height')]);
       await page.evaluate(()=>window.__setViewport({scale:1.6,width:200,height:260,offsetTop:80,offsetLeft:20}));
       await page.waitForTimeout(80);
-      assert.equal(await page.locator('html').getAttribute('style'),oldStyle,'Pinch zoom must not reflow the app under the user');
+      assert.deepEqual(await page.locator('html').evaluate(node=>[node.style.getPropertyValue('--workspace-layout-width'),node.style.getPropertyValue('--workspace-layout-visible-height')]),oldStyle,'Pinch zoom must not reflow the app under the user');
       await layout(560,320);
+      assert.equal(await page.locator('#layout-check').count(),0,'Normal navigation has no diagnostic controls');
       assert.equal(await page.evaluate(()=>window.__viewportAudio===document.getElementById('audio')),true);
       assert.ok(await page.locator('#audio').evaluate((audio,time)=>!audio.paused&&audio.currentTime>=time,before),'Audio continues through viewport changes');
+      await page.goto(url+'?week=7&layout=check');
+      await page.getByRole('button',{name:'Copy layout details',exact:true}).waitFor();
+      await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async value=>{window.__layoutCopy=value;}},configurable:true}));
+      await page.getByRole('button',{name:'Copy layout details',exact:true}).click();
+      const report=JSON.parse(await page.evaluate(()=>window.__layoutCopy));
+      assert.deepEqual(Object.keys(report),['build','screen','visual','app','header','dock','week','appPosition','brandFont']);
+      assert.equal(report.appPosition,'relative');
+      assert.equal(report.build,'local');
       assert.deepEqual(errors,[]);
+      console.log('Passed header recovery: negative/stale positive offsets, restored root scrolling, simultaneous header/footer boundaries, retained workspace scroll, pinch zoom, and opt-in local layout copy.');
       console.log('Passed visible workspace: simulated toolbar/small-viewport caps, keyboard offsets, 320px/enlarged header controls, dock/launcher/handle reachability, conversation and reader bounds, retained reader/audio state, and preserved pinch-zoom layout. Physical Safari remains unverified.');
     } finally {await context.close();}
   } finally {if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}

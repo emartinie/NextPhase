@@ -1,9 +1,16 @@
 // Shared screen geometry for the existing communication and media activities.
-export function workspaceRect() {
+function visualRect() {
   const viewport = window.visualViewport;
-  const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
-  const right = left + (viewport?.width || innerWidth);
-  const bottom = top + (viewport?.height || innerHeight);
+  const width = document.documentElement.clientWidth || innerWidth;
+  const height = Math.max(document.documentElement.clientHeight || 0, innerHeight);
+  const left = Math.max(0, Math.min(viewport?.offsetLeft || 0, width));
+  const top = Math.max(0, Math.min(viewport?.offsetTop || 0, height));
+  return {left, top, right:Math.min(width, left + (viewport?.width || width)),
+    bottom:Math.min(height, top + (viewport?.height || height))};
+}
+
+export function workspaceRect() {
+  const {left, top, right, bottom} = visualRect();
   const app = document.querySelector('.app')?.getBoundingClientRect();
   const rect = {left:Math.max(left, app?.left ?? left), top:Math.max(top, app?.top ?? top),
     right:Math.min(right, app?.right ?? right), bottom:Math.min(bottom, app?.bottom ?? bottom)};
@@ -12,32 +19,81 @@ export function workspaceRect() {
 
 export function initWorkspaceViewport() {
   const root = document.documentElement, viewport = window.visualViewport;
-  let frame;
+  let frame, lastReset;
   function update() {
     frame = null;
-    // Preserve native pinch zoom/panning rather than reflowing the page under it.
+    // Size the normal document frame; never translate the entire app with Safari chrome.
     if (!viewport || Math.abs(viewport.scale-1) < .01) {
-      root.style.setProperty('--workspace-left', (viewport?.offsetLeft || 0)+'px');
-      root.style.setProperty('--workspace-top', (viewport?.offsetTop || 0)+'px');
-      root.style.setProperty('--workspace-width', (viewport?.width || innerWidth)+'px');
-      root.style.setProperty('--workspace-visible-height', (viewport?.height || innerHeight)+'px');
+      const editing = document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
+      const scroll = scrollX + ',' + scrollY;
+      if (!editing && (scrollX || scrollY) && lastReset !== scroll) {
+        lastReset = scroll;
+        window.scrollTo(0,0);
+      } else if (!scrollX && !scrollY) lastReset = null;
+      const area = visualRect();
+      root.style.setProperty('--workspace-layout-width', (area.right-area.left)+'px');
+      root.style.setProperty('--workspace-layout-visible-height', area.bottom+'px');
     }
+    // Floating activities use the intersection; page chrome remains in normal flow.
+    const area = workspaceRect();
+    root.style.setProperty('--workspace-left', area.left+'px');
+    root.style.setProperty('--workspace-top', area.top+'px');
+    root.style.setProperty('--workspace-width', area.width+'px');
+    root.style.setProperty('--workspace-visible-height', area.height+'px');
     root.style.setProperty('--workspace-dock-height', (document.querySelector('.dock')?.getBoundingClientRect().height || 68)+'px');
     window.dispatchEvent(new Event('workspace:resize'));
   }
   const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
   viewport?.addEventListener('resize', schedule);
   viewport?.addEventListener('scroll', schedule);
-  for (const event of ['resize','pageshow','orientationchange']) window.addEventListener(event, schedule);
+  const events = ['resize','scroll','pageshow','orientationchange','focusout'];
+  for (const event of events) window.addEventListener(event, schedule);
   const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(schedule) : null;
   for (const item of document.querySelectorAll('.top,.dock')) observer?.observe(item);
   update();
+  if (new URLSearchParams(location.search).get('layout') === 'check') mountLayoutCheck();
   return () => {
     if (frame) cancelAnimationFrame(frame);
     observer?.disconnect();
     viewport?.removeEventListener('resize',schedule);viewport?.removeEventListener('scroll',schedule);
-    for (const event of ['resize','pageshow','orientationchange']) window.removeEventListener(event,schedule);
+    for (const event of events) window.removeEventListener(event,schedule);
   };
+}
+
+export function layoutDetails() {
+  const rect = selector => {
+    const node = document.querySelector(selector);
+    if (!node) return null;
+    const box = node.getBoundingClientRect();
+    return Object.fromEntries(['x','y','width','height','bottom','right'].map(key=>[key,Math.round(box[key]*100)/100]));
+  };
+  const viewport = window.visualViewport;
+  return {
+    build:document.querySelector('meta[name="homegroups-build"]')?.content || 'local',
+    screen:{width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,scrollX,scrollY},
+    visual:viewport ? Object.fromEntries(['width','height','offsetTop','offsetLeft','scale'].map(key=>[key,viewport[key]])) : null,
+    app:rect('.app'),header:rect('.top'),dock:rect('.dock'),week:rect('#week-button'),
+    appPosition:getComputedStyle(document.querySelector('.app')).position,
+    brandFont:getComputedStyle(document.querySelector('.brand')).fontSize,
+  };
+}
+
+function mountLayoutCheck() {
+  if (document.getElementById('layout-check')) return;
+  const control = document.createElement('button');
+  control.id = 'layout-check'; control.className = 'quiet layout-check'; control.type = 'button';
+  control.textContent = 'Copy layout details';
+  control.addEventListener('click', () => {
+    const details = JSON.stringify(layoutDetails(),null,2);
+    if (typeof navigator.clipboard?.writeText === 'function') navigator.clipboard.writeText(details).then(()=>{control.textContent='Layout details copied';}).catch(show);
+    else show();
+    function show() {
+      let output = document.getElementById('layout-check-readout');
+      if (!output) { output=document.createElement('pre');output.id='layout-check-readout';output.className='layout-check-readout';document.body.append(output); }
+      output.textContent=details;
+    }
+  });
+  document.body.append(control);
 }
 
 export function activityBounds() {

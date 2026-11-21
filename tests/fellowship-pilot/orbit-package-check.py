@@ -27,6 +27,7 @@ with tempfile.TemporaryDirectory(prefix="orbit-package-", dir=ROOT / ".pilot-tmp
     (fixture / "corpus").mkdir()
     for name in ["index.html", "app.js", "audio-session.js", "edge-docking.js", "orbit-player.css", "SAVEorbitFloatingPlayer.js", "bullseyeMedia.js", "private-upload.png"]:
         (fixture / name).write_text("fixture", encoding="utf-8")
+    (fixture / "index.html").write_text('<head><meta name="homegroups-build" content="local"></head>', encoding="utf-8")
     for name, data in assets.items():
         (fixture / name).write_bytes(data)
     package.ROOT = fixture
@@ -38,11 +39,15 @@ with tempfile.TemporaryDirectory(prefix="orbit-package-", dir=ROOT / ".pilot-tmp
             assert archive.read("public/NextPhase/" + name) == data
         assert "public/NextPhase/edge-docking.js" in archive.namelist()
         assert "public/NextPhase/audio-session.js" in archive.namelist()
+        assert 'name="homegroups-build" content="synthetic-package-check"' in archive.read("public/NextPhase/index.html").decode()
         assert not any("private-upload.png" in name for name in archive.namelist())
         config = json.loads(archive.read("firebase.json"))
         assert set(config) == {"hosting"}
         assert config["hosting"]["redirects"][0]["destination"] == "/NextPhase/?pilot=firebase"
         assert json.loads(archive.read("REVIEW-BUILD.json"))["commit"] == "synthetic-package-check"
+        manifest = json.loads(archive.read("REVIEW-BUILD.json"))
+        entry = next(item for item in manifest["files"] if item["path"] == "index.html")
+        assert entry["sha256"] == hashlib.sha256(archive.read("public/NextPhase/index.html")).hexdigest()
     (fixture / "bg-motion.mp4").unlink()
     try:
         package.main()

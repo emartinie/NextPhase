@@ -1,6 +1,7 @@
 """Package the existing iPhone Hosting preview without credentials or pilot data."""
 import argparse
 import hashlib
+import html
 import json
 import zipfile
 from pathlib import Path
@@ -45,6 +46,13 @@ def main():
         for path in files:
             relative = path.relative_to(ROOT).as_posix()
             data = path.read_bytes()
+            if relative == "index.html":
+                source = data.decode("utf-8-sig")
+                marker = '<meta name="homegroups-build" content="local">'
+                if marker not in source:
+                    raise SystemExit("The preview entry is missing its build marker.")
+                source = source.replace(marker, '<meta name="homegroups-build" content="' + html.escape(args.commit, quote=True) + '">', 1)
+                data = source.encode("utf-8")
             archive.writestr("public/NextPhase/" + relative, data)
             manifest["files"].append({"path": relative, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
             total += len(data)
