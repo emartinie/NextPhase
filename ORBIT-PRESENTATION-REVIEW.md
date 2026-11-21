@@ -2,6 +2,18 @@
 
 Initial assessment: 21 November 2026. The owner subsequently authorized the focused presentation implementation below. No production Hosting, live Firebase configuration, rules or real user records were changed.
 
+## Existing dock button: side parking — 21 November 2026
+
+The owner authorized reusing the existing right-hand **⫶** control. It now parks the same player at the nearer left or right screen edge and exposes a 44-pixel retrieval arrow. Restoring reveals the existing player, selected face and media elements; parking does not pause, reload, replace or create playback. The old dock-bar/container interaction is removed. This is button-driven parking; the player's legacy body drag/snap behavior remains unchanged.
+
+`edge-docking.js` extracts the existing conversation bounds/handle placement into a small shared helper. Conversations retain their original center handle slot; Orbit uses the next slot, 52 pixels lower, to keep both arrows reachable. Handles follow viewport changes and safe horizontal insets. Restoration clamps Orbit to the available workspace with orbital-control clearance where space permits. No new theme colors or window surface were introduced. Hidden waveform drawing stops and resumes on restoration; its existing decorative random-bar behavior remains.
+
+Focused validation passed separately at phone and desktop sizes: actual dock-button parking on both sides, retrieval, retained audio/video node identity, continued synthetic silent-track playback while parked, selected video face, separate conversation/Orbit handles, viewport resizing, original logo transparency, video switching, progress geometry, breathing, other controls and native Scripture audio preservation. The left-side test positions the player explicitly before pressing the real button; it does not claim validation of legacy body dragging. The existing synthetic conversation journey also passed after the geometry extraction, including independent drafts/positions, touch/mouse docking, Scripture review/send and account isolation. Its launcher selector now distinguishes the two activities, and completed contexts close earlier to limit memory use.
+
+The package fixture passed with the shared helper included, exact original media bytes, unrelated-upload exclusion and missing-media guard. Phone/desktop runs were serialized after an earlier overlapping attempt hit Windows memory limits. A first Orbit run exposed an unreliable left-drag test setup; the final checks use the explicit placement described above. Screenshots/logs stay under ignored `.pilot-tmp` on F:, outside the published package.
+
+Physical iPhone Safari remains unverified for the new button: tap **⫶**, continue listening, retrieve using the arrow, park both activities, rotate the phone and open/dismiss the keyboard. Safari may manage hidden/background video differently from Chrome; no uninterrupted-video guarantee is inferred from the automated result. Audio ownership, weekly queue integration, full lifecycle cleanup and drag-to-edge Orbit parking remain separate future work. No Hosting deployment or main merge is part of this change. The historical assessment below describes the earlier versions and is retained for provenance; its dock-button deferral is superseded by this section.
+
 ## Authorized presentation implementation
 
 The existing pilot now includes the owner's imported saved player, face adapter and byte-identical original media. The uploaded source remains preserved on main at `1c7f797d44af0364f8243357485dd7f6a47983bc`; the pilot work builds on `e207ff867298cadee0c356868da2cd0efcdb2227`. Integration is restricted to the development branch, not a publication or main-branch update.

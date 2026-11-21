@@ -18,7 +18,7 @@ async function main() {
     assert.equal(image.status,200);
     assert.equal(image.headers.get('content-type'),'image/png');
     browser = await chromium.launch({executablePath:process.env.NEXTPHASE_CHROME||undefined,args:['--disable-gpu','--renderer-process-limit=3','--disable-gpu-shader-disk-cache','--disk-cache-size=1048576']});
-    for (const phone of [true,false]) {
+    for (const phone of process.argv.includes('--phone-only') ? [true] : process.argv.includes('--desktop-only') ? [false] : [true,false]) {
       const context = await browser.newContext(phone ? devices['iPhone 13'] : {viewport:{width:1280,height:850}});
       contexts.push(context);
       const page = await context.newPage();
@@ -83,6 +83,59 @@ async function main() {
       const afterControl=await page.locator('#floatingPlayer').boundingBox();
       assert.ok(Math.abs((afterControl.x+afterControl.width/2)-(beforeControl.x+beforeControl.width/2))<12,'Clicking a control must not start dragging and snap the player');
       if(phone)await page.screenshot({path:path.resolve('.pilot-tmp/orbit-video-phone.png')});
+      // A silent synthetic track exercises real HTML audio continuity without contacting a provider.
+      const pcm=Buffer.alloc(32044);pcm.write('RIFF');pcm.writeUInt32LE(pcm.length-8,4);pcm.write('WAVEfmt ',8);pcm.writeUInt32LE(16,16);pcm.writeUInt16LE(1,20);pcm.writeUInt16LE(1,22);pcm.writeUInt32LE(8000,24);pcm.writeUInt32LE(16000,28);pcm.writeUInt16LE(2,32);pcm.writeUInt16LE(16,34);pcm.write('data',36);pcm.writeUInt32LE(32000,40);
+      await page.evaluate(async source=>{
+        const player=document.getElementById('floatingPlayer'),audio=player.querySelector('audio');
+        window.__originalOrbit={player,audio,video:document.getElementById('orbitVideo')};
+        audio.src=source;audio.loop=true;await audio.play();
+      },'data:audio/wav;base64,'+pcm.toString('base64'));
+      await page.waitForFunction(()=>document.querySelector('#floatingPlayer audio').currentTime>.05);
+      await page.waitForFunction(()=>Boolean(document.getElementById('floatingPlayer').__edgeParking));
+      await clickControl('Park player at screen edge');
+      const restore=page.getByRole('button',{name:'Restore Orbit player',exact:true});
+      await restore.waitFor();
+      assert.equal(await page.locator('#floatingPlayer').isVisible(),false);
+      assert.equal(await page.locator('#floatingPlayer').getAttribute('data-mode'),'minimized');
+      assert.equal(await restore.getAttribute('data-side'),'right');
+      const mediaState=await page.evaluate(()=>{
+        const {player,audio,video}=window.__originalOrbit;
+        return {same:player===document.getElementById('floatingPlayer')&&audio===player.querySelector('audio')&&video===document.getElementById('orbitVideo'),audioPlaying:!audio.paused,videoFace:!video.classList.contains('hidden'),videoPlaying:!video.paused,time:audio.currentTime};
+      });
+      assert.equal(mediaState.same,true);assert.equal(mediaState.audioPlaying,true);
+      assert.equal(mediaState.videoFace,true);assert.equal(mediaState.videoPlaying,true);
+      await page.waitForFunction(before=>document.querySelector('#floatingPlayer audio').currentTime!==before,mediaState.time);
+      await page.getByRole('button',{name:'Open communications',exact:true}).click();
+      await page.getByRole('button',{name:'Minimize communications',exact:true}).click();
+      const orbitHandle=await restore.boundingBox(),chatHandle=await page.locator('.communication-launcher:not(.orbit-edge-handle)').boundingBox();
+      assert.equal(orbitHandle.width,44);assert.equal(orbitHandle.height,44);
+      assert.ok(orbitHandle.y>=chatHandle.y+chatHandle.height+4,'Two parked activities need separate, predictable handles');
+      if(phone) {
+        await page.screenshot({path:path.resolve('.pilot-tmp/orbit-parked-phone.png')});
+        await page.setViewportSize({width:390,height:360});
+        await page.waitForFunction(()=>{
+          const rect=document.querySelector('.orbit-edge-handle').getBoundingClientRect();
+          return rect.top>=0&&rect.bottom<=innerHeight&&rect.right<=innerWidth;
+        });
+        await page.setViewportSize({width:390,height:664});
+      }
+      await restore.click();
+      assert.equal(await page.locator('#floatingPlayer').isVisible(),true);
+      await face('orbitVideo');
+      assert.equal(await page.evaluate(()=>document.querySelector('#floatingPlayer audio')===window.__originalOrbit.audio&&!window.__originalOrbit.audio.paused),true);
+      await page.getByRole('button',{name:'Reopen communications',exact:true}).click();
+      await page.getByRole('button',{name:'Close communications',exact:true}).click();
+      // Put the retained player at a known left-side location; exercise the real button again.
+      // Legacy animated body dragging is separate from this button-parking contract.
+      await page.locator('#floatingPlayer').evaluate(player=>{player.style.left='60px';player.style.right='auto';});
+      const leftPosition=await page.locator('#floatingPlayer').boundingBox();
+      assert.ok(leftPosition.x+leftPosition.width/2<page.viewportSize().width/2,'Move player to the left before parking');
+      await clickControl('Park player at screen edge');
+      await restore.waitFor();
+      assert.equal(await restore.getAttribute('data-side'),'left');
+      await restore.click();
+      await ringCentered();
+      await page.evaluate(()=>{const audio=document.querySelector('#floatingPlayer audio');audio.pause();audio.removeAttribute('src');audio.load();});
       await clickControl('Open Video (popup)');
       await face('orbitLogo');
       assert.equal(await page.locator('#orbitVideo').evaluate(video=>video.paused),true);
@@ -106,9 +159,10 @@ async function main() {
       await page.locator('#close').click();
       assert.equal(await page.locator('#dialog').isVisible(),false,'Reader/menu controls remain above Orbit');
       assert.equal(await page.locator('#floatingPlayer').count(),1);
+      await context.close();
     }
     assert.deepEqual(errors,[]);
-    console.log('Passed Orbit phone/desktop: exclusive faces, exact image decoding, real muted inline video playback/pause, centered 170px progress ring at several values, local layering, preserved breathing/controls, unchanged native audio, global conversation/menu access, PNG/MP4 types and range delivery.');
+    console.log('Passed Orbit '+(process.argv.includes('--phone-only')?'phone-sized':process.argv.includes('--desktop-only')?'desktop':'phone/desktop')+': exclusive transparent faces, real video, centered progress, original dock-button parking/retrieval on both sides, retained live silent audio/video and node identity, separate shared handles, viewport resizing, breathing/controls, native audio preservation, global conversation/menu access and media/range delivery.');
     console.log('Physical Safari touch gestures, autoplay policy and audio interoperability remain unverified. No live Firebase access.');
   } finally {
     for(const context of contexts)await context.close().catch(()=>{});

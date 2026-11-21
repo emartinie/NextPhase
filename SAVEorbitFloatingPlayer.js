@@ -15,6 +15,7 @@ if (window.__floatingPlayerLoaded) {
  
 function setupFloatingPlayer() {
   const existing = document.getElementById("floatingPlayer");
+  existing?.__edgeParking?.destroy();
   if (existing) existing.remove();
 
   // --- Player container ---
@@ -227,7 +228,7 @@ if (floatingPlayer) {
   };
 
   // --- State ---
-  let autoNext=true, currentLang="eng", currentIndex=0, autoplay=false, docked=true;
+  let autoNext=true, currentLang="eng", currentIndex=0, autoplay=false;
   let playlist=[];
 
   // --- Buttons ---
@@ -318,7 +319,9 @@ const shareBtn = btn("🔗","Share Track",()=>{
 
   // --- Dock Button ---
 const dockBtn = document.createElement("button");
-dockBtn.textContent = "⫶", "Dock";
+dockBtn.textContent = "⫶";
+dockBtn.title = "Park player at screen edge";
+dockBtn.setAttribute("aria-label", "Park Orbit player");
 Object.assign(dockBtn.style, {
       padding:"6px 10px",
       borderRadius:"9999px",
@@ -336,56 +339,29 @@ Object.assign(dockBtn.style, {
 });
 player.appendChild(dockBtn);
 
-dockBtn.addEventListener("click", () => {
-  docked = !docked;
-  const dockContainer = document.getElementById("floating-player-root");
-  
-  if (docked && dockContainer) {
-    // Move player into dock container
-    dockContainer.appendChild(player);
-    Object.assign(player.style, {
-      position: "relative",
-      width: "100%",
-      maxWidth: "520px",
-      height: "72px",
-      borderRadius: "14px",
-      left: "0",
-      bottom: "0",
-      right: "0",
-      top: "0",
-      transform: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 10px"
-    });
-  
-    player.classList.add('active')
-
-  } else {
-    // Move player back to floating
-    const host = document.getElementById("playerHost") || document.body;
-host.appendChild(player);
-    Object.assign(player.style, {
-      position: "fixed",
-      width: "190px",
-      height: "190px",
-      bottom: "1rem",
-      right: "1rem",
-      borderRadius: "50%",
-      left: "auto",
-      top: "auto",
-      transform: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "0"
-    });
-    
-    player.classList.add('inactive')
-
-  }
+const parkingReady = import("./edge-docking.js").then(({ createEdgeParking, activityBounds }) => {
+  if (!player.isConnected) return null;
+  player.__edgeParking = createEdgeParking(player, {
+    label: "Orbit player",
+    onRestore() {
+      const area = activityBounds(), rect = player.getBoundingClientRect();
+      const marginX = Math.min(48, Math.max(0, (area.width - rect.width)/2));
+      const marginY = Math.min(48, Math.max(0, (area.height - rect.height)/2));
+      const x = Math.max(area.left + marginX, Math.min(rect.left, area.right - rect.width - marginX));
+      const y = Math.max(area.top + marginY, Math.min(rect.top, area.bottom - rect.height - marginY));
+      if (Math.abs(x-rect.left)>8 || Math.abs(y-rect.top)>8) {
+        Object.assign(player.style,{left:x+"px",top:y+"px",right:"auto",bottom:"auto"});
+      }
+      player.dispatchEvent(new Event("orbit:restored"));
+    },
+  });
+  return player.__edgeParking;
+}).catch(() => {
+  dockBtn.disabled = true;
+  dockBtn.title = "Player parking is unavailable. Reload to try again.";
+  return null;
 });
+dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.park()); });
 
 
   // --- Controls container for orbit buttons ---

@@ -1,3 +1,5 @@
+import { activityBounds, positionEdgeHandle } from './edge-docking.js';
+
 // One application-level communication surface: list and conversation share it.
 export function createConversationWindow({ node, text, button, mountConversation, getShareContext, shareExternally, onChange }) {
   const root = node('section', '', 'conversation-window communication-surface');
@@ -53,18 +55,7 @@ export function createConversationWindow({ node, text, button, mountConversation
   let dockSide = 'right';
 
   const activeSelection = () => view === 'conversation' ? current : null;
-  function bounds() {
-    const viewport = window.visualViewport;
-    const left = (viewport?.offsetLeft || 0) + 8;
-    let top = (viewport?.offsetTop || 0) + 8;
-    const right = left + (viewport?.width || innerWidth) - 16;
-    let bottom = top + (viewport?.height || innerHeight) - 16;
-    const topBar = document.querySelector('.top')?.getBoundingClientRect();
-    const dock = document.querySelector('.dock')?.getBoundingClientRect();
-    if (topBar && topBar.bottom > top && topBar.bottom < bottom - 160) top = topBar.bottom + 6;
-    if (dock && dock.top > top + 160 && dock.top < bottom) bottom = dock.top - 8;
-    return {left, top, right, bottom, width:right-left, height:bottom-top};
-  }
+  const bounds = activityBounds;
   function place(desired = position, moving = false) {
     if (root.hidden) return;
     const area = bounds();
@@ -97,14 +88,7 @@ export function createConversationWindow({ node, text, button, mountConversation
       for (const property of ['left','right','top','bottom']) launcher.style.removeProperty(property);
       return;
     }
-    const viewport = window.visualViewport;
-    const area = bounds();
-    const style = getComputedStyle(launcher);
-    const safeLeft = parseFloat(style.getPropertyValue('--communication-safe-left')) || 0;
-    const safeRight = parseFloat(style.getPropertyValue('--communication-safe-right')) || 0;
-    const x = (viewport?.offsetLeft || 0) + (dockSide === 'left' ? safeLeft : (viewport?.width || innerWidth) - safeRight - 44);
-    const y = Math.max(area.top, area.top + (area.height - 44) / 2);
-    Object.assign(launcher.style, {left:x+'px', top:y+'px', right:'auto', bottom:'auto'});
+    positionEdgeHandle(launcher, dockSide);
   }
   function notify() { refreshContext(); onChange?.(activeSelection()); }
   function setMode(mode, focus = true) {

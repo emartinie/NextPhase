@@ -71,7 +71,7 @@ With the emulator and Playwright configured, run `node tests/fellowship-pilot/ch
 
 ### Operational Fellowship-to-Scripture pilot
 
-The original saved Orbit player is integrated with a scoped presentation stylesheet and its original logo/video assets. Face switching, ring geometry and local layering are corrected while native Scripture audio and Orbit's playback handlers remain unchanged. Shared audio ownership and Conversations-style edge docking are subsequent work. [Orbit provenance, changes and validation](ORBIT-PRESENTATION-REVIEW.md).
+The original saved Orbit player is integrated with a scoped presentation stylesheet and its original logo/video assets. Face switching, ring geometry and local layering are corrected while native Scripture audio and Orbit's playback handlers remain unchanged. Its existing ⫶ button now parks the player at a screen edge with a retrieval arrow, using shared Conversation positioning. Shared audio ownership remains future work. [Orbit provenance, changes and validation](ORBIT-PRESENTATION-REVIEW.md).
 
 The household extension adds a separate shared room and six owner-approved private pairings, using the same message/Scripture reader. The owner created the four-account household records, confirmed the real desktop message/Scripture-return journey, ran the household rules suite successfully in Cloud Shell and published the approved household rules. [Household setup, permission scope and activation record](HOUSEHOLD-PILOT.md).
 

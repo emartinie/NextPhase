@@ -21,7 +21,7 @@ async function main() {
   let browser;
   const surface=page=>page.locator('.communication-surface');
   const field=page=>surface(page).getByRole('textbox',{name:'Message',exact:true});
-  const launcher=page=>page.locator('.communication-launcher');
+  const launcher=page=>page.locator('.communication-launcher:not(.orbit-edge-handle)');
   const back=page=>page.getByRole('button',{name:'Back to conversations',exact:true}).click();
   async function open(uid,phone=false,entry='?pilot=firebase&week=7') {
     const context=await browser.newContext({...phone?devices['iPhone 13']:{viewport:{width:1280,height:850}},permissions:['clipboard-read','clipboard-write']});
@@ -249,6 +249,7 @@ async function main() {
     await surface(peer).locator('.message p').first().evaluate(node=>{const r=document.createRange();r.selectNodeContents(node);const s=getSelection();s.removeAllRanges();s.addRange(r);});
     assert.ok((await peer.evaluate(()=>getSelection().toString())).length>0);
     await peer.screenshot({path:path.resolve('.pilot-tmp/communication-desktop.png')});
+    await peer.context().close();
     await phone.getByRole('button',{name:'Close communications',exact:true}).click();
     await phone.locator('#share-resource').click();
     await phone.getByText('Passage link copied.',{exact:true}).waitFor();
@@ -267,6 +268,7 @@ async function main() {
     await surface(phone).getByRole('button',{name:'Lisa (test)',exact:true}).click();
     assert.equal(await field(phone).inputValue(),'','Sign-out must clear private drafts');
     assert.equal(await phone.locator('.communication-surface').count(),1);
+    await phone.context().close();
     const outsider=await open('outsider');
     await surface(outsider).getByRole('button',{name:'Household',exact:true}).click();
     await surface(outsider).getByText('This account does not have access to Household conversation.',{exact:false}).waitFor();

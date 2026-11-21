@@ -27,6 +27,7 @@ Back to the list and Close clear the implicit recipient. With no active conversa
 ### Files and focused validation
 
 - `conversation-window.js`: list/chat lifecycle, global launcher, dragging, viewport bounds and direct close.
+- `edge-docking.js`: shared viewport bounds and edge-handle placement. Orbit's existing dock button uses a second handle slot below Conversations; conversation lifecycle, drafts and authorization remain unchanged. See `ORBIT-PRESENTATION-REVIEW.md` for the later parking checkpoint and focused validation.
 - `app.js`: global authenticated host, resource/share handoff and removal of duplicate primary selectors.
 - `fellowship-firebase.js`, `fellowship-chats.js`: existing authorization and saved-room picker inside the global list.
 - `styles.css`, `theme.css`: centralized activity colors, compact rows/bubbles, clipping, edge arrows, touch/scroll separation and composer sizing.
@@ -40,7 +41,7 @@ Cleanup removed the interrupted run's artifact directory. Its ignored browser pr
 
 ### Deliberate limits
 
-Drafts/attachments survive in-page navigation, switching, minimize and close/reopen, but not reload, sign-out or another device. Sign-out clears UID-scoped private state. Existing newest-50-message/history behavior remains. Real family-account Google provider linkage remains unverified. Physical iPhone Safari must verify header drags versus native edge-back gestures, portrait/landscape safe areas, keyboard opening/dismissal, dynamic browser toolbar movement, arrow reachability, message scrolling/selection and VoiceOver. Automated phone sizing is not a hardware keyboard test. The external-link browser assertion uses a synthetic clipboard to avoid system focus/clipboard dependencies; native share-sheet behavior still needs physical review. No read receipts, presence, unread notifications, new recipients, email invitations or additional backend capabilities were added. Orbit/media/menu docking and a handedness preference are future work, not implemented here.
+Drafts/attachments survive in-page navigation, switching, minimize and close/reopen, but not reload, sign-out or another device. Sign-out clears UID-scoped private state. Existing newest-50-message/history behavior remains. Real family-account Google provider linkage remains unverified. Physical iPhone Safari must verify header drags versus native edge-back gestures, portrait/landscape safe areas, keyboard opening/dismissal, dynamic browser toolbar movement, arrow reachability, message scrolling/selection and VoiceOver. Automated phone sizing is not a hardware keyboard test. The external-link browser assertion uses a synthetic clipboard to avoid system focus/clipboard dependencies; native share-sheet behavior still needs physical review. No read receipts, presence, unread notifications, new recipients, email invitations or additional backend capabilities were added. General media/menu docking and a handedness preference remain future work; the later Orbit button-parking adapter is documented separately above.
 
 ### Existing preview channel only
 

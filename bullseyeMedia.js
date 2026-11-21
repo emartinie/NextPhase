@@ -91,7 +91,7 @@
     }
 
     function drawSonograph() {
-      if (face !== "sonograph") return;
+      if (face !== "sonograph" || floatingPlayer.hidden) return;
       const ctx = sonographEl.getContext("2d");
       ctx.clearRect(0, 0, sonographEl.width, sonographEl.height);
       const bars = 30;
@@ -106,6 +106,7 @@
 
     window.toggleOrbitVideo = () => setFace(face === "video" ? "logo" : "video");
     window.toggleOrbitSonograph = () => setFace(face === "sonograph" ? "logo" : "sonograph");
+    floatingPlayer.addEventListener("orbit:restored", () => { if (face === "sonograph") drawSonograph(); });
   }
 
   if (document.readyState === "loading") {
