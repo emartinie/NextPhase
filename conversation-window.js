@@ -246,6 +246,7 @@ export function createConversationWindow({ node, text, button, mountConversation
   window.visualViewport?.addEventListener('resize', updateViewport);
   window.visualViewport?.addEventListener('scroll', updateViewport);
   window.addEventListener('resize', updateViewport);
+  window.addEventListener('workspace:resize', updateViewport);
   back.hidden = true;
   root.dataset.view = 'list';
   return {
@@ -253,6 +254,6 @@ export function createConversationWindow({ node, text, button, mountConversation
     listTarget:list,
     get active() {return activeSelection();},
     get available() {return visible;},
-    close() {dismiss();stopped=true;viewportLayer.remove();launcher.remove();window.visualViewport?.removeEventListener('resize',updateViewport);window.visualViewport?.removeEventListener('scroll',updateViewport);window.removeEventListener('resize',updateViewport);},
+    close() {dismiss();stopped=true;viewportLayer.remove();launcher.remove();window.visualViewport?.removeEventListener('resize',updateViewport);window.visualViewport?.removeEventListener('scroll',updateViewport);window.removeEventListener('resize',updateViewport);window.removeEventListener('workspace:resize',updateViewport);},
   };
 }

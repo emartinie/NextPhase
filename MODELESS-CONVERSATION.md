@@ -1,5 +1,19 @@
 # Persistent communication experiment
 
+## Visible workspace and Safari chrome — 21 November 2026
+
+The owner's physical iPhone screenshot showed bottom navigation beneath Safari's floating toolbar, a clipped week selector and outer-page scrolling. This is confirmed visual evidence; the device's exact viewport measurements/OS version were not available, so no specific WebKit defect is asserted as its cause.
+
+`edge-docking.js` now initializes one visible workspace rectangle, tracks visual-viewport resize/scroll, browser restoration and header/dock resizing, and publishes the existing window geometry from that rectangle. The app frame fits that area and owns its scrolling internally. Touch browsers also cap the frame at the small viewport height (`100svh`) so essential controls remain conservative when browser chrome expands. This can leave spare background space when browser chrome contracts; it is an intentional safety choice pending physical Safari review, not a fixed guess at toolbar height. Installed/full-screen contexts retain their normal small-viewport extent. Native pinch zoom is not disabled or reflowed by this update.
+
+The header can shrink its brand text while preserving the theme/week controls. Navigation wraps when a narrow screen or enlarged text requires it, and long daily passage labels can wrap. The existing navigation destinations and theme palettes are unchanged. Readers, Conversations, normal launchers, parked arrows and Orbit use the same app bounds. Orbit keeps its position when it fits and clamps when the visible area changes; its media session is untouched. Dock/header ResizeObserver updates also account for native audio controls becoming visible. No conversations, drafts, readers or media are remounted just to resize the app.
+
+Focused validation: `tests/fellowship-pilot/viewport-browser.cjs` covers a simulated browser-toolbar exclusion, a short small-viewport cap despite a tall reported visual viewport, keyboard offsets, 320px width, enlarged header/navigation text, navigation/launcher/arrow reachability, reader/window bounds and retained reading/audio state. Its screenshot `.pilot-tmp/safari-viewport-phone.png` explicitly labels the simulated Safari toolbar; it is not a physical Safari capture. The existing phone audio and synthetic conversation journeys were also checked. No broad regression campaign, production Hosting, authentication, rules or real data changes are part of this patch.
+
+Physical Safari must still confirm the actual toolbar overlap is gone in portrait/landscape, with browser controls shown, keyboard open/dismissed and text/zoom preferences. This code cannot correct an OS viewport report that is inconsistent with every available viewport measurement.
+
+Research references: [MDN VisualViewport](https://developer.mozilla.org/en-US/docs/Web/API/VisualViewport) describes the visible versus layout viewport and keyboard/zoom effects; [WebKit viewport units](https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/) explains small versus dynamic browser-chrome sizing. [WebKit report 281063](https://bugs.webkit.org/show_bug.cgi?id=281063) records a similar navigation-bar/viewport-reporting regression; it provides context, not proof about the owner's device.
+
 ## Current iteration — 21 November 2026
 
 This reversible experiment continues `feature/operational-fellowship-pilot` after checkpoint `46ed290658ce161f9479f8d98215147f4a228577`. It reuses the existing Firebase SDK, authentication, membership checks, immutable message schema, provisioned rooms, Theme Manager and public readers. No live records, rules, database structures or authentication configuration were changed.

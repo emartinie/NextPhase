@@ -1,10 +1,51 @@
 // Shared screen geometry for the existing communication and media activities.
-export function activityBounds() {
+export function workspaceRect() {
   const viewport = window.visualViewport;
-  const left = (viewport?.offsetLeft || 0) + 8;
-  let top = (viewport?.offsetTop || 0) + 8;
-  const right = left + (viewport?.width || innerWidth) - 16;
-  let bottom = top + (viewport?.height || innerHeight) - 16;
+  const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
+  const right = left + (viewport?.width || innerWidth);
+  const bottom = top + (viewport?.height || innerHeight);
+  const app = document.querySelector('.app')?.getBoundingClientRect();
+  const rect = {left:Math.max(left, app?.left ?? left), top:Math.max(top, app?.top ?? top),
+    right:Math.min(right, app?.right ?? right), bottom:Math.min(bottom, app?.bottom ?? bottom)};
+  return {...rect, width:Math.max(0,rect.right-rect.left), height:Math.max(0,rect.bottom-rect.top)};
+}
+
+export function initWorkspaceViewport() {
+  const root = document.documentElement, viewport = window.visualViewport;
+  let frame;
+  function update() {
+    frame = null;
+    // Preserve native pinch zoom/panning rather than reflowing the page under it.
+    if (!viewport || Math.abs(viewport.scale-1) < .01) {
+      root.style.setProperty('--workspace-left', (viewport?.offsetLeft || 0)+'px');
+      root.style.setProperty('--workspace-top', (viewport?.offsetTop || 0)+'px');
+      root.style.setProperty('--workspace-width', (viewport?.width || innerWidth)+'px');
+      root.style.setProperty('--workspace-visible-height', (viewport?.height || innerHeight)+'px');
+    }
+    root.style.setProperty('--workspace-dock-height', (document.querySelector('.dock')?.getBoundingClientRect().height || 68)+'px');
+    window.dispatchEvent(new Event('workspace:resize'));
+  }
+  const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+  viewport?.addEventListener('resize', schedule);
+  viewport?.addEventListener('scroll', schedule);
+  for (const event of ['resize','pageshow','orientationchange']) window.addEventListener(event, schedule);
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(schedule) : null;
+  for (const item of document.querySelectorAll('.top,.dock')) observer?.observe(item);
+  update();
+  return () => {
+    if (frame) cancelAnimationFrame(frame);
+    observer?.disconnect();
+    viewport?.removeEventListener('resize',schedule);viewport?.removeEventListener('scroll',schedule);
+    for (const event of ['resize','pageshow','orientationchange']) window.removeEventListener(event,schedule);
+  };
+}
+
+export function activityBounds() {
+  const workspace = workspaceRect();
+  const left = workspace.left + 8;
+  let top = workspace.top + 8;
+  const right = workspace.right - 8;
+  let bottom = workspace.bottom - 8;
   const topBar = document.querySelector('.top')?.getBoundingClientRect();
   const dock = document.querySelector('.dock')?.getBoundingClientRect();
   if (topBar && topBar.bottom > top && topBar.bottom < bottom - 160) top = topBar.bottom + 6;
@@ -13,12 +54,12 @@ export function activityBounds() {
 }
 
 export function positionEdgeHandle(handle, side, slot = 0) {
-  const viewport = window.visualViewport;
+  const workspace = workspaceRect();
   const area = activityBounds();
   const style = getComputedStyle(handle);
   const safeLeft = parseFloat(style.getPropertyValue('--communication-safe-left')) || 0;
   const safeRight = parseFloat(style.getPropertyValue('--communication-safe-right')) || 0;
-  const x = (viewport?.offsetLeft || 0) + (side === 'left' ? safeLeft : (viewport?.width || innerWidth) - safeRight - 44);
+  const x = side === 'left' ? workspace.left + safeLeft : workspace.right - safeRight - 44;
   const y = Math.max(area.top, Math.min(area.bottom - 44, area.top + (area.height - 44) / 2 + slot * 52));
   Object.assign(handle.style, {left:x+'px', top:y+'px', right:'auto', bottom:'auto'});
 }
@@ -42,9 +83,9 @@ export function createEdgeParking(element, {label, slot = 1, onRestore} = {}) {
   const update = () => { if (parked) positionEdgeHandle(handle, side, slot); };
   function park(requestedSide) {
     if (parked || !element.isConnected) return;
-    const viewport = window.visualViewport;
+    const workspace = workspaceRect();
     const rect = element.getBoundingClientRect();
-    side = requestedSide || (rect.left + rect.width/2 < (viewport?.offsetLeft || 0) + (viewport?.width || innerWidth)/2 ? 'left' : 'right');
+    side = requestedSide || (rect.left + rect.width/2 < workspace.left + workspace.width/2 ? 'left' : 'right');
     previousFocus = element.contains(document.activeElement) ? document.activeElement : null;
     parked = true;
     element.dataset.mode = 'minimized';
@@ -67,6 +108,7 @@ export function createEdgeParking(element, {label, slot = 1, onRestore} = {}) {
   }
   handle.addEventListener('click', restore);
   window.addEventListener('resize', update);
+  window.addEventListener('workspace:resize', update);
   window.visualViewport?.addEventListener('resize', update);
   window.visualViewport?.addEventListener('scroll', update);
   return {
@@ -75,6 +117,7 @@ export function createEdgeParking(element, {label, slot = 1, onRestore} = {}) {
     destroy() {
       handle.remove();
       window.removeEventListener('resize', update);
+      window.removeEventListener('workspace:resize', update);
       window.visualViewport?.removeEventListener('resize', update);
       window.visualViewport?.removeEventListener('scroll', update);
     },

@@ -13,20 +13,23 @@ if (window.__floatingPlayerLoaded) {
  
 async function setupFloatingPlayer() {
   const { audioSession } = await import('./audio-session.js');
+  const { activityBounds } = await import('./edge-docking.js');
   const audio = audioSession.audio;
   const existing = document.getElementById("floatingPlayer");
   existing?.__audioUnsubscribe?.();
+  existing?.__viewportCleanup?.();
   existing?.__edgeParking?.destroy();
   if (existing) existing.remove();
 
   // --- Player container ---
-  const navigationClearance = Math.ceil(document.querySelector(".dock")?.getBoundingClientRect().height || 0) + 54;
+  const initialArea = activityBounds();
   const player = document.createElement("div");
   player.id = "floatingPlayer";
   Object.assign(player.style, {
     position: "fixed",
-    bottom: `${navigationClearance}px`,
-    left: "calc(50% - 95px)",
+    bottom: "auto",
+    top: Math.max(initialArea.top, initialArea.bottom - 190 - 46) + "px",
+    left: (initialArea.left + Math.max(0, (initialArea.width - 190)/2)) + "px",
     right: "auto",
     width: "190px",
     height: "190px",
@@ -323,19 +326,27 @@ dockBtn.addEventListener("pointerenter", updateDockArrow);
 dockBtn.addEventListener("focus", updateDockArrow);
 dockBtn.addEventListener("touchstart", updateDockArrow, {passive:true});
 
-const parkingReady = import("./edge-docking.js").then(({ createEdgeParking, activityBounds }) => {
+function placeOrbit() {
+  if (player.hidden || !player.isConnected) return;
+  const area = activityBounds(), rect = player.getBoundingClientRect();
+  const marginX = Math.min(48, Math.max(0, (area.width - rect.width)/2));
+  const marginY = Math.min(48, Math.max(0, (area.height - rect.height)/2));
+  const x = Math.max(area.left + marginX, Math.min(rect.left, area.right - rect.width - marginX));
+  const y = Math.max(area.top + marginY, Math.min(rect.top, area.bottom - rect.height - marginY));
+  if (Math.abs(x-rect.left)>8 || Math.abs(y-rect.top)>8) {
+    Object.assign(player.style,{left:x+"px",top:y+"px",right:"auto",bottom:"auto"});
+  }
+  updateDockArrow();
+}
+window.addEventListener('workspace:resize', placeOrbit);
+player.__viewportCleanup = () => window.removeEventListener('workspace:resize',placeOrbit);
+
+const parkingReady = import("./edge-docking.js").then(({ createEdgeParking }) => {
   if (!player.isConnected) return null;
   player.__edgeParking = createEdgeParking(player, {
     label: "Orbit player",
     onRestore() {
-      const area = activityBounds(), rect = player.getBoundingClientRect();
-      const marginX = Math.min(48, Math.max(0, (area.width - rect.width)/2));
-      const marginY = Math.min(48, Math.max(0, (area.height - rect.height)/2));
-      const x = Math.max(area.left + marginX, Math.min(rect.left, area.right - rect.width - marginX));
-      const y = Math.max(area.top + marginY, Math.min(rect.top, area.bottom - rect.height - marginY));
-      if (Math.abs(x-rect.left)>8 || Math.abs(y-rect.top)>8) {
-        Object.assign(player.style,{left:x+"px",top:y+"px",right:"auto",bottom:"auto"});
-      }
+      placeOrbit();
       updateDockArrow();
       player.dispatchEvent(new Event("orbit:restored"));
     },
@@ -528,6 +539,7 @@ function destroyFloatingPlayer() {
   // Removing a controller must never remove or stop the shared audio element.
   const player = document.getElementById("floatingPlayer");
   player?.__audioUnsubscribe?.();
+  player?.__viewportCleanup?.();
   player?.__edgeParking?.destroy();
   player?.remove();
   window.dispatchEvent(new Event("audio:controller-ready"));

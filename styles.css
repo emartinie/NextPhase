@@ -396,3 +396,28 @@ dialog[data-activity=true]{z-index:4}
 .communication-launcher[data-docked=true] :is(.communication-launcher-icon,.communication-launcher-icon+span){display:none}
 .communication-launcher[data-docked=true] .communication-edge-arrow{display:block;font-size:28px;line-height:1}
 @media(max-width:380px){#workspace-share{display:none!important}}
+
+/* Keep app chrome inside the visible screen, including mobile browser controls. */
+:root{--workspace-height:var(--workspace-visible-height,100dvh)}
+html,body{width:100%;height:100%;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.app{position:fixed;top:var(--workspace-top,0px);left:var(--workspace-left,0px);width:var(--workspace-width,100%);height:var(--workspace-height);min-width:0;grid-template-columns:minmax(0,1fr)}
+@supports(height:100svh){
+  @media(hover:none) and (pointer:coarse){:root{--workspace-height:min(var(--workspace-visible-height,100svh),var(--workspace-small-height,100svh))}}
+}
+.top,.dock,.top-inner,.dock-inner{min-width:0}
+.top-inner,.dock-inner{width:100%}
+.brand{flex:1;min-width:0}
+.brand-icon{flex:0 0 39px}
+.brand>span:last-child,.brand small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.today h2{min-width:0;overflow-wrap:anywhere}
+.top-actions{flex:0 0 auto}
+.top-actions>button{flex:0 0 auto}
+.dock nav{min-width:0;flex-wrap:wrap}
+.communication-launcher:not([data-docked=true]){top:calc(var(--workspace-top,0px) + var(--workspace-height) - var(--workspace-dock-height,68px) - 52px);bottom:auto;right:calc(100% - var(--workspace-left,0px) - var(--workspace-width,100%) + max(12px,env(safe-area-inset-right)))}
+@media(max-width:849px){
+  dialog{bottom:calc(100% - var(--workspace-top,0px) - var(--workspace-height) + max(8px,env(safe-area-inset-bottom)));max-height:calc(var(--workspace-height) - 16px)}
+  .panel{max-height:calc(var(--workspace-height) * .76)}
+  dialog[data-expanded=true] .panel{height:calc(var(--workspace-height) - 24px - env(safe-area-inset-top))}
+}
+dialog[data-workspace=true]{top:var(--workspace-top,0px);left:var(--workspace-left,0px);right:auto;bottom:auto;width:var(--workspace-width,100%);height:var(--workspace-height)}
+dialog[data-workspace=true] .panel{height:100%;max-height:100%}

@@ -23,6 +23,7 @@ import { calendarCards, calendarFields, calendarRoute, createCalendarViews } fro
 import { bindWorkspaceSwipe } from './workspace-swipe.js';
 import { createConversationWindow } from './conversation-window.js';
 import { audioSession } from './audio-session.js';
+import { initWorkspaceViewport, workspaceRect } from './edge-docking.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -729,12 +730,14 @@ function renderPanel(frame) {
 }
 function syncConversationViewport() {
   if (dialog.dataset.conversation !== 'true') return;
-  dialog.style.setProperty('--conversation-viewport-height', `${window.visualViewport?.height || window.innerHeight}px`);
-  dialog.style.setProperty('--conversation-viewport-top', `${window.visualViewport?.offsetTop || 0}px`);
+  const viewport = workspaceRect();
+  dialog.style.setProperty('--conversation-viewport-height', `${viewport.height}px`);
+  dialog.style.setProperty('--conversation-viewport-top', `${viewport.top}px`);
 }
 window.visualViewport?.addEventListener('resize', syncConversationViewport);
 window.visualViewport?.addEventListener('scroll', syncConversationViewport);
 window.addEventListener('resize', syncConversationViewport);
+window.addEventListener('workspace:resize', syncConversationViewport);
 setInterval(() => frames.at(-1)?.refresh?.(), 60_000);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) frames.at(-1)?.refresh?.();
@@ -1859,6 +1862,7 @@ async function boot() {
     study.replaceChildren(text('The weekly schedule could not load.', 'loading'), button('Try again', boot));
   }
 }
+initWorkspaceViewport();
 initAppearance();
 bindThemeDiagnostic(() => {
   if (frames.at(-1)?.type === 'themeManager') backPanel();
