@@ -1,6 +1,6 @@
 # NextPhase · HomeGroups
 
-NextPhase opens to the current weekly Bible study. It is a development and review environment with simulated Fellowship discussions, private conversations, games, and preparedness exercises. Sample activity and drafts are stored in the current browser. The app has no accounts or connection to HomeGroups production data.
+NextPhase opens to the current weekly Bible study. It is a development and review environment. The default demo mode includes local simulated Fellowship discussions, private conversations, games and preparedness exercises. The separate HomeGroups Fellowship Firebase pilot uses real authentication and authorized persisted messages; see its operational section below. Neither mode connects to the original HomeGroups production data.
 
 - **Study** has the weekly schedule, daily readings, Passage reader, and personal notes.
 - **Study Tools** opens Covenants & Commandments, New Testament Notes, Hebrew Library, Teachers & Scholars, Sources and Investigations, Learning, Prayer Map, and Calendar.
@@ -68,6 +68,12 @@ Set `FIRESTORE_EMULATOR_JAR` to the local Firestore emulator JAR and `JAVA_BIN` 
 Choose **Miriam Ellis**, open **Invite a member**, and create a link. Copy the link to a separate browser tab, choose **Outside Tester**, and accept. The new member can read the discussion and post a reply that appears in Miriam’s tab. The link is valid for one acceptance within 12 hours. The pilot uses simulated sign-in and discards group membership changes, messages, and invitations at restart. The pilot rules must be reviewed and tested with real identities before any hosted rollout.
 
 With the emulator and Playwright configured, run `node tests/fellowship-pilot/check.cjs` for rules checks and `node tests/fellowship-pilot/browser.cjs` for the phone-sized and desktop flows.
+
+### Operational Fellowship-to-Scripture pilot
+
+The household extension adds a separate shared room and six owner-approved private pairings, using the same message/Scripture reader. The owner created the four-account household records, confirmed the real desktop message/Scripture-return journey, ran the household rules suite successfully in Cloud Shell and published the approved household rules. [Household setup, permission scope and activation record](HOUSEHOLD-PILOT.md).
+
+The isolated Firebase pilot includes group-visible names, Scripture sharing, page-memory drafts and explicit pending/saved/error states. Its global communication launcher opens one movable surface: a conversation list and an active chat are views of that same surface. Dragging the header past either side minimizes to a predictable edge arrow; the minus button uses the same behavior. Expand and direct close preserve the appropriate session state; Close clears the sharing destination and reopens to the list. The compact conversation surface uses centralized slate/green/blue theme roles, including light and diagnostic variants. Public Scripture can be prepared in the active draft before deliberate sending. Fellowship retains discovery rather than duplicating messaging selectors. Use `Start-Fellowship-Pilot.cmd` for the local preview. [Interaction experiment and focused validation](MODELESS-CONVERSATION.md). Dorothy/Lisa's Google provider linkage and physical iPhone Safari remain unverified. [Earlier implementation and validation boundaries](FELLOWSHIP-PILOT.md).
 
 ## Reference Library
 

@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// Review candidate only. Preserve the owner's published study-thread rules.
+// Household membership, the household room and private-chat metadata are seeded
+// by the owner; clients cannot create memberships, change participants or roles.
+// profiles/{uid}: displayName only, 1–80 nonblank characters.
+// privateChats/{id}: participantIds (two distinct Auth UIDs), title, createdAt.
+// Private messages use the unchanged authorId/body/createdAt message schema.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isMember(groupId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+    function isValidMessage(data) {
+      return data.keys().hasAll(['authorId', 'body', 'createdAt'])
+        && data.keys().hasOnly(['authorId', 'body', 'createdAt'])
+        && data.authorId == request.auth.uid
+        && data.body is string && data.body.size() <= 1600
+        && data.body.matches('(?s).*[^\\s].*')
+        && data.createdAt == request.time;
+    }
+    function isValidProfile(data) {
+      return data.keys().hasAll(['displayName']) && data.keys().hasOnly(['displayName'])
+        && data.displayName is string && data.displayName.size() <= 80
+        && data.displayName.matches('(?s).*[^\\s].*');
+    }
+    function isPrivateParticipant(groupId, data) {
+      return isMember(groupId) && request.auth.uid in data.participantIds;
+    }
+    function privateChat(groupId, chatId) {
+      return get(/databases/$(database)/documents/groups/$(groupId)/privateChats/$(chatId)).data;
+    }
+    function canReadPrivate(groupId, chatId) {
+      return isPrivateParticipant(groupId, privateChat(groupId, chatId));
+    }
+    function canSendPrivate(groupId, chatId) {
+      let data = privateChat(groupId, chatId);
+      return isPrivateParticipant(groupId, data)
+        && data.participantIds is list && data.participantIds.size() == 2
+        && data.participantIds[0] is string && data.participantIds[1] is string
+        && data.participantIds[0] != data.participantIds[1]
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(data.participantIds[0]))
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(data.participantIds[1]));
+    }
+    match /groups/household-pilot/profiles/{uid} {
+      allow get: if isMember('household-pilot');
+      allow list: if isMember('household-pilot') && request.query.limit <= 50;
+      allow create, update: if isMember('household-pilot') && request.auth.uid == uid && isValidProfile(request.resource.data);
+    }
+    match /groups/household-pilot/privateChats/{chatId} {
+      allow get: if isPrivateParticipant('household-pilot', resource.data);
+      allow list: if isPrivateParticipant('household-pilot', resource.data) && request.query.limit <= 20;
+      match /messages/{messageId} {
+        allow get: if canReadPrivate('household-pilot', chatId);
+        allow list: if canReadPrivate('household-pilot', chatId) && request.query.limit <= 50;
+        allow create: if canSendPrivate('household-pilot', chatId) && isValidMessage(request.resource.data);
+      }
+    }
+    match /groups/{groupId}/studyThreads/{threadId} {
+      allow get: if isMember(groupId);
+      match /messages/{messageId} {
+        allow get: if isMember(groupId);
+        allow list: if isMember(groupId) && request.query.limit <= 50;
+        allow create: if isMember(groupId)
+          && get(/databases/$(database)/documents/groups/$(groupId)/studyThreads/$(threadId)).data.open == true
+          && isValidMessage(request.resource.data);
+      }
+    }
+  }
+}

@@ -51,7 +51,7 @@ if (require.main === module) {
     const invite = await configureConversationEmail(config);
     const server = createFirebasePreview(config, Number(process.env.FELLOWSHIP_FIREBASE_PORT || 8770), invite);
     server.on('listening', () => {
-      console.log(`Firebase sign-in preview: http://localhost:${server.address().port}${pagesMount}/?pilot=firebase&face=fellowship&week=7`);
+      console.log(`Firebase sign-in preview: http://localhost:${server.address().port}${pagesMount}/?pilot=firebase&week=7`);
     });
   }
   main().catch(error => {

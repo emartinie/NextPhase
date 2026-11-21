@@ -3,6 +3,9 @@ rules_version = '2';
 // The test runner seeds a group leader, a member, and the study threads.
 // groups/{groupId}/members/{uid}: presence grants access. Only a seeded leader can invite.
 // New members have role 'member', inviteId, and joinedAt, all immutable.
+// groups/{groupId}/profiles/{uid}: displayName only (1–80 nonblank characters).
+// An enrolled member writes only their own profile; only fellow members read it.
+// Profiles carry no email, contact, location, membership or permission fields.
 // groups/{groupId}/invites/{id}: creatorId, recipientId, createdAt, expiresAt, redeemed.
 // Only the intended person can redeem, in the same batch that creates membership.
 // groups/{groupId}/studyThreads/{threadId}: a discussion with open (boolean, false for archives).
@@ -71,6 +74,18 @@ service cloud.firestore {
         && data.body is string && data.body.size() <= 1600
         && data.body.matches('(?s).*[^\\s].*')
         && data.createdAt == request.time;
+    }
+
+    function isValidProfile(data) {
+      return data.keys().hasAll(['displayName']) && data.keys().hasOnly(['displayName'])
+        && data.displayName is string && data.displayName.size() <= 80
+        && data.displayName.matches('(?s).*[^\\s].*');
+    }
+
+    match /groups/{groupId}/profiles/{uid} {
+      allow get: if isMember(groupId);
+      allow list: if isMember(groupId) && request.query.limit <= 50;
+      allow create, update: if isSelf(uid) && isMember(groupId) && isValidProfile(request.resource.data);
     }
 
     match /groups/{groupId}/members/{uid} {

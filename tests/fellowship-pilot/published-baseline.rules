@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// Owner-provided published rules, received 2026-11-19. Test fixture only.
+// Members and threads are read-only to clients. Membership documents are private.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isMember(groupId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['authorId', 'body', 'createdAt'])
+        && data.keys().hasOnly(['authorId', 'body', 'createdAt'])
+        && data.authorId == request.auth.uid
+        && data.body is string && data.body.size() <= 1600
+        && data.body.matches('(?s).*[^\\s].*')
+        && data.createdAt == request.time;
+    }
+
+    match /groups/{groupId}/studyThreads/{threadId} {
+      allow get: if isMember(groupId);
+
+      match /messages/{messageId} {
+        allow get: if isMember(groupId);
+        allow list: if isMember(groupId) && request.query.limit <= 50;
+        allow create: if isMember(groupId)
+          && get(/databases/$(database)/documents/groups/$(groupId)/studyThreads/$(threadId)).data.open == true
+          && isValidMessage(request.resource.data);
+      }
+    }
+  }
+}

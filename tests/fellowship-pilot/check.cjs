@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { startEmulator, testToken, group, thread, archive, messages } = require('./emulator.cjs');
 
-async function check({ request, seedPilot, read, send, commit, inviteWrite, redemptionWrites }) {
+async function check({ request, seed, seedPilot, read, send, commit, inviteWrite, redemptionWrites }) {
   const allowed = result => assert.equal(result.status, 200, JSON.stringify(result.data));
   const denied = result => assert.equal(result.status, 403, JSON.stringify(result.data));
   const bodies = result => {
@@ -13,6 +13,44 @@ async function check({ request, seedPilot, read, send, commit, inviteWrite, rede
   const miriam = testToken('miriam');
   const daniel = testToken('daniel');
   const outsider = testToken('outsider');
+
+  // Four independent synthetic members; never use real family UIDs or conversations.
+  for (const uid of ['ruth', 'ezra']) await seed(`${group}/members/${uid}`, { role: { stringValue: 'member' } });
+  const profile = uid => `/${group}/profiles/${uid}`;
+  const putProfile = (uid, token, fields) => request(profile(uid), token, 'PATCH', { fields });
+  for (const [uid, name] of [['miriam', 'Miriam Ellis'], ['daniel', 'Daniel Brooks'], ['ruth', 'Ruth'], ['ezra', 'Ezra']]) {
+    allowed(await putProfile(uid, testToken(uid), { displayName: { stringValue: name } }));
+  }
+  allowed(await request(profile('miriam'), daniel));
+  denied(await request(profile('miriam'), outsider));
+  denied(await request(profile('miriam'), undefined));
+  denied(await putProfile('miriam', daniel, { displayName: { stringValue: 'Impersonation' } }));
+  denied(await putProfile('outsider', outsider, { displayName: { stringValue: 'Not enrolled' } }));
+  for (const fields of [{}, { displayName: { stringValue: ' ' } }, { displayName: { stringValue: 'x'.repeat(81) } },
+    { displayName: { integerValue: '42' } }, { displayName: { stringValue: 'Miriam' }, role: { stringValue: 'leader' } },
+    { displayName: { stringValue: 'Miriam' }, email: { stringValue: 'private@example.invalid' } }]) {
+    denied(await putProfile('miriam', miriam, fields));
+  }
+  allowed(await putProfile('miriam', miriam, { displayName: { stringValue: 'Miriam Ellis' } }));
+  const listProfiles = (token, limit) => request(`/${group}:runQuery`, token, 'POST', {
+    structuredQuery: { from: [{ collectionId: 'profiles' }], ...(limit && { limit }) },
+  });
+  allowed(await listProfiles(daniel, 50));
+  denied(await listProfiles(daniel, 51));
+  denied(await listProfiles(daniel));
+  denied(await listProfiles(outsider, 50));
+  denied(await listProfiles(undefined, 50));
+  const other = 'groups/other-community/studyThreads/current';
+  await seed(other, { open: { booleanValue: true } });
+  await seed('groups/other-community/members/foreign', { role: { stringValue: 'member' } });
+  denied(await read(other, miriam));
+  denied(await send(other, 'cross-community', miriam, 'miriam', 'Wrong audience'));
+  denied(await read(thread, testToken('foreign')));
+  denied(await request(profile('miriam'), testToken('foreign')));
+  allowed(await request(`/${group}/members/ezra`, 'owner', 'DELETE'));
+  denied(await request(profile('miriam'), testToken('ezra')));
+  denied(await read(thread, testToken('ezra')));
+  console.log('Passed: four scoped profiles, owner-only validated writes, bounded member-only reads, community isolation, and membership revocation.');
 
   allowed(await request('/' + thread, miriam));
   allowed(await send(thread, 'first', miriam, 'miriam', 'What stood out in this week’s reading?'));
