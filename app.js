@@ -36,11 +36,11 @@ const hostedFellowshipPreview = location.protocol === 'https:'
   && /^homegroups-fellowship--iphone-pilot-[a-z0-9]+\.web\.app$/.test(location.hostname);
 const pilotMode = localPreview ? requestedPilot
   : hostedFellowshipPreview && requestedPilot === 'firebase' ? 'firebase' : null;
-const fellowshipPilot = ['fellowship', 'firebase'].includes(pilotMode);
+const firebaseCommunication = pilotMode === 'firebase' || hostedFellowshipPreview;
+const fellowshipPilot = firebaseCommunication || pilotMode === 'fellowship';
 let stopFellowshipPilot;
 let fellowshipHome;
 let fellowshipInviteUser;
-let firebaseHomeTarget;
 let firebaseMountPending = false;
 const cycleWeek = currentWeek(now);
 const today = now.getDay() + 1;
@@ -118,7 +118,7 @@ const conversationActivity = createConversationWindow({
   getShareContext: currentShareContext,
   shareExternally,
   onChange() {
-    dialog.dataset.activity = String(Boolean(conversationActivity.active));
+    dialog.dataset.activity = String(firebaseCommunication || conversationActivity.available);
     syncContextSharing();
   },
 });
@@ -182,7 +182,7 @@ function readRoute() {
 function changeRoute(selected, nextFace) {
   if (selected === week && nextFace === face) return;
   if (frames.length) { closePanels(() => changeRoute(selected, nextFace)); return; }
-  conversationActivity.minimize();
+  if (!firebaseCommunication) conversationActivity.minimize();
   const url = new URL(location.href);
   url.searchParams.delete('study');
   if (selected === cycleWeek) url.searchParams.delete('week');
@@ -202,7 +202,7 @@ const workspaceFace = (id = workspace) => ({ study: face, learning: learningFace
 const currentSurface = () => $(workspaceSettings[workspace][workspaceFace() === 'study' ? 'front' : 'back']);
 
 function selectWorkspace(next) {
-  conversationActivity.minimize();
+  if (!firebaseCommunication) conversationActivity.minimize();
   if (workspaceOrder.includes(next) && next !== workspace && frames.length) { closePanels(() => selectWorkspace(next)); return; }
   if (!workspaceOrder.includes(next) || next === workspace || !active?.content || dialog.open) return;
   const url = new URL(location.href);
@@ -547,7 +547,8 @@ async function openLinkedStudyCard() {
 
 function open(type, data = {}, restoredFrame) {
   if (!active?.content || pendingClose) return;
-  conversationActivity.minimize();
+  if (firebaseCommunication && ['fellowshipConversations', 'fellowshipChat'].includes(type)) { conversationActivity.showList(); return; }
+  if (!firebaseCommunication) conversationActivity.minimize();
   if (type === 'learning') {
     const enter = () => { selectWorkspace('learning'); changeLearningFace('study'); };
     if (frames.length) closePanels(enter);
@@ -574,8 +575,8 @@ function open(type, data = {}, restoredFrame) {
   historyFrames.set(frame.id, frame);
   history.pushState({ panels: frames.map(({ id }) => id) }, '', excursionUrl(type, data));
   if (!dialog.open) {
-    dialog.dataset.activity = String(Boolean(conversationActivity.active));
-    if (conversationActivity.active) dialog.show();
+    dialog.dataset.activity = String(firebaseCommunication || conversationActivity.available);
+    if (firebaseCommunication || conversationActivity.available) dialog.show();
     else dialog.showModal();
   }
   renderPanel(frame);
@@ -604,7 +605,7 @@ window.addEventListener('popstate', () => {
   if (ids.length && ids.every((id) => historyFrames.has(id))) {
     if (!origin) origin = { opener: document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
     frames.splice(0, frames.length, ...ids.map((id) => historyFrames.get(id)));
-    if (!dialog.open) { if (conversationActivity.active) dialog.show(); else dialog.showModal(); }
+    if (!dialog.open) { if (firebaseCommunication || conversationActivity.available) dialog.show(); else dialog.showModal(); }
     renderPanel(frames.at(-1));
   } else if (dialog.open) {
     frames.length = 0;
@@ -887,13 +888,13 @@ function composer(host, key, addPost, isPrivate = false) {
 }
 
 function renderFellowship() {
-  if (pilotMode !== 'firebase') { stopFellowshipPilot?.(); fellowshipInviteUser = null; }
+  if (!firebaseCommunication) { stopFellowshipPilot?.(); fellowshipInviteUser = null; }
   fellowshipHome?.close();
   const { row: data, year } = active;
   const selectedWeek = week;
   const archive = year !== liveYear;
   const inner = node('article', '', 'sheet');
-  const focused = pilotMode === 'firebase';
+  const focused = firebaseCommunication;
   if (focused) {
     const heading = node('h1', 'Fellowship');
     heading.id = 'fellowship-title';
@@ -901,13 +902,12 @@ function renderFellowship() {
     inner.classList.add('fellowship-home-sheet');
   } else inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
     `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
-  const section = focused && firebaseHomeTarget ? firebaseHomeTarget : node('section', '', 'thread-card fellowship-conversation');
+  const section = node('section', '', 'thread-card fellowship-conversation');
   section.tabIndex = -1;
   section.setAttribute('aria-label', 'Weekly conversation');
   const discussionTitle = archive ? 'Discussion archive' : selectedWeek === cycleWeek ? 'This week’s discussion' : `Week ${selectedWeek} discussion`;
-  const discussionHeading = node('h2', focused ? 'Conversations' : discussionTitle);
-  if (!focused || !firebaseHomeTarget) section.append(discussionHeading);
-  if (focused) firebaseHomeTarget = section;
+  const discussionHeading = node('h2', focused ? 'Your community' : discussionTitle);
+  section.append(discussionHeading);
   fellowshipHome = archive ? null : mountFellowshipHome(inner, {
     node, text, button, link, cluster,
     inviteConversation: (marker, snapshot) => open('conversationInvite', { marker, snapshot, week: selectedWeek }),
@@ -921,41 +921,15 @@ function renderFellowship() {
   links.classList.add('fellowship-links');
   const mount = () => {
     if (focused) {
-      section.classList.add('fellowship-home-conversations');
-      inner.insertBefore(section, inner.querySelector('.fellowship-home'));
+      inner.append(section);
     } else inner.append(section, links);
     fellowship.replaceChildren(inner);
     if (face === 'fellowship' && workspace === 'study') void fellowshipHome?.load();
   };
   if (fellowshipPilot) {
     mount();
-    if (pilotMode === 'firebase') {
-      if (stopFellowshipPilot || firebaseMountPending) return;
-      firebaseMountPending = true;
-      import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
-        if (section.isConnected) stopFellowshipPilot = mountFirebaseFellowship(section, {
-          node, text, button, year, week: selectedWeek,
-          passage, readPassage, surface: fellowship,
-          getStudyContext: () => ({ year: active.year, week }),
-          onOpenConversation: openFellowshipConversation,
-          onIdentityChange() {
-            conversationActivity.dismiss();
-            let showingConversation = false;
-            for (const frame of historyFrames.values()) if (frame.type === 'fellowshipChat') {
-              if (frames.includes(frame)) showingConversation = true;
-              frame.dispose?.();
-              frame.data = {};
-              frame.content = null;
-              frame.menu = null;
-            }
-            if (showingConversation || frames.some(frame => frame.type === 'shareContext')) closePanels();
-          },
-          configPath: hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
-          setInviteUser(user) { if (section.isConnected) fellowshipInviteUser = user; },
-        });
-      }).catch(() => {
-        if (section.isConnected) section.append(text('Could not open the Firebase sign-in preview.'));
-      }).finally(() => { firebaseMountPending = false; });
+    if (firebaseCommunication) {
+      section.append(row('Wednesday HomeGroup', 'Weekly Scripture study', () => stopFellowshipPilot?.showWeekly?.()));
       return;
     }
     import('./fellowship-pilot.js').then(({ mountLocalFellowship }) => {
@@ -998,6 +972,30 @@ function renderFellowship() {
   mount();
 }
 
+function ensureCommunication() {
+  if (!firebaseCommunication) {
+    if (!conversationActivity.listTarget.childElementCount) conversationActivity.listTarget.append(text('Signed-in conversations are available in the HomeGroups Fellowship preview.'));
+    return;
+  }
+  if (stopFellowshipPilot || firebaseMountPending) return;
+  firebaseMountPending = true;
+  import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
+    stopFellowshipPilot = mountFirebaseFellowship(conversationActivity.listTarget, {
+      node, text, button, year:liveYear, week:cycleWeek, passage, readPassage,
+      getStudyContext: () => ({ year:active?.year ?? liveYear, week:week ?? cycleWeek }),
+      onOpenConversation:openFellowshipConversation,
+      onShowList:() => conversationActivity.showList(),
+      onIdentityChange() {
+        conversationActivity.reset();
+        if (frames.some(frame => frame.type === 'shareContext')) closePanels();
+      },
+      configPath:hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
+      setInviteUser(user) { fellowshipInviteUser = user; },
+    });
+  }).catch(() => conversationActivity.listTarget.append(text('Could not open communications. Reload to try again.')))
+    .finally(() => {firebaseMountPending=false;});
+}
+
 function selectYear(year) {
   active.year = year;
   renderFellowship();
@@ -1007,6 +1005,7 @@ function selectYear(year) {
 }
 
 function returnToWeeklyConversation() {
+  if (firebaseCommunication) { stopFellowshipPilot?.showWeekly?.(); return; }
   closePanels(() => {
     selectWorkspace('study');
     changeRoute(week, 'fellowship');
@@ -1018,6 +1017,7 @@ function returnToWeeklyConversation() {
 }
 
 function returnToHouseholdChats(privateList = false) {
+  if (firebaseCommunication) { if (privateList) conversationActivity.showList(); else stopFellowshipPilot?.showHousehold?.(); return; }
   closePanels(() => {
     selectWorkspace('study');
     changeRoute(week, 'fellowship');
@@ -1027,13 +1027,11 @@ function returnToHouseholdChats(privateList = false) {
 }
 
 function openFellowshipConversation(selection) {
-  const enter = () => conversationActivity.open({
+  conversationActivity.open({
     ...selection,
-    title: selection.kind === 'weekly' ? `Week ${week} · ${active.row.portion_transliteration}`
+    title: selection.kind === 'weekly' ? `Week ${selection.week ?? week} · ${active?.row?.portion_transliteration || 'Weekly study'}`
       : selection.kind === 'household' ? 'Household' : selection.title || 'Private conversation',
   });
-  if (frames.length) closePanels(enter);
-  else enter();
 }
 
 function currentShareContext() {
@@ -1062,6 +1060,11 @@ function syncContextSharing() {
   const item = currentShareContext();
   $('workspace-share').hidden = !item || Boolean(frames.length);
   $('share-resource').hidden = !item || frames.at(-1)?.type === 'shareContext';
+  for (const control of [$('workspace-share'), $('share-resource')]) {
+    const target = conversationActivity?.active;
+    control.textContent = target && firebaseCommunication ? 'Add to chat' : 'Share';
+    control.setAttribute('aria-label', target && firebaseCommunication ? `Prepare passage for ${target.title}` : 'Share current passage');
+  }
   conversationActivity?.refreshContext();
 }
 async function shareExternally(item, status) {
@@ -1076,6 +1079,18 @@ async function shareExternally(item, status) {
 }
 function openContextSharing() {
   const item = currentShareContext();
+  if (item && firebaseCommunication) {
+    if (conversationActivity.active) { conversationActivity.prepare(item); return; }
+    let status = $('communication-share-status');
+    if (!status) {
+      status = node('p', '', 'form-caption');
+      status.id = 'communication-share-status';
+      status.setAttribute('role','status');
+      (frames.length ? panel : currentSurface()).append(status);
+    }
+    void shareExternally(item, status);
+    return;
+  }
   if (item) open('shareContext', { item: { ...item } });
 }
 $('workspace-share').addEventListener('click', openContextSharing);
@@ -1800,6 +1815,7 @@ $('learning-discuss').addEventListener('click', () => {
 });
 
 async function boot() {
+  ensureCommunication();
   try {
     catalog = await schedules();
     history.replaceState({ panels: [] }, '', location.href);

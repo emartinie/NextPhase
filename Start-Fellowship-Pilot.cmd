@@ -21,11 +21,11 @@ if not exist "%FELLOWSHIP_FIREBASE_WEB_CONFIG%" (
 "%NODE%" -e "fetch('http://localhost:8770/NextPhase/__fellowship-firebase/config',{signal:AbortSignal.timeout(1500)}).then(async r=>{if(!r.ok||(await r.json()).projectId!=='homegroups-fellowship')process.exitCode=1;}).catch(()=>{process.exitCode=1;});"
 if not errorlevel 1 (
   echo Fellowship preview is already running.
-  echo Open http://localhost:8770/NextPhase/?pilot=firebase^&face=fellowship^&week=7
+  echo Open http://localhost:8770/NextPhase/?pilot=firebase^&week=7
   pause
   exit /b 0
 )
 echo Leave this window open while using Fellowship.
-echo Open http://localhost:8770/NextPhase/?pilot=firebase^&face=fellowship^&week=7
+echo Open http://localhost:8770/NextPhase/?pilot=firebase^&week=7
 "%NODE%" tests\fellowship-pilot\firebase-preview.cjs
 if errorlevel 1 pause

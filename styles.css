@@ -346,3 +346,45 @@ dialog[data-activity=true]{z-index:4}
 .top-actions{display:flex;align-items:center;gap:5px}
 #workspace-share{font-size:12px;padding-inline:8px}
 @media(min-width:850px){.conversation-window{--window-height:min(570px,calc(var(--activity-height,100dvh) - 120px));right:20px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 24px)}.conversation-window[data-mode=minimized]{top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 76px)}.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 48px);top:calc(var(--activity-top,0px) + 24px)}}
+
+/* The communication list and conversation share one movable, bounded surface. */
+.communication-surface{isolation:isolate;border-radius:16px;box-shadow:0 8px 32px var(--dialog-shadow,#000b)}
+.communication-surface .conversation-window-header{gap:0;min-height:48px;padding:2px 4px;border-bottom:1px solid var(--edge)}
+.communication-surface .conversation-window-header>.quiet{min-width:44px;min-height:44px;padding:0;font-size:25px}
+.communication-drag{display:flex;align-items:center;gap:5px;flex:1;min-width:0;min-height:44px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.communication-grip{color:var(--muted);font-size:17px;flex:0 0 auto}
+.communication-drag h2{font-size:15px;font-weight:650}
+.communication-moving .communication-drag{cursor:grabbing}
+.communication-list{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px 10px 10px}
+.communication-list>.form-caption{padding:8px}
+.communication-list>.form-caption:empty{display:none}
+.communication-list .fellowship-account{position:static;max-width:none;margin-left:auto;width:fit-content}
+.communication-list .fellowship-account summary{min-height:40px;padding:10px 4px;font-size:12px}
+.communication-list .fellowship-account[open]{border:0;padding:0;background:transparent}
+.communication-list>button{margin:10px 4px}
+.communication-room-list{display:grid;gap:0}
+.communication-entry{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:5px;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--ink);font-size:15px}
+.communication-entry:focus-visible{background:var(--layer)}
+@media(hover:hover){.communication-entry:hover{background:var(--layer)}}
+.communication-avatar{display:grid;place-items:center;flex:0 0 33px;height:33px;border-radius:50%;background:var(--layer);color:var(--leaf);font-size:12px;font-weight:650}
+.communication-entry-name{font-weight:600;overflow-wrap:anywhere}
+.communication-entry-name small{display:block;color:var(--muted);font-size:11px;font-weight:400;margin-top:2px}
+.communication-surface .conversation-window-content{background:var(--card);border-radius:0 0 16px 16px}
+.communication-surface .conversation-stream{padding:8px 10px;touch-action:pan-y}
+.communication-surface .conversation-stream .message{max-width:88%;width:fit-content;position:relative;border:0;border-radius:12px;padding:7px 10px;margin:6px auto 6px 0;background:var(--layer);font-size:15px}
+.communication-surface .conversation-stream .message[data-own=true]{margin-left:auto;margin-right:0;background:var(--row-surface,var(--layer));box-shadow:inset 0 0 0 1px var(--edge)}
+.communication-surface .conversation-stream .message[data-own=true]>strong{display:none}
+.communication-surface .conversation-stream .message strong{font-size:11px}
+.communication-surface .conversation-stream .message p{line-height:1.42;margin:2px 0}
+.communication-surface .conversation-saved{position:static;display:block;text-align:right;font-size:10px;line-height:1}
+.communication-surface .conversation-composer{padding:7px 8px;gap:5px;border-top:1px solid var(--edge);background:var(--card)}
+.communication-surface .conversation-composer textarea{font-size:16px}
+.communication-surface .conversation-composer>.form-caption{font-size:11px}
+.communication-members{margin-bottom:3px;border:0;background:transparent;font-size:12px;color:var(--muted)}
+.communication-members summary{padding:3px 0;min-height:30px;font-size:11px;font-weight:500}
+.communication-members p{font-size:12px;margin:3px 0 8px}
+.communication-launcher{position:fixed;z-index:10;right:max(12px,env(safe-area-inset-right));bottom:calc(68px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:7px;min-height:44px;max-width:calc(100vw - 24px);padding:9px 13px;border:1px solid var(--edge);border-radius:24px;background:var(--card);color:var(--ink);box-shadow:0 4px 14px var(--dialog-shadow,#000b);font-size:13px;font-weight:600}
+.communication-launcher>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.communication-launcher-icon{display:grid;place-items:center;color:var(--leaf)}
+.communication-launcher-icon svg{width:20px;height:20px}
+@media(max-width:380px){#workspace-share{display:none!important}}

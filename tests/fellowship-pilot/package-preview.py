@@ -29,7 +29,7 @@ def main():
         files.append(path)
     config = {"hosting": {
         "public": "public", "ignore": ["**/.*", "**/node_modules/**"],
-        "redirects": [{"source": "/", "destination": "/NextPhase/?pilot=firebase&face=fellowship", "type": 302}],
+        "redirects": [{"source": "/", "destination": "/NextPhase/?pilot=firebase", "type": 302}],
         "headers": [{"source": "**/*.@(html|js|css)", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}],
     }}
     manifest = {"commit": args.commit, "channel": "iphone-pilot", "files": []}

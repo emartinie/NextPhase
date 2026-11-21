@@ -5,15 +5,26 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
   const details = node('details');
   details.append(node('summary', 'People & chats'));
   const controls = node('div', '', 'actions');
-  controls.append(button(compact ? 'Household' : 'Household conversation', () => choose({ kind: 'household', title: 'Household conversation' }), 'quiet'),
-    button(compact ? 'Weekly study' : 'Weekly study conversation', () => choose({ kind: 'weekly' }), 'quiet'));
+  function entry(label, select, shared = false) {
+    if (!compact) return button(label, select, 'quiet');
+    const control = button('', select, 'communication-entry');
+    control.setAttribute('aria-label', label);
+    const avatar = node('span', label.split(/\s+/).slice(0,2).map(word=>word[0]).join(''), 'communication-avatar');
+    avatar.setAttribute('aria-hidden','true');
+    const copy = node('span', label, 'communication-entry-name');
+    if (shared) copy.append(node('small','Group conversation'));
+    control.append(avatar, copy);
+    return control;
+  }
+  controls.append(entry(compact ? 'Household' : 'Household conversation', () => choose({ kind: 'household', title: 'Household conversation' }), true),
+    entry(compact ? 'Weekly study' : 'Weekly study conversation', () => choose({ kind: 'weekly' }), true));
   const status = text('Loading saved private conversations…', 'form-caption');
   status.setAttribute('role', 'status');
   const people = node('div', '', 'rows');
   details.append(status, people);
   if (compact) {
-    controls.classList.add('fellowship-room-links');
-    people.classList.add('fellowship-chat-list');
+    controls.className = 'communication-room-list';
+    people.classList.add('communication-room-list');
     target.append(controls, status, people);
   } else target.append(controls, details);
   let active = true;
@@ -34,7 +45,7 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
     for (const chat of chats) {
       const other = chat.participantIds.find(id => id !== uid);
       const label = names.get(other) || chat.title || 'Private conversation';
-      people.append(button(label, () => choose({ kind: 'private', id: chat.id, title: label }), 'row'));
+      people.append(entry(label, () => choose({ kind: 'private', id: chat.id, title: label })));
     }
     status.textContent = compact && chats.length && !namesUnavailable ? '' : chats.length
       ? (namesUnavailable ? 'Saved private chats · member names are unavailable.' : 'Choose a person to open your saved private conversation.')

@@ -22,7 +22,7 @@ function signInError(error) {
   }
 }
 
-export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath, setInviteUser, passage, readPassage, surface, onConversationChange, onOpenConversation, onIdentityChange, getStudyContext }) {
+export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath, setInviteUser, passage, readPassage, surface, onConversationChange, onOpenConversation, onIdentityChange, getStudyContext, onShowList }) {
   const controller = new AbortController();
   const status = text('Connecting to HomeGroups Fellowship…', 'form-caption');
   status.setAttribute('role', 'status');
@@ -135,7 +135,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
         };
         const requestedRoom = new URLSearchParams(location.search).get('room') === 'household'
           ? { kind: 'household', title: 'Household conversation' } : { kind: 'weekly' };
-        if (!focused || requestedRoom.kind === 'household') selectRoom(focused ? requestedRoom : roomSelections.get(user.uid) || requestedRoom);
+        if (!focused) selectRoom(roomSelections.get(user.uid) || requestedRoom);
         try { chats = mountFellowshipChats(chatHub, { node, text, button, firestore, db, uid: user.uid, onSelect: selectRoom, compact: focused }); }
         catch { chatHub.append(text('Saved private chats are not available yet.', 'form-caption')); }
       } catch {
@@ -148,7 +148,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
     if (!controller.signal.aborted) status.textContent = error.message;
   });
   const close = () => { controller.abort(); unsubscribe?.(); stopDiscussion?.(); chats?.close(); };
-  close.showChatWith = () => { if (chats) chats.show(); else selectRoom({ kind: 'weekly' }); };
+  close.showChatWith = () => { if (onShowList) onShowList(); else if (chats) chats.show(); else selectRoom({ kind: 'weekly' }); };
   close.showHousehold = () => selectRoom({ kind: 'household', title: 'Household conversation' });
   close.showWeekly = () => selectRoom({ kind: 'weekly' });
   close.mountConversation = (host, selection, options) => mountConversation?.(host, selection, options);
