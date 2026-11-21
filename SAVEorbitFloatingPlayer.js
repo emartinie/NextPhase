@@ -1,8 +1,6 @@
 // orbitFloatingPlayer.js
 //import { registerResource } from "/js/core/resourceManager.js";
 
-let player = null;
-let audio = null;
 let glowInterval = null;
 let orbitInterval = null;
 
@@ -13,8 +11,11 @@ if (window.__floatingPlayerLoaded) {
 
   // 👇 PUT THE REST OF FILE BELOW THIS LINE
  
-function setupFloatingPlayer() {
+async function setupFloatingPlayer() {
+  const { audioSession } = await import('./audio-session.js');
+  const audio = audioSession.audio;
   const existing = document.getElementById("floatingPlayer");
+  existing?.__audioUnsubscribe?.();
   existing?.__edgeParking?.destroy();
   if (existing) existing.remove();
 
@@ -177,9 +178,7 @@ if (floatingPlayer) {
   center.appendChild(titleEl);
 
   // --- Marquee for now playing ---
-  const marquee = document.createElement("marquee");
-  marquee.setAttribute("behavior","scroll");
-  marquee.setAttribute("direction","right");
+  const marquee = document.createElement("div");
   Object.assign(marquee.style,{
     position:"absolute",
     bottom:"8px",
@@ -195,11 +194,7 @@ if (floatingPlayer) {
   marquee.appendChild(fpNowPlaying);
   center.appendChild(marquee);
 
-  // --- Audio element ---
-  const audio = document.createElement("audio");
-  audio.setAttribute("preload","metadata");
-  audio.style.display="none";
-  center.appendChild(audio);
+  // Audio stays in the original persistent host; Orbit only controls that session.
 
   // --- Button helper ---
   const btn = (label,title,cb)=>{
@@ -228,60 +223,38 @@ if (floatingPlayer) {
   };
 
   // --- State ---
-  let autoNext=true, currentLang="eng", currentIndex=0, autoplay=false;
-  let playlist=[];
-
   // --- Buttons ---
   const playPauseBtn = btn("▶","Play / Pause",()=>{
-    if(!audio.src){ loadTrack(); return; }
-    if(audio.paused){
-      audio.play().then(()=>playPauseBtn.textContent="⏸").catch(()=>playPauseBtn.textContent="▶");
-    } else {
-      audio.pause();
-      playPauseBtn.textContent="▶";
-    }
+    void audioSession.toggle();
   });
-  audio.addEventListener("play",()=>playPauseBtn.textContent="⏸");
-  audio.addEventListener("pause",()=>playPauseBtn.textContent="▶");
-  audio.addEventListener("ended",()=>playPauseBtn.textContent="▶");
 
   const nextBtn  = btn("⏭","Next",()=>{
-    currentIndex=(currentIndex+1)%playlist.length;
-    loadTrack();
+    audioSession.next();
   });
 
   const langBtn  = btn("🌐","Language",()=>{
-    currentLang=currentLang==="eng" ? "heb" :
-                currentLang==="heb" ? "grk" : "eng";
-    loadTrack();
+    audioSession.cycleLanguage();
   });
 
   const sleepBtn = btn("🌙","Auto-next (sleep) on/off",()=>{
-    autoNext=!autoNext;
-    sleepBtn.style.opacity=autoNext?"1":"0.55";
-    sleepBtn.style.borderColor=autoNext
-      ? "rgba(255,255,255,0.15)"
-      : "rgba(255,255,255,0.35)";
+    audioSession.setAutoNext(!audioSession.getState().autoNext);
   });
   sleepBtn.dataset.active="1";
 
   // --- NEW: Psalms Playlist Button ---
   const psalmsBtn = btn("🎵","Switch to Psalms Playlist",()=>{
     if(typeof psalmsPlaylist!=="undefined" && psalmsPlaylist.length>0){
-      playlist = psalmsPlaylist;
-      currentIndex = 0;
-      loadTrack();
+      const tracks = normalize(psalmsPlaylist);
+      const language = Object.keys(tracks[0]?.sources || {}).find(key => tracks[0].sources[key]);
+      audioSession.setPlaylist(tracks, {language, autoplay:true});
     } else {
-      console.warn("⚠ No psalmsPlaylist defined!");
+      audioSession.notice("No Psalms recording playlist is available.");
     }
   });
 
   // --- NEW: Playback Speed Button ---
   const speedBtn = btn("⏩","Toggle Playback Speed",()=>{
-    const speeds = [1, 1.25, 1.5, 2];
-    let idx = speeds.indexOf(audio.playbackRate);
-    audio.playbackRate = speeds[(idx+1)%speeds.length];
-    speedBtn.textContent = audio.playbackRate+"x";
+    audioSession.cycleRate();
   });
 
     const videoBtn = btn("🎬", "Open Video (popup)", () => { toggleOrbitVideo(); })
@@ -422,20 +395,44 @@ dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.
   document.body.appendChild(player);
   updateDockArrow();
 
-  // --- Playlist / loading ---
-  function normalize(list){ return (list||[]).map(i=>({ title:i.label||i.title||"Untitled", eng:i.eng||i.src||"", heb:i.heb||i.src||"", grk:i.grk||i.src||"" })); }
-  function loadTrack(){
-    const item = playlist[currentIndex]||{};
-    audio.src=item[currentLang]||"";
-    titleEl.textContent=`${item.title||"Untitled"} (${currentLang.toUpperCase()})`;
-    audio.play().catch(()=>{});
-    circleProgress.setAttribute("stroke-dashoffset",C.toString());
-    window.dispatchEvent(new CustomEvent("player:nowPlaying",{detail:{title:item.title||"",lang:currentLang,src:audio.src,index:currentIndex}}));
+  // Preserve the saved player's explicit playlist hooks without owning playback.
+  function normalize(list) {
+    return (Array.isArray(list) ? list : []).map(item => ({
+      title:item.label || item.title || "Recording",
+      sources:{english:item.eng || item.src || "", hebrew:item.heb || "", greek:item.grk || ""},
+    }));
   }
 
-  audio.addEventListener("timeupdate",()=>{ if(audio.duration && !isNaN(audio.duration)){ circleProgress.setAttribute("stroke-dashoffset",(C*(1-audio.currentTime/audio.duration)).toString()); } });
-  audio.addEventListener("loadedmetadata",()=>{ circleProgress.setAttribute("stroke-dashoffset",(C*(1-audio.currentTime/audio.duration)).toString()); });
-  audio.addEventListener("ended",()=>{ if(autoNext){ currentIndex=(currentIndex+1)%playlist.length; loadTrack(); } });
+  titleEl.classList.add("orbit-track-title");
+  fpNowPlaying.className = "orbit-audio-status";
+  fpNowPlaying.setAttribute("role", "status");
+  fpNowPlaying.setAttribute("aria-live", "polite");
+  svg.setAttribute("role", "progressbar");
+  svg.setAttribute("aria-label", "Recording progress");
+  svg.setAttribute("aria-valuemin", "0");
+  svg.setAttribute("aria-valuemax", "100");
+  player.__audioUnsubscribe = audioSession.subscribe(state => {
+    if (titleEl.textContent !== state.title) titleEl.textContent = state.title;
+    titleEl.title = state.title;
+    if (fpNowPlaying.textContent !== state.message) fpNowPlaying.textContent = state.message;
+    playPauseBtn.textContent = state.playing ? "⏸" : "▶";
+    playPauseBtn.setAttribute("aria-label", state.playing ? "Pause recording" : "Play recording");
+    playPauseBtn.disabled = !state.source;
+    nextBtn.disabled = !state.canNext;
+    langBtn.disabled = state.availableLanguages.length < 2;
+    langBtn.setAttribute("aria-label", "Recording language: " + state.language);
+    speedBtn.disabled = !state.source;
+    speedBtn.textContent = state.rate === 1 ? "⏩" : state.rate + "x";
+    sleepBtn.style.opacity = state.autoNext ? "1" : "0.55";
+    sleepBtn.dataset.active = state.autoNext ? "1" : "0";
+    sleepBtn.setAttribute("aria-pressed", String(state.autoNext));
+    const progress = state.duration ? Math.min(1, Math.max(0, state.currentTime/state.duration)) : 0;
+    circleProgress.setAttribute("stroke-dashoffset", String(C*(1-progress)));
+    svg.setAttribute("aria-valuenow", String(Math.round(progress*100)));
+    player.dataset.audioStatus = state.status;
+  });
+  player.dataset.audioReady = "true";
+  window.dispatchEvent(new Event("audio:controller-ready"));
 
   // --- Drag + snap ---
   let isDragging=false,startX,startY,origX,origY;
@@ -452,15 +449,11 @@ dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.
   window.addEventListener("touchend",onPointerUp);
 
   // --- External hooks ---
-  window.addEventListener("player:updatePlaylist", e=>{ playlist=normalize(e.detail.playlist||[]); currentIndex=0; loadTrack(); });
-  window.addEventListener("player:setLang", e=>{ const l=e.detail.lang?.toLowerCase(); if(["eng","heb","grk"].includes(l)){ currentLang=l; loadTrack(); } });
+  window.addEventListener("player:updatePlaylist", e=>{ audioSession.setPlaylist(normalize(e.detail.playlist), {language:"english", autoplay:true}); });
+  window.addEventListener("player:setLang", e=>{ const language={eng:"english",heb:"hebrew",grk:"greek"}[e.detail.lang?.toLowerCase()]; if(language) audioSession.setLanguage(language); });
 
   // --- Auto-load weekData ---
-  if(window.weekData?.sections?.audio_playlist){ playlist=normalize(window.weekData.sections.audio_playlist); }
-  loadTrack();
-
-  // --- Update marquee ---
-  window.addEventListener("player:nowPlaying", e=>{ const item=e.detail||{}; fpNowPlaying.textContent=`${item.title||""} (${item.lang?.toUpperCase()||""})`; });
+  if(window.weekData?.sections?.audio_playlist){ audioSession.setPlaylist(normalize(window.weekData.sections.audio_playlist), {language:"english"}); }
 }
 
 document.addEventListener("DOMContentLoaded", setupFloatingPlayer);
@@ -532,17 +525,12 @@ applyOrbitGlow();
 }
 
 function destroyFloatingPlayer() {
-  if (audio) {
-    audio.pause();
-    audio.src = "";
-    audio.remove();
-    audio = null;
-  }
-
-  if (player) {
-    player.remove();
-    player = null;
-  }
+  // Removing a controller must never remove or stop the shared audio element.
+  const player = document.getElementById("floatingPlayer");
+  player?.__audioUnsubscribe?.();
+  player?.__edgeParking?.destroy();
+  player?.remove();
+  window.dispatchEvent(new Event("audio:controller-ready"));
 
   if (glowInterval) clearInterval(glowInterval);
   if (orbitInterval) clearInterval(orbitInterval);

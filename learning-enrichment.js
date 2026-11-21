@@ -1,5 +1,6 @@
 
 import { getAlphabetLab, getVisualTeachings } from './corpus.js';
+import { audioSession } from './audio-session.js';
 
 const languages = { hebrew: 'Hebrew', greek: 'Greek' };
 const preziSource = /^https:\/\/prezi\.com\/p\/embed\/[A-Za-z0-9_-]+\/$/;
@@ -86,38 +87,40 @@ export function createLearningEnrichment({ node, text, button, cluster, disclosu
         renderLetter();
       }
 
-      const song = node('audio');
+      const song = node('div');
       song.className = 'alphabet-song';
-      song.controls = true;
-      song.preload = 'none';
       song.hidden = true;
-      song.setAttribute('aria-label', 'Alephbet song');
+      song.append(button('Playback controls', () => window.dispatchEvent(new Event('audio:show-controls')), 'quiet'));
+      const songSource = new URL('./corpus/learning/alephbet-song.mp3', import.meta.url).href;
 
       function trackSong() {
-        const disconnect = whileInPanel(target, () => stop());
-        const stop = () => {
-          song.pause();
+        // Closing the lesson removes its observers, not the persistent recording.
+        const disconnect = whileInPanel(target, () => finish());
+        let unsubscribe = () => {};
+        const finish = () => {
           disconnect();
+          unsubscribe();
           if (stopPlayback === stop) stopPlayback = undefined;
         };
+        const stop = () => {
+          if (audioSession.getState().source === songSource) audioSession.pause();
+          finish();
+        };
         stopPlayback = stop;
+        unsubscribe = audioSession.subscribe(state => {
+          if (state.source === songSource) status.textContent = state.message;
+          else if (!state.source) status.textContent = 'Playback stopped.';
+          else status.textContent = 'Another recording is selected.';
+        });
         return stop;
       }
 
       function playSong() {
         stopPlayback?.();
         song.hidden = false;
-        if (!song.hasAttribute('src')) song.src = new URL('./corpus/learning/alephbet-song.mp3', import.meta.url).href;
-        const stop = trackSong();
-        song.play().then(() => {
-          if (stopPlayback === stop) status.textContent = 'Playing the Alephbet song.';
-        }).catch(() => {
-          if (stopPlayback === stop) status.textContent = 'Try Play in the audio player.';
-        });
+        trackSong();
+        audioSession.playRecording(songSource, 'Alephbet song');
       }
-
-      // Native controls can also restart the recording after it has been paused.
-      song.addEventListener('play', () => { if (!stopPlayback) trackSong(); });
 
       function speak() {
         stopPlayback?.();
@@ -128,10 +131,12 @@ export function createLearningEnrichment({ node, text, button, cluster, disclosu
         }
         const letter = alphabet.greek[position.greek];
         const utterance = new SpeechSynthesisUtterance(letter.name + '. ' + letter.sound + '.');
+        let releaseSpeech = () => {};
         utterance.lang = 'en-US';
         utterance.rate = .82;
         const disconnect = whileInPanel(target, () => stop());
         const finish = () => {
+          releaseSpeech();
           disconnect();
           if (stopPlayback === stop) stopPlayback = undefined;
         };
@@ -146,6 +151,7 @@ export function createLearningEnrichment({ node, text, button, cluster, disclosu
           status.textContent = 'The system voice was unavailable. Use the pronunciation guide above.';
         };
         stopPlayback = stop;
+        releaseSpeech = audioSession.claimSpeech(stop);
         status.textContent = 'Reading the pronunciation guide for ' + letter.name + '.';
         voice.speak(utterance);
       }

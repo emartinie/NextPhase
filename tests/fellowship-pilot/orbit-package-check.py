@@ -25,7 +25,7 @@ for name, digest in expected.items():
 with tempfile.TemporaryDirectory(prefix="orbit-package-", dir=ROOT / ".pilot-tmp") as folder:
     fixture = Path(folder)
     (fixture / "corpus").mkdir()
-    for name in ["index.html", "app.js", "edge-docking.js", "orbit-player.css", "SAVEorbitFloatingPlayer.js", "bullseyeMedia.js", "private-upload.png"]:
+    for name in ["index.html", "app.js", "audio-session.js", "edge-docking.js", "orbit-player.css", "SAVEorbitFloatingPlayer.js", "bullseyeMedia.js", "private-upload.png"]:
         (fixture / name).write_text("fixture", encoding="utf-8")
     for name, data in assets.items():
         (fixture / name).write_bytes(data)
@@ -37,6 +37,7 @@ with tempfile.TemporaryDirectory(prefix="orbit-package-", dir=ROOT / ".pilot-tmp
         for name, data in assets.items():
             assert archive.read("public/NextPhase/" + name) == data
         assert "public/NextPhase/edge-docking.js" in archive.namelist()
+        assert "public/NextPhase/audio-session.js" in archive.namelist()
         assert not any("private-upload.png" in name for name in archive.namelist())
         config = json.loads(archive.read("firebase.json"))
         assert set(config) == {"hosting"}

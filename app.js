@@ -22,6 +22,7 @@ import { createAncientViews } from './ancient-library.js';
 import { calendarCards, calendarFields, calendarRoute, createCalendarViews } from './calendar.js';
 import { bindWorkspaceSwipe } from './workspace-swipe.js';
 import { createConversationWindow } from './conversation-window.js';
+import { audioSession } from './audio-session.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -367,7 +368,7 @@ function renderStudy() {
   const slug = nameKey(data.portion_transliteration);
   stack.append(disclosure('Listen', row('Scripture audio', 'Source recordings grouped by section', () => open('listen')),
     ORIENTATIONS.includes(slug)
-      ? row('Weekly orientation', 'HomeGroups audio · plays in the dock', () => playAudio('./corpus/assets/' + slug + '.mp3', 'Weekly orientation · ' + data.portion_transliteration))
+      ? row('Weekly orientation', 'HomeGroups audio', () => playAudio('./corpus/assets/' + slug + '.mp3', 'Weekly orientation · ' + data.portion_transliteration))
       : text('The source has no bundled weekly orientation for this portion.')));
   [...stack.children].forEach((item, index) => {
     item.dataset.section = String(index);
@@ -811,22 +812,28 @@ function importLegacy(html, options = {}) {
 function playAudio(url, label) {
   const source = url.startsWith('./corpus/assets/') ? url : webUrl(url);
   if (!source) return;
-  $('player').hidden = false;
-  $('playing').textContent = label;
-  $('audio-status').textContent = source.startsWith('./') ? 'HomeGroups recording' : 'External recording';
-  if (audio.getAttribute('src') !== source) audio.src = source;
-  audio.play().catch(() => {
-    if (!audio.error && audio.getAttribute('src') === source) $('audio-status').textContent = 'Use Play to start the recording.';
-  });
+  audioSession.playRecording(source, label);
 }
-audio.addEventListener('error', () => {
-  if (audio.hasAttribute('src')) $('audio-status').textContent = 'This recording is unavailable.';
-});
+let nativeAudioRequested = false;
+function updateAudioDock(state = audioSession.getState()) {
+  $('playing').textContent = state.title;
+  $('audio-status').textContent = state.message;
+  const orbitReady = document.getElementById('floatingPlayer')?.dataset.audioReady === 'true';
+  $('player').hidden = !state.source || (orbitReady && !nativeAudioRequested);
+}
+audioSession.subscribe(updateAudioDock);
+window.addEventListener('audio:controller-ready', () => updateAudioDock());
+function showAudioControls() {
+  nativeAudioRequested = true;
+  updateAudioDock();
+  const focus = () => { if (audio.hasAttribute('src')) audio.focus({preventScroll:true}); };
+  if (frames.length) closePanels(focus);
+  else focus();
+}
+window.addEventListener('audio:show-controls', showAudioControls);
 $('stop-audio').addEventListener('click', () => {
-  audio.pause();
-  audio.removeAttribute('src');
-  audio.load();
-  $('player').hidden = true;
+  nativeAudioRequested = false;
+  audioSession.stop();
 });
 
 function posts(key) {
@@ -1680,6 +1687,16 @@ const views = {
   },
   listen(target) {
     const playlist = active.content.sections?.audio_playlist ?? active.content.audio_playlist ?? [];
+    const queue = playlist.map(track => {
+      const sources = {};
+      for (const [language, legacyField] of Object.entries({english:'src', hebrew:'heb', greek:'grk'})) {
+        const source = webUrl(track[legacyField]);
+        if (!source || !/\.mp3(?:[?#]|$)/i.test(source) || source.includes(',')) continue;
+        if (language !== 'english' && /audio\.esv|esvbible\.org/i.test(source)) continue;
+        sources[language] = source;
+      }
+      return {title:track.label || 'Source recording', sources};
+    });
     const local = node('div', '', 'rows');
     const field = node('label', 'Recording language');
     const select = node('select');
@@ -1693,13 +1710,13 @@ const views = {
       const language = select.value;
       const legacyField = { english: 'src', hebrew: 'heb', greek: 'grk' }[language];
       local.replaceChildren();
-      for (const track of playlist) {
+      for (const [index, track] of playlist.entries()) {
         const source = webUrl(track[legacyField]);
         if (!source) continue;
         if (language !== 'english' && /audio\.esv|esvbible\.org/i.test(source)) continue;
         const label = track.label || 'Source recording';
         if (/\.mp3(?:[?#]|$)/i.test(source) && !source.includes(',')) {
-          local.append(row(label, 'External · Verify passage in source', () => playAudio(source, label + ' · ' + LANGUAGES[language])));
+          local.append(row(label, 'External · Verify passage in source', () => audioSession.setPlaylist(queue, {index, language, autoplay:true})));
         } else {
           local.append(link(label + ' · Open provider ↗', source));
         }
@@ -1707,7 +1724,8 @@ const views = {
       if (!local.childElementCount) local.append(text('No matching source recording was found.'));
     }
     select.addEventListener('change', renderTracks);
-    target.append(field, text('Some historical recordings are generic, mismatched, or unavailable. Use weekly Scripture for the assigned text.'), local);
+    const controls = button('Playback controls', showAudioControls, 'quiet');
+    target.append(field, text('Some historical recordings are generic, mismatched, or unavailable. Use weekly Scripture for the assigned text.'), local, controls);
     renderTracks();
   },
   note(target, { data }) {

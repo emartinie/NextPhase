@@ -64,6 +64,13 @@ async function main() {
     }
   }
   async function bounded(page) {
+    // Resize delivery/painting may lag the CDP viewport response on a busy host.
+    // Keep the geometry contract, and wait for that contract instead of a fixed sleep.
+    await page.waitForFunction(()=>{
+      const box=document.querySelector('.communication-surface').getBoundingClientRect();
+      const dock=document.querySelector('.dock').getBoundingClientRect();
+      return box.width>0&&box.x>=0&&box.y>=0&&box.right<=innerWidth+1&&box.bottom<=innerHeight+1&&box.bottom<=dock.top+1;
+    });
     const box=await surface(page).boundingBox(),viewport=page.viewportSize();
     const visual=await page.evaluate(()=>({height:visualViewport?.height,width:visualViewport?.width,top:visualViewport?.offsetTop,left:visualViewport?.offsetLeft,scrollY,innerHeight}));
     assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,JSON.stringify({box,viewport,visual}));

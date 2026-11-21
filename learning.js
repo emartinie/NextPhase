@@ -1,5 +1,6 @@
 
 import { getLearningIndex, getLearningArticle, getLearningJourney, webUrl } from './corpus.js';
+import { audioSession } from './audio-session.js';
 
 const progressKey = 'nextphase-learning-paths-v1';
 const legacyProgressKey = 'hg:discipleship:v1';
@@ -58,6 +59,7 @@ export function speechControl(content, article, button, text, { canPause = false
   let reading = null;
   let paused = false;
   let observer;
+  let releaseSpeech = () => {};
   const pause = canPause && typeof speech.pause === 'function' && typeof speech.resume === 'function' ? button('Pause reading', () => {
     if (!reading) return;
     paused = !paused;
@@ -69,6 +71,8 @@ export function speechControl(content, article, button, text, { canPause = false
   if (pause) pause.disabled = true;
 
   function reset() {
+    releaseSpeech();
+    releaseSpeech = () => {};
     reading = null;
     paused = false;
     observer?.disconnect();
@@ -93,6 +97,9 @@ export function speechControl(content, article, button, text, { canPause = false
     }
     const current = { index: 0 };
     reading = current;
+    releaseSpeech = audioSession.claimSpeech(() => {
+      reset(); speech.cancel(); status.textContent = 'Reading stopped.';
+    });
     start.textContent = 'Stop reading';
     if (pause) pause.disabled = false;
     status.textContent = 'Reading using your device voice.';

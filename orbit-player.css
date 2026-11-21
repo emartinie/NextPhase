@@ -8,3 +8,11 @@
   z-index: 2;
 }
 #floatingPlayer .orbit-center { z-index: 3; }
+#floatingPlayer .orbit-track-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+#floatingPlayer .orbit-audio-status { font-size: 11px; line-height: 1.25; }
+#floatingPlayer button:disabled { opacity: .4; cursor: default; }
