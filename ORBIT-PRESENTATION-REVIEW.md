@@ -28,6 +28,14 @@ Physical iPhone review: repeat Video on/off and return to the logo, inspect ring
 
 ## Original assessment and preserved findings
 
+### Logo transparency correction after iPhone review
+
+The owner's subsequent screenshots exposed the opaque background of the uploaded `HGHousesnew.png`. Inspection confirmed RGB format at 1362 by 1155 with no alpha channel; the near-black corners are actual image pixels, not a CSS background. The uploaded file and its recorded hash remain untouched.
+
+Orbit now uses the existing original HomeGroups `images/HGHouses.png`, copied byte-for-byte as `HGHouses-transparent.png`: RGBA, 398 by 335, alpha range 0–255, Git blob `0f37a658f3077ee94c362eab0c2608657c6db69d`. It is an older, lower-resolution rendition of the logo, not a background-removal edit or regenerated image. Its source copy remains unchanged. The face adapter changes only its image path for this correction; video, styling, controls and playback are unchanged.
+
+The packaging allowlist now includes this transparent runtime asset as well as the preserved opaque upload and original video. The package integrity fixture checks all three exact hashes/bytes. Browser verification samples the decoded logo's actual alpha pixels and confirms that transparent surroundings and opaque artwork coexist. No broad regression run is required for this asset/path correction; physical iPhone confirmation remains the owner's next review step.
+
 ## Reviewed versions and integration location
 
 At initial review, the uploaded integration was on NextPhase main at commit `1c7f797d44af0364f8243357485dd7f6a47983bc` and was not present in the local pilot checkout or conversation experiment checkpoint `e207ff867298cadee0c356868da2cd0efcdb2227`. The implementation above subsequently carried its assets and deliberate script/style hooks into the pilot without replacing the pilot's index/app/styles with main's older versions.

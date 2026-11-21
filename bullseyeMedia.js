@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const logoSrc = "HGHousesnew.png";
+  const logoSrc = "HGHouses-transparent.png";
   const videoSrc = "bg-motion.mp4";
 
   function waitForPlayer() {

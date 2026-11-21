@@ -29,6 +29,17 @@ async function main() {
       await page.locator('#study .today').waitFor();
       await page.locator('#orbitLogo').waitFor();
       await page.waitForFunction(()=>document.querySelector('#orbitLogo').naturalWidth>0);
+      const transparency=await page.locator('#orbitLogo').evaluate(image=>{
+        const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+        const context=canvas.getContext('2d');context.drawImage(image,0,0);
+        const pixels=context.getImageData(0,0,canvas.width,canvas.height).data;
+        let transparent=0,opaque=0;
+        for(let i=3;i<pixels.length;i+=4){if(pixels[i]===0)transparent++;if(pixels[i]===255)opaque++;}
+        return {source:image.getAttribute('src'),corner:pixels[3],transparent,opaque};
+      });
+      assert.equal(transparency.source,'HGHouses-transparent.png');
+      assert.equal(transparency.corner,0);
+      assert.ok(transparency.transparent>0&&transparency.opaque>0,'Logo should retain artwork with real transparent surroundings');
       async function face(expected) {
         const values=await page.evaluate(()=>['orbitLogo','orbitVideo','orbitSonograph'].map(id=>({id,visible:getComputedStyle(document.getElementById(id)).display!=='none'})));
         assert.deepEqual(values.filter(item=>item.visible).map(item=>item.id),[expected]);

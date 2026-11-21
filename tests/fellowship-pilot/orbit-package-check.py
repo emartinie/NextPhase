@@ -14,6 +14,7 @@ spec = importlib.util.spec_from_file_location("package_preview", Path(__file__).
 package = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(package)
 expected = {"HGHousesnew.png": "0246e5123023ff51448b85b4b84f21b03fd14846",
+            "HGHouses-transparent.png": "0f37a658f3077ee94c362eab0c2608657c6db69d",
             "bg-motion.mp4": "76bd3d404c5db8b4e268df6cf4e2142cf2f0f0b6"}
 assets = {}
 for name, digest in expected.items():
