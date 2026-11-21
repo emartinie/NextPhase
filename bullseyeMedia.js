@@ -2,8 +2,8 @@
 (function () {
   "use strict";
 
-  const logoSrc = "images/HGHOUSESNEW.png";
-  const videoSrc = "videos/bg-motion.mp4";
+  const logoSrc = "HGHOUSESNEW.png";
+  const videoSrc = "bg-motion.mp4";
 
   function waitForPlayer() {
     const floatingPlayer = document.getElementById("floatingPlayer");
