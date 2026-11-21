@@ -348,7 +348,9 @@ dialog[data-activity=true]{z-index:4}
 @media(min-width:850px){.conversation-window{--window-height:min(570px,calc(var(--activity-height,100dvh) - 120px));right:20px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 24px)}.conversation-window[data-mode=minimized]{top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 76px)}.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 48px);top:calc(var(--activity-top,0px) + 24px)}}
 
 /* The communication list and conversation share one movable, bounded surface. */
-.communication-surface{isolation:isolate;border-radius:16px;box-shadow:0 8px 32px var(--dialog-shadow,#000b)}
+.communication-viewport{position:fixed;inset:0;z-index:10;pointer-events:none;overflow:hidden;contain:layout}
+.communication-surface,.communication-launcher{color-scheme:var(--communication-scheme);--bg:var(--communication-field);--card:var(--communication-bg);--layer:var(--communication-layer);--ink:var(--communication-text);--muted:var(--communication-muted);--edge:var(--communication-edge);--leaf:var(--communication-green);--amber:var(--communication-blue);--row-surface:var(--communication-own);--field-surface:var(--communication-field);--field-border:var(--communication-edge);--action-surface:var(--communication-green);--action-text:var(--communication-on-accent);--action-border:var(--communication-green);--button-hover:var(--communication-hover);color:var(--ink)}
+.communication-surface{pointer-events:auto;isolation:isolate;border-radius:14px;box-shadow:0 8px 32px var(--dialog-shadow,#000b)}
 .communication-surface .conversation-window-header{gap:0;min-height:48px;padding:2px 4px;border-bottom:1px solid var(--edge)}
 .communication-surface .conversation-window-header>.quiet{min-width:44px;min-height:44px;padding:0;font-size:25px}
 .communication-drag{display:flex;align-items:center;gap:5px;flex:1;min-width:0;min-height:44px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -366,7 +368,7 @@ dialog[data-activity=true]{z-index:4}
 .communication-entry{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:5px;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--ink);font-size:15px}
 .communication-entry:focus-visible{background:var(--layer)}
 @media(hover:hover){.communication-entry:hover{background:var(--layer)}}
-.communication-avatar{display:grid;place-items:center;flex:0 0 33px;height:33px;border-radius:50%;background:var(--layer);color:var(--leaf);font-size:12px;font-weight:650}
+.communication-avatar{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:50%;background:var(--layer);color:var(--communication-blue);font-size:12px;font-weight:650}
 .communication-entry-name{font-weight:600;overflow-wrap:anywhere}
 .communication-entry-name small{display:block;color:var(--muted);font-size:11px;font-weight:400;margin-top:2px}
 .communication-surface .conversation-window-content{background:var(--card);border-radius:0 0 16px 16px}
@@ -387,4 +389,10 @@ dialog[data-activity=true]{z-index:4}
 .communication-launcher>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .communication-launcher-icon{display:grid;place-items:center;color:var(--leaf)}
 .communication-launcher-icon svg{width:20px;height:20px}
+.communication-edge-arrow{display:none}
+.communication-launcher{--communication-safe-left:env(safe-area-inset-left,0px);--communication-safe-right:env(safe-area-inset-right,0px)}
+.communication-launcher[data-docked=true]{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px 0 0 12px;color:var(--communication-blue)}
+.communication-launcher[data-docked=true][data-side=left]{border-radius:0 12px 12px 0}
+.communication-launcher[data-docked=true] :is(.communication-launcher-icon,.communication-launcher-icon+span){display:none}
+.communication-launcher[data-docked=true] .communication-edge-arrow{display:block;font-size:28px;line-height:1}
 @media(max-width:380px){#workspace-share{display:none!important}}

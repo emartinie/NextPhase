@@ -1,3 +1,47 @@
+/* Activity surface roles remain centralized with the existing Theme Manager. */
+:root {
+  --communication-scheme: dark;
+  --communication-bg: #1b222c;
+  --communication-field: #121820;
+  --communication-layer: #283341;
+  --communication-own: #233c53;
+  --communication-text: #eff4f8;
+  --communication-muted: #afbdcb;
+  --communication-edge: #4b5d70;
+  --communication-green: #bddfa8;
+  --communication-blue: #9acbfa;
+  --communication-on-accent: #14221c;
+  --communication-hover: #344456;
+}
+:root[data-theme="parchment"] {
+  --communication-scheme: light;
+  --communication-bg: #f1f4f8;
+  --communication-field: #ffffff;
+  --communication-layer: #e4eaf0;
+  --communication-own: #dceaf8;
+  --communication-text: #1b2733;
+  --communication-muted: #45586b;
+  --communication-edge: #6b7886;
+  --communication-green: #345e2c;
+  --communication-blue: #205c92;
+  --communication-on-accent: #ffffff;
+  --communication-hover: #d9e4ef;
+}
+:root[data-theme="diagnostic"] {
+  --communication-scheme: light;
+  --communication-bg: #00e66a;
+  --communication-field: #fa00ed;
+  --communication-layer: #00bbd4;
+  --communication-own: #00bbd4;
+  --communication-text: #101010;
+  --communication-muted: #4b0055;
+  --communication-edge: #735b00;
+  --communication-green: #00238c;
+  --communication-blue: #00238c;
+  --communication-on-accent: #ffffff;
+  --communication-hover: #00bbd4;
+}
+
 :root[data-theme="cosmic"] {
   --bg: #06070b;
   --card: #141b2a;

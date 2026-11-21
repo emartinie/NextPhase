@@ -21,11 +21,17 @@ async function main() {
   let browser;
   const surface=page=>page.locator('.communication-surface');
   const field=page=>surface(page).getByRole('textbox',{name:'Message',exact:true});
+  const launcher=page=>page.locator('.communication-launcher');
   const back=page=>page.getByRole('button',{name:'Back to conversations',exact:true}).click();
   async function open(uid,phone=false,entry='?pilot=firebase&week=7') {
     const context=await browser.newContext({...phone?devices['iPhone 13']:{viewport:{width:1280,height:850}},permissions:['clipboard-read','clipboard-write']});
     contexts.push(context);
-    await context.addInitScript(({uid,names})=>{window.__testAuthChoice=uid;window.__testNames=names;Object.defineProperty(navigator,'share',{value:undefined,configurable:true});},{uid,names:fixture.accounts});
+    await context.addInitScript(({uid,names})=>{
+      window.__testAuthChoice=uid;window.__testNames=names;
+      Object.defineProperty(navigator,'share',{value:undefined,configurable:true});
+      // Assert the external-link handoff without depending on the Windows clipboard.
+      Object.defineProperty(navigator,'clipboard',{value:{writeText:async text=>{window.__testClipboard=text;},readText:async()=>window.__testClipboard},configurable:true});
+    },{uid,names:fixture.accounts});
     const page=await context.newPage();page.setDefaultTimeout(12000);
     page.on('pageerror',error=>errors.push(error.message));
     await page.exposeFunction('__testStore',async({op,ref,uid,data})=>{
@@ -44,14 +50,14 @@ async function main() {
     await surface(page).getByRole('button',{name:'Household',exact:true}).waitFor();
     return page;
   }
-  async function drag(page,dx,dy,touch=false) {
+  async function drag(page,dx,dy,touch=false,cancel=false) {
     const handle=await page.locator('.communication-drag').boundingBox();
     const start={x:handle.x+Math.min(20,handle.width/2),y:handle.y+handle.height/2};
     if(touch){
       const cdp=await page.context().newCDPSession(page);
       await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[start]});
       await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start.x+dx,y:start.y+dy}]});
-      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      await cdp.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});
       await cdp.detach();
     }else{
       await page.mouse.move(start.x,start.y);await page.mouse.down();await page.mouse.move(start.x+dx,start.y+dy,{steps:8});await page.mouse.up();
@@ -63,12 +69,46 @@ async function main() {
     const dock=await page.locator('.dock').boundingBox();
     assert.ok(box.y+box.height<=dock.y+1,'Window should leave workspace navigation accessible');
   }
+  async function dockAtEdge(page,side,touch=false,cancel=false) {
+    const grip=await page.locator('.communication-drag').boundingBox();
+    const start=grip.x+Math.min(20,grip.width/2);
+    await drag(page,(side==='left'?2:page.viewportSize().width-2)-start,0,touch,cancel);
+  }
+  async function docked(page,side) {
+    assert.equal(await surface(page).isVisible(),false);
+    assert.equal(await surface(page).getAttribute('data-mode'),'minimized','Edge docking is the existing minimized state');
+    assert.equal(await launcher(page).getAttribute('data-docked'),'true');
+    assert.equal(await launcher(page).getAttribute('data-side'),side);
+    const box=await launcher(page).boundingBox(),viewport=page.viewportSize();
+    assert.equal(box.width,44);assert.equal(box.height,44);
+    assert.ok(box.y>=0&&box.y+44<=viewport.height);
+    assert.ok(Math.abs(box.x-(side==='left'?0:viewport.width-44))<2);
+    assert.equal(await launcher(page).locator('.communication-edge-arrow').innerText(),side==='left'?'›':'‹');
+    assert.equal(await launcher(page).locator('.communication-launcher-icon').isVisible(),false);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Dragging must not create horizontal page overflow');
+    return box;
+  }
+  async function checkThemeContrast(page,theme) {
+    const result=await page.evaluate(theme=>{
+      document.documentElement.dataset.theme=theme;
+      const style=getComputedStyle(document.querySelector('.communication-surface'));
+      const colors=['--communication-bg','--communication-layer','--communication-own','--communication-text','--communication-muted','--communication-green','--communication-blue','--communication-on-accent'].map(name=>style.getPropertyValue(name).trim());
+      function luminance(hex){const rgb=hex.replace('#','').match(/../g).map(value=>parseInt(value,16)/255).map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4);return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;}
+      function contrast(a,b){const values=[luminance(a),luminance(b)].sort((a,b)=>b-a);return (values[0]+.05)/(values[1]+.05);}
+      return {background:style.backgroundColor,ratios:[...colors.slice(0,3).flatMap(background=>[contrast(colors[3],background),contrast(colors[4],background)]),contrast(colors[5],colors[0]),contrast(colors[6],colors[0]),contrast(colors[7],colors[5])]};
+    },theme);
+    assert.ok(result.ratios.every(ratio=>ratio>=4.5),JSON.stringify({theme,ratios:result.ratios}));
+    return result;
+  }
   try {
     browser=await chromium.launch({executablePath:process.env.NEXTPHASE_CHROME||undefined,args:['--disable-gpu','--renderer-process-limit=3','--disable-gpu-shader-disk-cache','--disk-cache-size=1048576']});
     const phone=await open('miriam',true);
     assert.equal(await phone.locator('#stage').getAttribute('data-face'),'study','Communication must open directly from Study');
     assert.equal(await surface(phone).getAttribute('data-view'),'list');
     assert.equal(await phone.locator('#fellowship').getByRole('button',{name:'Dorothy (test)',exact:true}).count(),0,'No duplicate Fellowship selector');
+    for(const theme of ['cosmic','sapphire','parchment','olam-haba','diagnostic','nextphase'])await checkThemeContrast(phone,theme);
+    assert.equal(await surface(phone).evaluate(node=>getComputedStyle(node).backgroundColor),'rgb(27, 34, 44)','Default activity surface should be charcoal/slate');
+    assert.ok((await surface(phone).boundingBox()).width<350,'Reduced phone footprint');
     await phone.screenshot({path:path.resolve('.pilot-tmp/communication-list-phone.png')});
     await surface(phone).getByRole('button',{name:'Dorothy (test)',exact:true}).click();
     await surface(phone).getByText('Earlier message 29',{exact:false}).waitFor();
@@ -99,11 +139,38 @@ async function main() {
     assert.equal(await field(phone).inputValue(),'My unfinished reply to Dorothy');
     assert.equal(await phone.locator('.communication-drag').evaluate(node=>getComputedStyle(node).touchAction),'none');
     assert.equal(await phone.locator('.conversation-stream').evaluate(node=>getComputedStyle(node).touchAction),'pan-y');
+    // Native-like touch endpoints inside the screen, not synthetic off-screen coordinates.
+    await dockAtEdge(phone,'left',true,true);
+    assert.equal(await surface(phone).isVisible(),true,'Cancelled drag must restore the open window');
+    await bounded(phone);
+    await dockAtEdge(phone,'left',true);
+    const leftHandle=await docked(phone,'left');
+    await phone.screenshot({path:path.resolve('.pilot-tmp/communication-docked-left-phone.png')});
+    await phone.locator('#workspace-switch').click();
+    assert.ok(Math.abs((await docked(phone,'left')).y-leftHandle.y)<2,'Dock handle position must not follow workspace content');
+    await phone.locator('#workspace-previous').click();
+    await phone.getByRole('button',{name:'Reopen communications',exact:true}).click();
+    assert.equal(await field(phone).inputValue(),'My unfinished reply to Dorothy');
+    await phone.waitForFunction(top=>Math.abs(document.querySelector('.conversation-stream').scrollTop-top)<3,savedTop);
+    await dockAtEdge(phone,'right',true);
+    await docked(phone,'right');
+    await fixture.backend('set',{path:dorothy+'/messages/docked-answer'},'ruth',{authorId:'ruth',body:'An update while docked.',createdAt:1000});
+    await phone.screenshot({path:path.resolve('.pilot-tmp/communication-docked-right-phone.png')});
+    await phone.setViewportSize({width:390,height:360});
+    await phone.waitForTimeout(80);
+    await docked(phone,'right');
+    await phone.setViewportSize({width:390,height:664});
+    await phone.waitForTimeout(80);
+    await phone.getByRole('button',{name:'Reopen communications',exact:true}).click();
+    await surface(phone).getByText('An update while docked.',{exact:true}).waitFor();
+    assert.equal(await field(phone).inputValue(),'My unfinished reply to Dorothy');
+    await bounded(phone);
     await phone.getByRole('button',{name:'Minimize communications',exact:true}).click();
-    assert.equal(await surface(phone).isVisible(),false);
+    await docked(phone,'right');
     await phone.getByRole('button',{name:'Reopen communications',exact:true}).click();
     assert.equal(await surface(phone).getAttribute('data-view'),'conversation');
     assert.equal(await field(phone).inputValue(),'My unfinished reply to Dorothy');
+    const closingTop=await phone.locator('.conversation-stream').evaluate(node=>node.scrollTop);
     await phone.getByRole('button',{name:'Close communications',exact:true}).click();
     assert.equal(await surface(phone).isVisible(),false);
     assert.equal(await phone.locator('#dialog').isVisible(),false,'Closing must not create a second panel');
@@ -112,7 +179,7 @@ async function main() {
     assert.equal(await surface(phone).getAttribute('data-view'),'list');
     await surface(phone).getByRole('button',{name:'Dorothy (test)',exact:true}).click();
     assert.equal(await field(phone).inputValue(),'My unfinished reply to Dorothy');
-    await phone.waitForFunction(top=>Math.abs(document.querySelector('.conversation-stream').scrollTop-top)<3,savedTop);
+    await phone.waitForFunction(top=>Math.abs(document.querySelector('.conversation-stream').scrollTop-top)<3,closingTop);
     // Move aside rather than minimize to reach the underlying Scripture entry.
     const read=phone.getByRole('button',{name:'Read passage',exact:true});
     const readBox=await read.boundingBox(),grip=phone.locator('.communication-drag');
@@ -164,7 +231,18 @@ async function main() {
     const desktopBefore=await surface(peer).boundingBox();
     await drag(peer,-220,-100);
     assert.ok((await surface(peer).boundingBox()).x<desktopBefore.x-100);
-    await drag(peer,-2000,-2000);
+    await dockAtEdge(peer,'left');
+    await docked(peer,'left');
+    await peer.getByRole('button',{name:'Reopen communications',exact:true}).click();
+    await dockAtEdge(peer,'right');
+    await docked(peer,'right');
+    await peer.getByRole('button',{name:'Reopen communications',exact:true}).click();
+    await peer.locator('.communication-drag').focus();
+    await peer.keyboard.press('Alt+ArrowLeft');
+    await docked(peer,'left');
+    await peer.getByRole('button',{name:'Reopen communications',exact:true}).click();
+    await peer.locator('.communication-drag').focus();
+    await peer.keyboard.press('Home');
     await bounded(peer);
     // Message text remains selectable; drag behavior belongs only to the header.
     await surface(peer).locator('.message p').first().evaluate(node=>{const r=document.createRange();r.selectNodeContents(node);const s=getSelection();s.removeAllRanges();s.addRange(r);});
@@ -194,7 +272,7 @@ async function main() {
     assert.equal(await field(outsider).isVisible(),false);
     assert.equal(await surface(outsider).locator('.message').count(),0);
     assert.deepEqual(errors,[]);
-    console.log('Passed: global Study entrance, one list/chat surface, independent drafts/positions, direct close, distinct minimize/reopen, visible workspace/reader continuity, mouse/touch bounded dragging, text selection, keyboard-sized composer, contextual attachment review/send, external link, persisted peer receipt and account isolation.');
+    console.log('Passed: global list/chat, independent drafts/positions, direct close, shared edge/minimize state, left/right touch/mouse docking and retrieval, cancelled drag, keyboard docking, predictable resized handles, background receipt, no horizontal overflow, theme contrast, visible workspace/reader continuity, keyboard-sized composer, Scripture review/send, external links and account isolation.');
     console.log('Synthetic browser contracts only. No live records, rules or Authentication configuration changed; physical Safari remains unverified.');
   } finally {
     for(const context of contexts)await context.close().catch(()=>{});
