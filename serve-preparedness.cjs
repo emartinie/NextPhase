@@ -13,6 +13,8 @@ const contentTypes = {
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json',
   '.mp3': 'audio/mpeg',
+  '.mp4': 'video/mp4',
+  '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.wav': 'audio/wav',
 };

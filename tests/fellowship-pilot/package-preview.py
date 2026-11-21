@@ -15,6 +15,12 @@ def main():
     output = ROOT / ".pilot-tmp" / "fellowship-iphone-preview.zip"
     output.parent.mkdir(exist_ok=True)
     files = sorted([ROOT / "index.html", *ROOT.glob("*.js"), *ROOT.glob("*.css")])
+    # Exact, reviewed Orbit assets; do not publish arbitrary root uploads.
+    for name in ("HGHousesnew.png", "bg-motion.mp4"):
+        path = ROOT / name
+        if not path.is_file():
+            raise SystemExit("Required Orbit asset is missing: " + name)
+        files.append(path)
     # Preserve runtime corpora; original uploaded module binaries remain in Git.
     for path in sorted((ROOT / "corpus").rglob("*")):
         if not path.is_file():

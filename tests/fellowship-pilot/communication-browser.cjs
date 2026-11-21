@@ -65,7 +65,8 @@ async function main() {
   }
   async function bounded(page) {
     const box=await surface(page).boundingBox(),viewport=page.viewportSize();
-    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,JSON.stringify({box,viewport}));
+    const visual=await page.evaluate(()=>({height:visualViewport?.height,width:visualViewport?.width,top:visualViewport?.offsetTop,left:visualViewport?.offsetLeft,scrollY,innerHeight}));
+    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,JSON.stringify({box,viewport,visual}));
     const dock=await page.locator('.dock').boundingBox();
     assert.ok(box.y+box.height<=dock.y+1,'Window should leave workspace navigation accessible');
   }
