@@ -574,6 +574,7 @@ window.addEventListener('popstate', () => {
     && matchingRoute.workspace === workspace && matchingRoute.preparednessFace === preparednessFace && matchingRoute.learningFace === learningFace
     ? history.state?.panels ?? [] : [];
   if (frames.length) saveFrame(frames.at(-1));
+  for (const frame of frames) if (!ids.includes(frame.id)) frame.dispose?.();
   if (ids.length && ids.every((id) => historyFrames.has(id))) {
     if (!origin) origin = { opener: document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
     frames.splice(0, frames.length, ...ids.map((id) => historyFrames.get(id)));
@@ -607,7 +608,7 @@ $('expand').addEventListener('click', () => {
 function sizePanel(frame) {
   const full = studyCards[frame.type] === 'commandments' || Object.hasOwn(preparednessSections, frame.type) ||
     ['learningArticle', 'learningJourney', 'languageLab', 'visualTeachings', 'jesus', 'origins', 'assessments',
-      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle', 'dictionaryEntry', 'referenceCommentary'].includes(frame.type);
+      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle', 'dictionaryEntry', 'referenceCommentary', 'fellowshipChat'].includes(frame.type);
   dialog.dataset.workspace = String(full);
   dialog.dataset.expanded = String(full || frame.expanded);
   $('expand').hidden = full;
@@ -642,6 +643,8 @@ const panelNames = {
   note: 'Personal notes', private: 'Private conversations', dm: 'Private conversation',
   conversationInvite: 'Invite to conversation',
   fellowshipActions: 'Fellowship actions', fellowshipInvitations: 'Invitations', conversationInvitation: 'Conversation invitation',
+  fellowshipConversations: 'Conversations', fellowshipCommunities: 'Communities',
+  fellowshipChat: 'Conversation',
   archive: 'Discussion archives', alignment: 'Interlinear', attach: 'Attach a passage',
   law: 'Covenants & Commandments', covenant: 'Covenant', commandment: 'Commandment',
   nt: 'New Testament Notes', sefaria: 'Hebrew Library · Sefaria',
@@ -651,13 +654,22 @@ function activeFrame(frame) {
   return dialog.open && frames.at(-1) === frame;
 }
 function renderPanel(frame) {
-  $('panel-title').textContent = panelNames[frame.type];
+  const conversation = frame.type === 'fellowshipChat';
+  dialog.dataset.conversation = String(conversation);
+  syncConversationViewport();
+  $('conversation-actions').hidden = !conversation;
+  $('conversation-actions').replaceChildren(...(conversation && frame.menu ? [frame.menu] : []));
+  $('panel-title').textContent = conversation ? frame.data.title || 'Conversation' : panelNames[frame.type];
   $('panel-kicker').textContent = frame.type === 'themeManager' ? 'Appearance' : frame.type === 'dm' ? 'Local simulation' :
     frame.type === 'briefingDiscussion' ? 'Preparedness · Fellowship' :
     frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
     Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
     Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
-  $('back').hidden = frames.length < 2;
+  $('panel-kicker').hidden = conversation;
+  $('back').hidden = !conversation && frames.length < 2;
+  $('back').textContent = conversation ? '‹' : 'Back';
+  $('back').setAttribute('aria-label', conversation ? 'Back to Fellowship' : 'Back');
+  $('close').hidden = conversation;
   $('learning-discuss').hidden = !isLearningResource(frame.type);
   sizePanel(frame);
   panel.replaceChildren(...(frame.content ?? []));
@@ -681,6 +693,14 @@ function renderPanel(frame) {
   const focus = frame.focus?.isConnected ? frame.focus : $('panel-title');
   focus.focus({ preventScroll: true });
 }
+function syncConversationViewport() {
+  if (dialog.dataset.conversation !== 'true') return;
+  dialog.style.setProperty('--conversation-viewport-height', `${window.visualViewport?.height || window.innerHeight}px`);
+  dialog.style.setProperty('--conversation-viewport-top', `${window.visualViewport?.offsetTop || 0}px`);
+}
+window.visualViewport?.addEventListener('resize', syncConversationViewport);
+window.visualViewport?.addEventListener('scroll', syncConversationViewport);
+window.addEventListener('resize', syncConversationViewport);
 setInterval(() => frames.at(-1)?.refresh?.(), 60_000);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) frames.at(-1)?.refresh?.();
@@ -842,25 +862,36 @@ function renderFellowship() {
   const selectedWeek = week;
   const archive = year !== liveYear;
   const inner = node('article', '', 'sheet');
-  inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
+  const focused = pilotMode === 'firebase';
+  if (focused) {
+    const heading = node('h1', 'Fellowship');
+    heading.id = 'fellowship-title';
+    inner.append(heading);
+    inner.classList.add('fellowship-home-sheet');
+  } else inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
     `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
   const section = node('section', '', 'thread-card fellowship-conversation');
   section.tabIndex = -1;
   section.setAttribute('aria-label', 'Weekly conversation');
   const discussionTitle = archive ? 'Discussion archive' : selectedWeek === cycleWeek ? 'This week’s discussion' : `Week ${selectedWeek} discussion`;
-  section.append(node('h2', discussionTitle));
+  const discussionHeading = node('h2', focused ? 'Conversations' : discussionTitle);
+  section.append(discussionHeading);
   fellowshipHome = archive ? null : mountFellowshipHome(inner, {
     node, text, button, link, cluster,
     inviteConversation: (marker, snapshot) => open('conversationInvite', { marker, snapshot, week: selectedWeek }),
   });
   const links = cluster(
-    link('Conversations', 'https://homegroups.org/?card=fellowship-live&view=messages'),
-    link('Communities', 'https://homegroups.org/?card=fellowship-live&view=explore'),
+    button('Conversations', () => open('fellowshipConversations')),
+    button('Communities', () => open('fellowshipCommunities')),
+    ...(fellowshipPilot ? [button('Chat with…', () => stopFellowshipPilot?.showChatWith?.())] : []),
     button('Invitations', () => open('fellowshipInvitations')),
   );
   links.classList.add('fellowship-links');
   const mount = () => {
-    inner.append(section, links);
+    if (focused) {
+      section.classList.add('fellowship-home-conversations');
+      inner.insertBefore(section, inner.querySelector('.fellowship-home'));
+    } else inner.append(section, links);
     fellowship.replaceChildren(inner);
     if (face === 'fellowship' && workspace === 'study') void fellowshipHome?.load();
   };
@@ -870,6 +901,19 @@ function renderFellowship() {
       import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
         if (section.isConnected) stopFellowshipPilot = mountFirebaseFellowship(section, {
           node, text, button, year, week: selectedWeek,
+          passage, readPassage, surface: fellowship,
+          onOpenConversation: openFellowshipConversation,
+          onIdentityChange() {
+            let showingConversation = false;
+            for (const frame of historyFrames.values()) if (frame.type === 'fellowshipChat') {
+              if (frames.includes(frame)) showingConversation = true;
+              frame.dispose?.();
+              frame.data = {};
+              frame.content = null;
+              frame.menu = null;
+            }
+            if (showingConversation) closePanels();
+          },
           configPath: hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
           setInviteUser(user) { if (section.isConnected) fellowshipInviteUser = user; },
         });
@@ -892,9 +936,10 @@ function renderFellowship() {
   if (archive) section.append(button(`Return to ${liveYear}`, () => selectYear(liveYear), 'quiet'));
   else {
     section.append(text('What stood out to you in the reading? Bring a question or share what you noticed.'));
-    section.append(link('Open weekly conversation', localPreview
+    if (localPreview || hostedFellowshipPreview) section.append(link('Open weekly conversation', localPreview
       ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${selectedWeek}`
-      : `https://homegroups.org/?card=fellowship-live&view=home&week=${selectedWeek}`));
+      : new URL(`?pilot=firebase&face=fellowship&week=${selectedWeek}`, location.href).href));
+    else section.append(text('Live community conversations are not enabled on this address yet.'));
   }
   const group = fixture(year, week, liveYear, cycleWeek, data.portion_transliteration, data.torah_reading);
   const key = threadKey();
@@ -923,6 +968,36 @@ function selectYear(year) {
   fellowship.scrollTop = 0;
   if (face === 'fellowship') $('fellowship-title')?.setAttribute('tabindex', '-1');
   if (face === 'fellowship') $('fellowship-title')?.focus({ preventScroll: true });
+}
+
+function returnToWeeklyConversation() {
+  closePanels(() => {
+    selectWorkspace('study');
+    changeRoute(week, 'fellowship');
+    stopFellowshipPilot?.showWeekly?.();
+    const conversation = fellowship.querySelector('.fellowship-conversation');
+    conversation?.scrollIntoView({ block: 'start' });
+    conversation?.focus({ preventScroll: true });
+  });
+}
+
+function returnToHouseholdChats(privateList = false) {
+  closePanels(() => {
+    selectWorkspace('study');
+    changeRoute(week, 'fellowship');
+    if (privateList) stopFellowshipPilot?.showChatWith?.();
+    else stopFellowshipPilot?.showHousehold?.();
+  });
+}
+
+function openFellowshipConversation(selection) {
+  const enter = () => open('fellowshipChat', {
+    ...selection,
+    title: selection.kind === 'weekly' ? `Week ${week} · ${active.row.portion_transliteration}`
+      : selection.kind === 'household' ? 'Household' : selection.title || 'Private conversation',
+  });
+  if (frames.length) closePanels(enter);
+  else enter();
 }
 
 function isLearningResource(type) {
@@ -1134,9 +1209,55 @@ const views = {
     if (!fellowshipPilot) target.append(row('Private conversations', 'Existing local Fellowship demo', () => open('private')));
   },
   fellowshipActions(target) {
+    target.append(row('Conversations', 'Weekly community conversation', () => open('fellowshipConversations')),
+      row('Communities', 'Weekly study community', () => open('fellowshipCommunities')));
+    if (fellowshipPilot) target.append(row('Chat with…', 'Household members and saved private chats', () => returnToHouseholdChats(true)));
     if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
     target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
     if (!fellowshipPilot) target.append(row('Private conversations', 'Local demo', () => open('private')));
+  },
+  fellowshipChat(target, frame) {
+    if (!activeFrame(frame)) return;
+    const menu = node('details', '', 'conversation-menu');
+    const toggle = node('summary', '⋯');
+    toggle.setAttribute('aria-label', 'Conversation details');
+    const details = node('div', '', 'conversation-menu-content');
+    details.append(text(frame.data.kind === 'private' ? 'Private conversation' : 'Private community', 'eyebrow'));
+    menu.append(toggle, details);
+    menu.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu.open) { event.preventDefault(); event.stopPropagation(); menu.open = false; toggle.focus(); }
+    });
+    frame.menu = menu;
+    if (activeFrame(frame)) $('conversation-actions').replaceChildren(menu);
+    const discussion = stopFellowshipPilot?.mountConversation?.(target, frame.data, { compact: true, detailsTarget: details });
+    if (!discussion) { target.append(text('Sign in from Fellowship to open this conversation.')); return; }
+    frame.onLeave = () => { menu.open = false; discussion.remember?.(); };
+    frame.refresh = () => requestAnimationFrame(() => { if (activeFrame(frame)) discussion.resume?.(); });
+    frame.dispose = () => {
+      discussion();
+      target.replaceChildren();
+      details.replaceChildren();
+      frame.content = null;
+      frame.menu = null;
+      frame.onLeave = frame.refresh = frame.dispose = null;
+    };
+  },
+  fellowshipConversations(target) {
+    target.append(row(`Week ${week} · ${active.row.portion_transliteration}`, 'Wednesday HomeGroup · weekly conversation', returnToWeeklyConversation));
+    if (fellowshipPilot) target.append(
+      row('Household conversation', 'A shared room independent of the weekly study', () => returnToHouseholdChats()),
+      row('Chat with…', 'Open saved private conversations', () => returnToHouseholdChats(true)));
+    else {
+      target.append(text('This page includes a clearly labeled local discussion demo.'));
+      if (localPreview || hostedFellowshipPreview) target.append(link('Open signed-in Fellowship', localPreview
+        ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${week}`
+        : new URL(`?pilot=firebase&face=fellowship&week=${week}`, location.href).href));
+      else target.append(text('Live community conversations are not enabled on this address yet.'));
+    }
+  },
+  fellowshipCommunities(target) {
+    target.append(row('Wednesday HomeGroup', 'Weekly Scripture study · membership checked when opening the conversation', returnToWeeklyConversation),
+      text('Signing in does not automatically enroll an account in this community.'));
   },
   fellowshipInvitations(target) {
     target.append(text('Open the link in a Fellowship invitation email to accept or decline.'));

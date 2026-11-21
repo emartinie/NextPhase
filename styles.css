@@ -48,6 +48,58 @@ dialog{position:fixed}
 .fellowship-conversation>details summary{padding-inline:0;font-size:14px}
 .fellowship-links{margin-top:10px}
 
+/* A chosen conversation occupies the existing excursion; discovery stays at home. */
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+.fellowship-home-sheet{padding-top:18px}
+.fellowship-home-sheet>h1{font-size:25px;line-height:1.2;margin-bottom:14px}
+.fellowship-home-conversations{position:relative;margin:0 0 14px}
+.fellowship-home-conversations>h2{font-family:inherit;font-size:17px;font-weight:680;line-height:1.3;min-height:38px;display:flex;align-items:center;padding-right:48%}
+.fellowship-home-conversations>.form-caption:empty,.fellowship-chat-list:empty{display:none}
+.fellowship-account{position:absolute;right:8px;top:5px;max-width:46%;z-index:1}
+.fellowship-account summary{font-size:12px;min-height:44px;padding:12px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.fellowship-account[open]{padding:0 6px 6px;background:var(--card);border:1px solid var(--edge);border-radius:12px}
+.fellowship-account .quiet{font-size:13px;min-height:44px}
+.fellowship-room-links{gap:6px;margin-bottom:7px}
+.fellowship-room-links button{flex:1;font-size:14px;text-align:center}
+.fellowship-chat-list .row{min-height:46px;padding:10px 12px;font-size:15px}
+.fellowship-home-conversations .form-caption:empty{display:none}
+dialog[data-workspace=true][data-conversation=true]{inset:var(--conversation-viewport-top,0px) 0 auto;margin:0;width:100%;height:var(--conversation-viewport-height,100dvh);max-height:var(--conversation-viewport-height,100dvh);max-width:none;border:0;border-radius:0;overflow:hidden}
+dialog[data-workspace=true][data-conversation=true] .panel{height:100%;max-height:100%;padding-top:env(safe-area-inset-top);padding-bottom:0}
+dialog[data-workspace=true][data-conversation=true] .panel-header{flex:0 0 auto;min-height:57px;padding:6px max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left));background:var(--card)}
+dialog[data-workspace=true][data-conversation=true] .panel-header h2{font:680 17px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+dialog[data-workspace=true][data-conversation=true] #back{font-size:30px;min-width:44px;min-height:44px;padding:0;background:transparent;border-color:transparent}
+dialog[data-workspace=true][data-conversation=true] #conversation-actions{flex:0 0 auto;padding:0}
+dialog[data-workspace=true][data-conversation=true] .panel-body{flex:1;padding:0;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+dialog[data-workspace=true][data-conversation=true] .panel-content.conversation-view{display:flex;flex-direction:column;gap:0;width:100%;height:100%;min-height:0;margin:0 auto;max-width:760px}
+.conversation-stream{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;overflow-anchor:none;padding:14px max(16px,env(safe-area-inset-right)) 14px max(16px,env(safe-area-inset-left));scrollbar-width:thin}
+.conversation-stream>.form-caption:empty{display:none}
+.conversation-stream .message{position:relative;margin:0;padding:10px 21px 12px 0;border-bottom:1px solid var(--edge);font-size:16px}
+.conversation-stream .message strong{font-size:12px;color:var(--muted);font-weight:650}
+.conversation-stream .message p{line-height:1.5;margin:4px 0;overflow-wrap:anywhere}
+.conversation-stream .message .quiet{font-size:14px;min-height:44px;margin-top:4px;color:var(--leaf)}
+.conversation-saved{position:absolute;right:0;bottom:12px;font-size:12px;color:var(--muted)}
+.conversation-composer{position:relative;flex:0 0 auto;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:7px;align-items:end;margin:0!important;padding:10px max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border-top:1px solid var(--edge);background:var(--card)}
+.conversation-composer .conversation-reply{min-width:0;font-size:0}
+.conversation-composer textarea{display:block;min-height:44px;max-height:112px;resize:none;line-height:1.4;padding:10px 12px;border-radius:22px;font-weight:400}
+.conversation-composer>button{width:44px;min-width:44px;height:44px;justify-content:center;border-radius:50%;font-size:23px;padding:0}
+.conversation-composer>button:disabled{opacity:.45;cursor:default}
+.conversation-composer>.form-caption{grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.conversation-composer>.form-caption:empty{display:none}
+.conversation-composer>.form-caption[data-saved=true]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.conversation-attachment{border:0!important;background:transparent!important}
+.conversation-attachment summary{display:grid;place-items:center;min-height:44px;width:44px;padding:0;border:1px solid var(--edge);border-radius:50%;font-size:26px;font-weight:400;list-style:none;color:var(--ink)}
+.conversation-attachment summary::marker,.conversation-menu summary::marker{content:""}
+.conversation-attachment summary::-webkit-details-marker,.conversation-menu summary::-webkit-details-marker{display:none}
+.conversation-attachment[open] summary{color:var(--leaf);background:var(--layer)}
+.conversation-attachment>label{position:absolute;bottom:calc(100% + 8px);inset-inline:12px;padding:12px;border:1px solid var(--edge);border-radius:12px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b);z-index:2;max-width:440px;font-size:13px}
+.conversation-attachment input{margin-top:6px}
+.conversation-menu{position:relative;border:0!important;background:transparent!important}
+.conversation-menu summary{min-width:44px;min-height:44px;display:grid;place-items:center;padding:0;font-size:24px;list-style:none}
+.conversation-menu-content{position:absolute;z-index:3;right:0;top:calc(100% + 7px);width:min(290px,calc(100vw - 28px));max-height:50dvh;overflow:auto;overscroll-behavior:contain;padding:14px;border:1px solid var(--edge);border-radius:12px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
+.conversation-menu-content>*+*{margin-top:8px}
+.conversation-menu-content>.form-caption:empty{display:none}
+@media(min-width:850px){dialog[data-workspace=true][data-conversation=true]{inset:calc(var(--conversation-viewport-top,0px) + 16px) 0 auto;margin-inline:auto;width:min(760px,calc(100% - 32px));height:calc(var(--conversation-viewport-height,100dvh) - 32px);max-height:calc(var(--conversation-viewport-height,100dvh) - 32px);border:1px solid var(--edge);border-radius:18px}}
+
 .week-button[aria-expanded=true],.dock button[aria-expanded=true]{box-shadow:inset 0 0 0 1px var(--leaf)}
 .verse button{min-height:44px}
 .row[aria-current=true]{border-color:var(--current-border,#8bab75);color:var(--leaf)}

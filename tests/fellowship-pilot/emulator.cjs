@@ -84,10 +84,17 @@ function store(port) {
     currentDocument: { exists: false },
     updateTransforms: [{ fieldPath: 'joinedAt', setToServerValue: 'REQUEST_TIME' }],
   }];
-  return { request, seedPilot, read, send, commit, inviteWrite, redemptionWrites };
+  return { request, seed, seedPilot, read, send, commit, inviteWrite, redemptionWrites };
 }
 
-async function startEmulator() {
+async function startEmulator({ rulesFile = path.join(__dirname, 'firestore.rules') } = {}) {
+  // Supports the existing Firebase CLI emulator runner in Cloud Shell too.
+  // The REST project remains the hard-coded demo project; never accept a live host.
+  if (process.env.FIRESTORE_EMULATOR_HOST) {
+    const endpoint = /^127\.0\.0\.1:(\d{1,5})$/.exec(process.env.FIRESTORE_EMULATOR_HOST);
+    assert.ok(endpoint && +endpoint[1] > 0 && +endpoint[1] < 65536, 'Only a loopback Firestore emulator is allowed.');
+    return { db: store(+endpoint[1]), close() {} };
+  }
   const jar = process.env.FIRESTORE_EMULATOR_JAR;
   assert.ok(jar && existsSync(jar), 'Set FIRESTORE_EMULATOR_JAR to a local Firestore emulator JAR.');
   const reservation = createServer().listen(0, host);
@@ -97,7 +104,7 @@ async function startEmulator() {
 
   const emulator = spawn(process.env.JAVA_BIN || 'java', [
     '-Xmx256m', '-jar', path.resolve(jar), '--host', host, '--port', String(port),
-    '--project_id', project, '--single_project_mode', 'true', '--rules', path.join(__dirname, 'firestore.rules'),
+    '--project_id', project, '--single_project_mode', 'true', '--rules', path.resolve(rulesFile),
   ], { windowsHide: true });
   let output = '';
   emulator.stdout.on('data', chunk => { output = (output + chunk).slice(-16000); });

@@ -69,6 +69,12 @@ Choose **Miriam Ellis**, open **Invite a member**, and create a link. Copy the l
 
 With the emulator and Playwright configured, run `node tests/fellowship-pilot/check.cjs` for rules checks and `node tests/fellowship-pilot/browser.cjs` for the phone-sized and desktop flows.
 
+### Operational Fellowship-to-Scripture pilot
+
+The household extension adds a separate shared room and six owner-approved private pairings, using the same message/Scripture reader. The owner created the four-account household records, confirmed the real desktop message/Scripture-return journey, ran the household rules suite successfully in Cloud Shell and published the approved household rules. [Household setup, permission scope and activation record](HOUSEHOLD-PILOT.md).
+
+The isolated Firebase pilot includes group-visible names, Scripture sharing, page-memory drafts and explicit pending/saved/error states. Conversation entries now open a focused full-size excursion with a bottom composer, using the existing panel/history system. Use `Start-Fellowship-Pilot.cmd` for the local preview. The latest presentation received syntax and visible-layout checks; test suites were not rerun at the owner's request. Dorothy/Lisa's Google provider linkage and physical iPhone Safari remain unverified. [Implementation and validation boundaries](FELLOWSHIP-PILOT.md).
+
 ## Reference Library
 
 The Sources Library in Learning Hub now opens the supplied reference collection through shared readers: Strong's Hebrew and Greek plus the combined word index, four dictionaries, eight commentaries, nine Bible editions, three topical works, cross-references, and Daily Light. Browse or search entries, look up Strong's numbers and definitions, read passages, follow Scripture links, and return through the existing resource panels. KJV Word study uses the actual supplied phrase tags.
