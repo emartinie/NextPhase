@@ -6,7 +6,7 @@ const themes = {
   'olam-haba': 'Olam HaBa',
   diagnostic: 'Diagnostic preview',
 };
-const defaultTheme = 'nextphase';
+const defaultTheme = 'cosmic';
 const key = 'nextphase:theme';
 const root = document.documentElement;
 let saved = defaultTheme;

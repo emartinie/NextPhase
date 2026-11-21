@@ -319,7 +319,7 @@ const shareBtn = btn("🔗","Share Track",()=>{
 
   // --- Dock Button ---
 const dockBtn = document.createElement("button");
-dockBtn.textContent = "⫶";
+dockBtn.textContent = "›";
 dockBtn.title = "Park player at screen edge";
 dockBtn.setAttribute("aria-label", "Park Orbit player");
 Object.assign(dockBtn.style, {
@@ -330,7 +330,8 @@ Object.assign(dockBtn.style, {
       color:"#fff",
       backdropFilter:"blur(4px)",
       boxShadow:"0 1px 4px rgba(0,0,0,0.25)",
-      fontSize:"12px",
+      fontSize:"22px",
+      lineHeight:"1",
       cursor:"pointer",
       pointerEvents:"auto",
       userSelect:"none",
@@ -338,6 +339,16 @@ Object.assign(dockBtn.style, {
       zIndex:5
 });
 player.appendChild(dockBtn);
+
+function updateDockArrow() {
+  const viewport = window.visualViewport;
+  const rect = player.getBoundingClientRect();
+  const left = rect.left + rect.width/2 < (viewport?.offsetLeft || 0) + (viewport?.width || innerWidth)/2;
+  dockBtn.textContent = left ? "‹" : "›";
+}
+dockBtn.addEventListener("pointerenter", updateDockArrow);
+dockBtn.addEventListener("focus", updateDockArrow);
+dockBtn.addEventListener("touchstart", updateDockArrow, {passive:true});
 
 const parkingReady = import("./edge-docking.js").then(({ createEdgeParking, activityBounds }) => {
   if (!player.isConnected) return null;
@@ -352,6 +363,7 @@ const parkingReady = import("./edge-docking.js").then(({ createEdgeParking, acti
       if (Math.abs(x-rect.left)>8 || Math.abs(y-rect.top)>8) {
         Object.assign(player.style,{left:x+"px",top:y+"px",right:"auto",bottom:"auto"});
       }
+      updateDockArrow();
       player.dispatchEvent(new Event("orbit:restored"));
     },
   });
@@ -408,6 +420,7 @@ dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.
   // --- Append to DOM ---
   player.appendChild(center);
   document.body.appendChild(player);
+  updateDockArrow();
 
   // --- Playlist / loading ---
   function normalize(list){ return (list||[]).map(i=>({ title:i.label||i.title||"Untitled", eng:i.eng||i.src||"", heb:i.heb||i.src||"", grk:i.grk||i.src||"" })); }
@@ -428,7 +441,7 @@ dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.
   let isDragging=false,startX,startY,origX,origY;
   function onPointerDown(e){ if(e.target.closest("button")) return; isDragging=true; const rect=player.getBoundingClientRect(); origX=rect.left; origY=rect.top; startX=e.type.startsWith("touch")?e.touches[0].clientX:e.clientX; startY=e.type.startsWith("touch")?e.touches[0].clientY:e.clientY; player.style.cursor="grabbing"; e.preventDefault(); }
   function onPointerMove(e){ if(!isDragging) return; const clientX=e.type.startsWith("touch")?e.touches[0].clientX:e.clientX; const clientY=e.type.startsWith("touch")?e.touches[0].clientY:e.clientY; player.style.left = origX+(clientX-startX)+"px"; player.style.top = origY+(clientY-startY)+"px"; player.style.right="auto"; player.style.bottom="auto"; }
-  function onPointerUp(){ if(!isDragging) return; isDragging=false; player.style.cursor="grab"; snapToEdge(); }
+  function onPointerUp(){ if(!isDragging) return; isDragging=false; player.style.cursor="grab"; snapToEdge(); updateDockArrow(); }
   function snapToEdge(){ const rect=player.getBoundingClientRect(); const vw=window.innerWidth,vh=window.innerHeight,margin=12; const distances=[rect.left,vw-rect.right,rect.top,vh-rect.bottom]; const min=Math.min(...distances); if(min===distances[1]){ player.style.left="auto"; player.style.right=margin+"px"; } else if(min===distances[0]){ player.style.left=margin+"px"; player.style.right="auto"; } else if(min===distances[2]){ player.style.top=margin+"px"; player.style.bottom="auto"; } else{ player.style.top="auto"; player.style.bottom=margin+"px"; } }
 
   player.addEventListener("mousedown",onPointerDown);

@@ -98,6 +98,7 @@ async function main() {
       assert.equal(await page.locator('#floatingPlayer').isVisible(),false);
       assert.equal(await page.locator('#floatingPlayer').getAttribute('data-mode'),'minimized');
       assert.equal(await restore.getAttribute('data-side'),'right');
+      assert.equal(await page.getByRole('button',{name:'Park Orbit player',includeHidden:true,exact:true}).textContent(),'›');
       const mediaState=await page.evaluate(()=>{
         const {player,audio,video}=window.__originalOrbit;
         return {same:player===document.getElementById('floatingPlayer')&&audio===player.querySelector('audio')&&video===document.getElementById('orbitVideo'),audioPlaying:!audio.paused,videoFace:!video.classList.contains('hidden'),videoPlaying:!video.paused,time:audio.currentTime};
@@ -133,6 +134,7 @@ async function main() {
       await clickControl('Park player at screen edge');
       await restore.waitFor();
       assert.equal(await restore.getAttribute('data-side'),'left');
+      assert.equal(await page.getByRole('button',{name:'Park Orbit player',includeHidden:true,exact:true}).textContent(),'‹');
       await restore.click();
       await ringCentered();
       await page.evaluate(()=>{const audio=document.querySelector('#floatingPlayer audio');audio.pause();audio.removeAttribute('src');audio.load();});
