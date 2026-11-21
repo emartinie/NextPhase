@@ -22,7 +22,7 @@ function signInError(error) {
   }
 }
 
-export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath, setInviteUser, passage, readPassage, surface, onConversationChange, onOpenConversation, onIdentityChange }) {
+export function mountFirebaseFellowship(target, { node, text, button, year, week, configPath, setInviteUser, passage, readPassage, surface, onConversationChange, onOpenConversation, onIdentityChange, getStudyContext }) {
   const controller = new AbortController();
   const status = text('Connecting to HomeGroups Fellowship…', 'form-caption');
   status.setAttribute('role', 'status');
@@ -110,7 +110,9 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
           stopDiscussion?.();
           const stop = mountFirebaseDiscussion(host, {
             node, text, button, firestore, db, uid: user.uid,
-            displayName: user.displayName, year, week, passage, readPassage, surface,
+            displayName: user.displayName, ...(getStudyContext?.() || { year, week }),
+            ...(selection.kind === 'weekly' ? { year: selection.year, week: selection.week } : {}),
+            passage, readPassage, surface,
             ...(selection.kind === 'household' ? { groupId: 'household-pilot', threadId: 'household', title: 'Household conversation' } : {}),
             ...(selection.kind === 'private' ? { groupId: 'household-pilot', privateChatId: selection.id, title: selection.title } : {}),
             ...options,
@@ -120,6 +122,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
         };
         selectRoom = selection => {
           if (controller.signal.aborted || currentView !== view) return;
+          if (selection.kind === 'weekly') selection = { ...selection, ...(getStudyContext?.() || { year, week }) };
           roomSelections.set(user.uid, selection);
           if (focused) { account.open = false; onOpenConversation(selection); return; }
           discussion.replaceChildren();

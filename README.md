@@ -73,7 +73,7 @@ With the emulator and Playwright configured, run `node tests/fellowship-pilot/ch
 
 The household extension adds a separate shared room and six owner-approved private pairings, using the same message/Scripture reader. The owner created the four-account household records, confirmed the real desktop message/Scripture-return journey, ran the household rules suite successfully in Cloud Shell and published the approved household rules. [Household setup, permission scope and activation record](HOUSEHOLD-PILOT.md).
 
-The isolated Firebase pilot includes group-visible names, Scripture sharing, page-memory drafts and explicit pending/saved/error states. Conversation entries now open a focused full-size excursion with a bottom composer, using the existing panel/history system. Use `Start-Fellowship-Pilot.cmd` for the local preview. The latest presentation received syntax and visible-layout checks; test suites were not rerun at the owner's request. Dorothy/Lisa's Google provider linkage and physical iPhone Safari remain unverified. [Implementation and validation boundaries](FELLOWSHIP-PILOT.md).
+The isolated Firebase pilot includes group-visible names, Scripture sharing, page-memory drafts and explicit pending/saved/error states. The current experiment opens one persistent modeless conversation window above the workspace, with minimize/expand/reopen and contextual preparation of public Scripture references. Use `Start-Fellowship-Pilot.cmd` for the local preview. [Interaction experiment and focused validation](MODELESS-CONVERSATION.md). Dorothy/Lisa's Google provider linkage and physical iPhone Safari remain unverified. [Earlier implementation and validation boundaries](FELLOWSHIP-PILOT.md).
 
 ## Reference Library
 

@@ -314,3 +314,35 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .reference-citation:hover { color: var(--ink); }
 .reference-citation:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
 .reference-unresolved { display: inline; font-size: .9em; color: var(--muted); }
+
+/* The active conversation coexists with the workspace and its public readers. */
+.conversation-window{--window-height:min(460px,calc((var(--activity-height,100dvh) - 110px) * .62));position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right));top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 68px);width:min(410px,calc(100% - 20px));height:var(--window-height);display:flex;flex-direction:column;min-height:0;overflow:visible;border:1px solid var(--edge);border-radius:18px;background:var(--card);box-shadow:0 10px 42px var(--dialog-shadow,#000b)}
+.conversation-window-header{display:flex;align-items:center;gap:3px;min-height:53px;padding:5px 6px 5px 14px;border-bottom:1px solid var(--edge);flex:0 0 auto}
+.conversation-window-header h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:680 15px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+.conversation-window-header>.quiet{min-width:40px;min-height:44px;padding:0;border:0;font-size:23px}
+.conversation-window-header .conversation-menu summary{min-width:40px;font-size:23px}
+.conversation-window-content.conversation-view{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;border-radius:0 0 18px 18px}
+.conversation-window .conversation-stream{padding:10px 14px}
+.conversation-window .conversation-composer{padding:8px 10px;gap:6px}
+.conversation-window .conversation-menu-content{right:0;max-height:calc(var(--window-height) - 65px)}
+.conversation-tray{display:none}
+.conversation-window[data-mode=minimized]{width:auto;max-width:calc(100% - 20px);height:48px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 120px);border-radius:24px}
+.conversation-window[data-mode=minimized]>.conversation-window-header,.conversation-window[data-mode=minimized]>.conversation-window-content{display:none}
+.conversation-window[data-mode=minimized]>.conversation-tray{display:flex;align-items:center;gap:0;padding:2px 4px;min-width:0}
+.conversation-tray .quiet{border:0;min-height:44px;border-radius:22px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100vw - 76px)}
+.conversation-tray .quiet+button{min-width:44px;font-size:24px;padding:0}
+.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 90px);width:min(640px,calc(100% - 20px));top:calc(var(--activity-top,0px) + 12px)}
+.conversation-attachment-panel{position:absolute;bottom:calc(100% + 8px);inset-inline:10px;z-index:3;max-height:45dvh;overflow:auto;padding:12px;border:1px solid var(--edge);border-radius:12px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
+.conversation-attachment-panel>label{font-size:12px}
+.conversation-context-actions{display:grid;gap:6px;margin-bottom:8px}
+.conversation-context-actions:empty{display:none}
+.conversation-context-actions .quiet{font-size:13px;text-align:left;overflow-wrap:anywhere}
+.conversation-window .conversation-attachment-panel input{margin-top:6px}
+.conversation-reference-preview{grid-column:1/-1;display:flex;align-items:center;gap:4px;min-width:0}
+.conversation-reference-preview .quiet{min-height:32px;font-size:12px;padding:5px 9px;color:var(--leaf);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conversation-reference-preview .quiet:first-child{max-width:calc(100% - 40px)}
+.conversation-reference-preview .quiet:last-child{font-size:20px;min-width:36px;padding:0;border:0}
+dialog[data-activity=true]{z-index:4}
+.top-actions{display:flex;align-items:center;gap:5px}
+#workspace-share{font-size:12px;padding-inline:8px}
+@media(min-width:850px){.conversation-window{--window-height:min(570px,calc(var(--activity-height,100dvh) - 120px));right:20px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 24px)}.conversation-window[data-mode=minimized]{top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 76px)}.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 48px);top:calc(var(--activity-top,0px) + 24px)}}

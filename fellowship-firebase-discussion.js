@@ -5,6 +5,7 @@ export function mountFirebaseDiscussion(target, {
   passage, readPassage, surface = target, groupId = 'pilot-group',
   threadId, privateChatId, title = 'Wednesday HomeGroup',
   compact = false, detailsTarget,
+  getShareContext, shareExternally, onReadPassage,
 }) {
   const scope = privateChatId ? groupId + '/private/' + privateChatId : threadId ? groupId + '/thread/' + threadId : groupId;
   const state = discussionSession(uid, scope, threadId || privateChatId ? 0 : year, threadId || privateChatId ? 0 : week);
@@ -41,7 +42,7 @@ export function mountFirebaseDiscussion(target, {
   reference.value = state.reference;
   refLabel.append(reference);
   const attachment = node('details');
-  attachment.open = Boolean(reference.value);
+  attachment.open = Boolean(reference.value) && !getShareContext;
   const attachControl = node('summary');
   attachControl.append(node('span', 'Share Scripture', compact ? 'visually-hidden' : ''));
   if (compact) {
@@ -50,9 +51,23 @@ export function mountFirebaseDiscussion(target, {
     plus.setAttribute('aria-hidden', 'true');
     attachControl.prepend(plus);
     attachControl.title = 'Share Scripture';
-    attachment.addEventListener('toggle', () => { if (attachment.open) reference.focus({ preventScroll: true }); });
+    attachment.addEventListener('toggle', () => { if (attachment.open && !getShareContext) reference.focus({ preventScroll: true }); });
   }
   attachment.append(attachControl, refLabel);
+  const contextual = node('div', '', 'conversation-context-actions');
+  if (getShareContext) {
+    const chooser = node('div', '', 'conversation-attachment-panel');
+    chooser.append(contextual, refLabel);
+    attachment.append(chooser);
+    attachment.addEventListener('toggle', () => {
+      if (!attachment.open) return;
+      contextual.replaceChildren();
+      const item = getShareContext();
+      if (!item) return;
+      contextual.append(button(`Attach ${item.label}`, () => stageReference(item.ref), 'quiet'));
+      if (shareExternally) contextual.append(button('Share passage link…', () => shareExternally(item, postStatus), 'quiet'));
+    });
+  }
   const submit = node('button', compact ? '↑' : 'Post reply', 'button primary');
   submit.setAttribute('aria-label', 'Send reply');
   submit.type = 'submit';
@@ -68,7 +83,17 @@ export function mountFirebaseDiscussion(target, {
     watchCommunityAccess();
   }, 'quiet');
   retry.hidden = true;
-  form.append(...(compact ? [attachment, label, submit, postStatus] : [label, attachment, submit, postStatus]));
+  const referencePreview = node('div', '', 'conversation-reference-preview');
+  const editReference = button('', () => { attachment.open = true; reference.focus({ preventScroll: true }); }, 'quiet');
+  const clearReference = button('×', () => { reference.value = ''; attachment.open = false; remember(); updateReferencePreview(); }, 'quiet');
+  clearReference.setAttribute('aria-label', 'Remove attached Scripture');
+  referencePreview.append(editReference, clearReference);
+  function updateReferencePreview() {
+    referencePreview.hidden = !reference.value.trim();
+    editReference.textContent = reference.value.trim() + ' · KJV';
+  }
+  updateReferencePreview();
+  form.append(...(compact ? [referencePreview, attachment, label, submit, postStatus] : [label, attachment, submit, postStatus]));
   if (compact) {
     (detailsTarget || stream).append(profileStatus, people);
     stream.append(status, retry, feed);
@@ -102,16 +127,17 @@ export function mountFirebaseDiscussion(target, {
   function remember() {
     state.body = field.value;
     state.reference = reference.value;
-    if (surface.isConnected) state.top = surface.scrollTop;
+    if (hasLayout()) state.top = surface.scrollTop;
   }
+  function hasLayout() { return surface.isConnected && surface.getClientRects().length > 0; }
   function fitComposer() {
     if (!compact || !field.isConnected) return;
     field.style.height = 'auto';
     field.style.height = Math.min(112, Math.max(44, field.scrollHeight)) + 'px';
   }
   field.addEventListener('input', () => { remember(); fitComposer(); }, { signal: events.signal });
-  reference.addEventListener('input', remember, { signal: events.signal });
-  surface.addEventListener('scroll', () => { if (restored && surface.isConnected) state.top = surface.scrollTop; }, { signal: events.signal });
+  reference.addEventListener('input', () => { remember(); updateReferencePreview(); }, { signal: events.signal });
+  surface.addEventListener('scroll', () => { if (restored && hasLayout()) state.top = surface.scrollTop; }, { signal: events.signal });
 
   function availability() {
     submit.disabled = !member || !openThread || !connected || sending;
@@ -148,7 +174,7 @@ export function mountFirebaseDiscussion(target, {
   }
 
   function preservePosition(change, restore = false) {
-    if (!surface.isConnected) { change(); return; }
+    if (!hasLayout()) { change(); return; }
     const following = compact && restored && surface.scrollHeight - surface.scrollTop - surface.clientHeight < 72;
     const bounds = surface.getBoundingClientRect();
     const anchor = [...feed.children].find(row => {
@@ -204,6 +230,7 @@ export function mountFirebaseDiscussion(target, {
       if (messageBody(field.value, reference.value) === pending.body) {
         field.value = reference.value = '';
         attachment.open = false;
+        updateReferencePreview();
       }
       postStatus.textContent = 'Reply sent · saved to the community.';
       postStatus.dataset.saved = 'true';
@@ -259,6 +286,7 @@ export function mountFirebaseDiscussion(target, {
       sending = false;
       field.value = state.body;
       reference.value = state.reference;
+      updateReferencePreview();
       postStatus.textContent = state.lastResult;
       postStatus.dataset.saved = String(state.lastResult === 'Reply sent · saved to the community.');
       fitComposer();
@@ -303,7 +331,7 @@ export function mountFirebaseDiscussion(target, {
             row.dataset.own = String(authorId === uid);
             const { content, references } = messageParts(body);
             row.append(node('strong', authorLabel(authorId)), text(content, 'source-copy'));
-            for (const ref of references) row.append(button(ref, () => { remember(); passage(ref); }, 'quiet'));
+            for (const ref of references) row.append(button(ref, () => { remember(); onReadPassage?.(ref); passage(ref); }, 'quiet'));
             if (compact) {
               const saved = node('span', '✓', 'conversation-saved');
               saved.setAttribute('aria-label', 'Saved to conversation');
@@ -404,8 +432,19 @@ export function mountFirebaseDiscussion(target, {
     for (const stop of stops.splice(0)) stop();
   };
   close.remember = remember;
+  function stageReference(ref) {
+    if (!active || !member || !openThread || typeof ref !== 'string' || !ref.trim()) return false;
+    reference.value = ref.trim().slice(0, 180);
+    attachment.open = false;
+    updateReferencePreview();
+    remember();
+    postStatus.dataset.saved = 'false';
+    postStatus.textContent = 'Ready to share · not sent';
+    return true;
+  }
+  close.stageReference = stageReference;
   close.resume = () => {
-    if (!active || !surface.isConnected) return;
+    if (!active || !hasLayout()) return;
     surface.scrollTop = state.top;
     if (!restored && rows.size) { restored = true; surface.scrollTop = returning ? initialTop : surface.scrollHeight; state.top = surface.scrollTop; }
     fitComposer();
