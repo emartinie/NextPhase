@@ -18,6 +18,7 @@ async function main() {
       const page=await context.newPage(),errors=[];page.setDefaultTimeout(12000);page.on('pageerror',error=>errors.push(error.message));
       await page.route('**/*',route=>new URL(route.request().url()).origin===new URL(url).origin?route.continue():route.abort());
       await page.goto(url+'?week=52');
+      assert.equal(await page.locator('meta[name=viewport]').getAttribute('content'),'width=device-width, initial-scale=1','Let the browser inset its own safe area rather than opting into edge-to-edge cover');
       await page.locator('#floatingPlayer[data-audio-ready=true]').waitFor();await page.locator('#study-title').waitFor();
       async function layout(height,width=390,top=0,smallHeight) {
         await page.evaluate(({height,width,top,smallHeight})=>{
@@ -136,7 +137,11 @@ async function main() {
       await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async value=>{window.__layoutCopy=value;}},configurable:true}));
       await page.getByRole('button',{name:'Copy layout details',exact:true}).click();
       const report=JSON.parse(await page.evaluate(()=>window.__layoutCopy));
-      assert.deepEqual(Object.keys(report),['build','screen','visual','app','header','dock','week','appPosition','brandFont']);
+      assert.deepEqual(Object.keys(report),['build','device','viewportPolicy','safeArea','screen','visual','app','header','dock','week','appPosition','brandFont']);
+      assert.equal(report.viewportPolicy,'width=device-width, initial-scale=1');
+      assert.equal(report.device.pixelRatio,3);
+      assert.equal(report.device.standalone,false);
+      assert.deepEqual(report.safeArea,{top:0,right:0,bottom:0,left:0});
       assert.equal(report.appPosition,'relative');
       assert.equal(report.build,'local');
       assert.deepEqual(errors,[]);

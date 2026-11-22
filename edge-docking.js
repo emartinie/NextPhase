@@ -68,8 +68,18 @@ export function layoutDetails() {
     return Object.fromEntries(['x','y','width','height','bottom','right'].map(key=>[key,Math.round(box[key]*100)/100]));
   };
   const viewport = window.visualViewport;
+  // Read native insets only on an explicit diagnostic request; nothing is transmitted.
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+  document.body.append(probe);
+  const padding = getComputedStyle(probe);
+  const safeArea = Object.fromEntries(['Top','Right','Bottom','Left'].map(side=>[side.toLowerCase(),parseFloat(padding['padding'+side]) || 0]));
+  probe.remove();
   return {
     build:document.querySelector('meta[name="homegroups-build"]')?.content || 'local',
+    device:{width:window.screen.width,height:window.screen.height,pixelRatio:devicePixelRatio,standalone:matchMedia('(display-mode:standalone)').matches},
+    viewportPolicy:document.querySelector('meta[name="viewport"]')?.content || '',
+    safeArea,
     screen:{width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,scrollX,scrollY},
     visual:viewport ? Object.fromEntries(['width','height','offsetTop','offsetLeft','scale'].map(key=>[key,viewport[key]])) : null,
     app:rect('.app'),header:rect('.top'),dock:rect('.dock'),week:rect('#week-button'),

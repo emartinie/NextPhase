@@ -2,6 +2,18 @@
 
 ## Visible workspace and Safari chrome — 21 November 2026
 
+### Native browser insetting candidate after phone measurements
+
+Physical review of `07f7cab4` still showed the header beneath the status bar and navigation beneath Safari's toolbar. The owner's iPhone SE reports iOS 26.5.2 and Safari text size **100%**. Its supplied report shows a 375-by-481 visual viewport, zero offsets, scale 1, a 63px header at y=0 and a 60px dock ending at y=481. These apparently valid DOM bounds do not establish that the controls are physically unobstructed. The preceding synthetic checks therefore did not reproduce the remaining presentation failure.
+
+The new candidate removes `viewport-fit=cover` from the viewport meta tag and relies on Safari's default safe-area insetting. This is one reversible viewport policy change, not a guessed status-bar or toolbar height, a navigation redesign or a claim of an identified WebKit bug. Existing grid, viewport/keyboard sizing, pinch zoom, shared activity geometry, themes, readers, conversation state and audio remain unchanged. [WebKit's safe-area explanation](https://webkit.org/blog/7929/designing-websites-for-iphone-x/) documents that the default policy automatically insets content, while `cover` opts out and transfers that responsibility to the page.
+
+The opt-in local layout report additionally records the viewport policy, screen dimensions/pixel ratio, standalone display mode and measured native safe-area insets. This distinguishes device dimensions from the report's historical `screen` object (which contains window dimensions). It contains no account, message, draft, URL, location or storage data and sends nothing automatically. Normal navigation has no new diagnostic interface.
+
+The 22 November focused retry passed the viewport suite: header recovery, toolbar/small-viewport caps, keyboard offsets, narrow/enlarged controls, dock/launcher/handle reachability, conversation/reader bounds, retained workspace/reader/audio state, pinch zoom and the expanded opt-in report. It uses a 60-second timeout through an optional test-only environment setting on this resource-constrained machine; the default remains 12 seconds and assertions were not relaxed. The earlier startup timeout and tool reset remain inconclusive runs, not successful tests. The passing log is ignored under `.pilot-tmp/safari-native-inset-retry-20261122.log`.
+
+Physical iPhone review remains the acceptance gate: refreshed portrait view with Safari controls visible; scroll within the workspace; toolbar collapse/expansion; keyboard open/dismissed in a conversation; landscape; both header controls and bottom navigation reachable. Desktop automation cannot verify native browser-chrome insetting. Do not call this candidate a confirmed fix before that review. No production Hosting, live Firebase, security rules, Authentication or real records are changed.
+
 ### Header recovery after physical review
 
 The owner refreshed the hosted `iphone-pilot` build: bottom navigation appeared, but the header disappeared. This supersedes the earlier assumption that the fixed whole-app frame was sufficient. A focused negative-offset fixture reproduced header loss in the previous implementation. It does not establish that the phone supplied that exact offset; device measurements remain necessary if the revision fails physically.
