@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  const logoSrc = "HGHousesnew.png";
+  const logoSrc = "HGHouses-transparent.png";
   const videoSrc = "bg-motion.mp4";
 
   function waitForPlayer() {
@@ -26,6 +26,7 @@
 
     const logoEl = document.createElement("img");
     logoEl.id = "orbitLogo";
+    logoEl.className = "orbit-face";
     logoEl.src = logoSrc;
     Object.assign(logoEl.style, {
       position: "absolute",
@@ -35,8 +36,7 @@
       width: "150px",
       height: "140px",
       objectFit: "contain",
-      pointerEvents: "none",
-      zIndex: "10000"
+      pointerEvents: "none"
     });
     floatingPlayer.appendChild(logoEl);
 
@@ -47,7 +47,7 @@
     videoEl.loop = true;
     videoEl.muted = true;
     videoEl.playsInline = true;
-    videoEl.classList.add("hidden");
+    videoEl.className = "orbit-face hidden";
     Object.assign(videoEl.style, {
       position: "absolute",
       borderRadius: "50%",
@@ -57,8 +57,7 @@
       transform: "translate(-50%, -50%)",
       width: "190px",
       height: "190px",
-      pointerEvents: "none",
-      zIndex: "10000"
+      pointerEvents: "none"
     });
     floatingPlayer.appendChild(videoEl);
 
@@ -66,15 +65,14 @@
     sonographEl.id = "orbitSonograph";
     sonographEl.width = 200;
     sonographEl.height = 200;
-    sonographEl.classList.add("hidden");
+    sonographEl.className = "orbit-face hidden";
     Object.assign(sonographEl.style, {
       position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
       borderRadius: "50%",
-      pointerEvents: "none",
-      zIndex: "9999"
+      pointerEvents: "none"
     });
     floatingPlayer.appendChild(sonographEl);
 
@@ -93,7 +91,7 @@
     }
 
     function drawSonograph() {
-      if (face !== "sonograph") return;
+      if (face !== "sonograph" || floatingPlayer.hidden) return;
       const ctx = sonographEl.getContext("2d");
       ctx.clearRect(0, 0, sonographEl.width, sonographEl.height);
       const bars = 30;
@@ -108,6 +106,7 @@
 
     window.toggleOrbitVideo = () => setFace(face === "video" ? "logo" : "video");
     window.toggleOrbitSonograph = () => setFace(face === "sonograph" ? "logo" : "sonograph");
+    floatingPlayer.addEventListener("orbit:restored", () => { if (face === "sonograph") drawSonograph(); });
   }
 
   if (document.readyState === "loading") {
@@ -116,3 +115,4 @@
     waitForPlayer();
   }
 })();
+

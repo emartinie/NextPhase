@@ -1,12 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="cosmic">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111712">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06070b">
+<meta name="homegroups-build" content="local">
 <title>NextPhase · HomeGroups</title>
 <link rel="stylesheet" href="./styles.css">
 <link rel="stylesheet" href="./theme.css">
+<link rel="stylesheet" href="./orbit-player.css">
 <script type="module" src="./app.js"></script>
 </head>
 <body>
@@ -14,6 +16,7 @@
   <header class="top"><div class="top-inner">
     <a class="brand" href="./" aria-label="HomeGroups, current study"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7c-3-3-7-3-9-2v13c3-1 6-1 9 2 3-3 6-3 9-2V5c-2-1-6-1-9 2v13"/></svg></span><span>HomeGroups<small>NextPhase</small></span></a>
     <div class="top-actions">
+      <button id="workspace-share" class="quiet" type="button" aria-label="Share current passage" hidden>Share</button>
       <button id="theme-button" class="quiet appearance-button" type="button" data-open="themeManager" aria-label="Theme Manager" aria-haspopup="dialog" title="Theme Manager">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.1a1.7 1.7 0 0 0 1.1-3c-.7-.6-.3-1.8.6-1.8H17a4 4 0 0 0 4-4A9 9 0 0 0 12 3Z"/><path d="M8 9h.01M12 7h.01M16 9h.01M7 13h.01" stroke-width="2.5" stroke-linecap="round"/></svg>
       </button>
@@ -56,13 +59,12 @@
 </div>
 <dialog id="dialog" aria-labelledby="panel-title">
   <div class="panel">
-    <header class="panel-header"><button type="button" class="quiet" id="back" hidden>Back</button><div><p id="panel-kicker"></p><h2 id="panel-title" tabindex="-1"></h2></div><button class="quiet" id="expand" type="button" aria-pressed="false">Expand</button><button type="button" class="quiet" id="learning-discuss" aria-label="Discuss in Learning Fellowship" hidden>Discuss</button><button type="button" class="quiet" id="close">Close</button></header>
+    <header class="panel-header"><button type="button" class="quiet" id="back" hidden>Back</button><div><p id="panel-kicker"></p><h2 id="panel-title" tabindex="-1"></h2></div><div id="conversation-actions" hidden></div><button class="quiet" id="share-resource" type="button" aria-label="Share current passage" hidden>Share</button><button class="quiet" id="expand" type="button" aria-pressed="false">Expand</button><button type="button" class="quiet" id="learning-discuss" aria-label="Discuss in Learning Fellowship" hidden>Discuss</button><button type="button" class="quiet" id="close">Close</button></header>
     <div id="panel-body" class="panel-body"></div>
   </div>
 </dialog>
-    <script src="SAVEorbitFloatingPlayer.js"></script>
-    <script src="bullseyeMedia.js"></script>
-
+<script src="./SAVEorbitFloatingPlayer.js"></script>
+<script src="./bullseyeMedia.js"></script>
 </body>
 </html>
 

@@ -21,6 +21,9 @@ import { createReferenceLibraryViews } from './reference-library.js';
 import { createAncientViews } from './ancient-library.js';
 import { calendarCards, calendarFields, calendarRoute, createCalendarViews } from './calendar.js';
 import { bindWorkspaceSwipe } from './workspace-swipe.js';
+import { createConversationWindow } from './conversation-window.js';
+import { audioSession } from './audio-session.js';
+import { initWorkspaceViewport, workspaceRect } from './edge-docking.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -35,10 +38,12 @@ const hostedFellowshipPreview = location.protocol === 'https:'
   && /^homegroups-fellowship--iphone-pilot-[a-z0-9]+\.web\.app$/.test(location.hostname);
 const pilotMode = localPreview ? requestedPilot
   : hostedFellowshipPreview && requestedPilot === 'firebase' ? 'firebase' : null;
-const fellowshipPilot = ['fellowship', 'firebase'].includes(pilotMode);
+const firebaseCommunication = pilotMode === 'firebase' || hostedFellowshipPreview;
+const fellowshipPilot = firebaseCommunication || pilotMode === 'fellowship';
 let stopFellowshipPilot;
 let fellowshipHome;
 let fellowshipInviteUser;
+let firebaseMountPending = false;
 const cycleWeek = currentWeek(now);
 const today = now.getDay() + 1;
 const liveYear = now.getFullYear();
@@ -109,6 +114,16 @@ function disclosure(label, ...items) {
   details.append(node('summary', label), body);
   return details;
 }
+const conversationActivity = createConversationWindow({
+  node, text, button,
+  mountConversation: (...args) => stopFellowshipPilot?.mountConversation?.(...args),
+  getShareContext: currentShareContext,
+  shareExternally,
+  onChange() {
+    dialog.dataset.activity = String(firebaseCommunication || conversationActivity.available);
+    syncContextSharing();
+  },
+});
 function renderIntro(id, kicker, title, subtitle, theme = '') {
   const intro = node('header', '', 'intro');
   const heading = node('h1', title);
@@ -168,6 +183,8 @@ function readRoute() {
 }
 function changeRoute(selected, nextFace) {
   if (selected === week && nextFace === face) return;
+  if (frames.length) { closePanels(() => changeRoute(selected, nextFace)); return; }
+  if (!firebaseCommunication) conversationActivity.minimize();
   const url = new URL(location.href);
   url.searchParams.delete('study');
   if (selected === cycleWeek) url.searchParams.delete('week');
@@ -187,6 +204,8 @@ const workspaceFace = (id = workspace) => ({ study: face, learning: learningFace
 const currentSurface = () => $(workspaceSettings[workspace][workspaceFace() === 'study' ? 'front' : 'back']);
 
 function selectWorkspace(next) {
+  if (!firebaseCommunication) conversationActivity.minimize();
+  if (workspaceOrder.includes(next) && next !== workspace && frames.length) { closePanels(() => selectWorkspace(next)); return; }
   if (!workspaceOrder.includes(next) || next === workspace || !active?.content || dialog.open) return;
   const url = new URL(location.href);
   if (next !== 'study') url.searchParams.set('workspace', next);
@@ -261,6 +280,7 @@ async function applyRoute() {
   showFace(target.face);
   showWorkspace(target.workspace, target.preparednessFace, target.learningFace);
   showLearningDiscussion(target.learningTopic);
+  syncContextSharing();
   if (week === target.week && active?.content) return;
   const sequence = ++renderSequence;
   if (active?.content) {
@@ -349,7 +369,7 @@ function renderStudy() {
   const slug = nameKey(data.portion_transliteration);
   stack.append(disclosure('Listen', row('Scripture audio', 'Source recordings grouped by section', () => open('listen')),
     ORIENTATIONS.includes(slug)
-      ? row('Weekly orientation', 'HomeGroups audio · plays in the dock', () => playAudio('./corpus/assets/' + slug + '.mp3', 'Weekly orientation · ' + data.portion_transliteration))
+      ? row('Weekly orientation', 'HomeGroups audio', () => playAudio('./corpus/assets/' + slug + '.mp3', 'Weekly orientation · ' + data.portion_transliteration))
       : text('The source has no bundled weekly orientation for this portion.')));
   [...stack.children].forEach((item, index) => {
     item.dataset.section = String(index);
@@ -464,6 +484,9 @@ async function openLinkedStudyCard() {
   } else if (card === 'intertext-quotes') {
     type = 'intertext';
     data = { from: searchParams.get('from') };
+  } else if (card === 'reader') {
+    type = 'reader';
+    data = { ref: searchParams.get('ref') || 'John 1' };
   } else if (card === 'scripture' || card === 'interlinear') {
     type = 'translation';
     data = { ref: searchParams.get('ref') };
@@ -526,6 +549,8 @@ async function openLinkedStudyCard() {
 
 function open(type, data = {}, restoredFrame) {
   if (!active?.content || pendingClose) return;
+  if (firebaseCommunication && ['fellowshipConversations', 'fellowshipChat'].includes(type)) { conversationActivity.showList(); return; }
+  if (!firebaseCommunication) conversationActivity.minimize();
   if (type === 'learning') {
     const enter = () => { selectWorkspace('learning'); changeLearningFace('study'); };
     if (frames.length) closePanels(enter);
@@ -551,7 +576,11 @@ function open(type, data = {}, restoredFrame) {
   frames.push(frame);
   historyFrames.set(frame.id, frame);
   history.pushState({ panels: frames.map(({ id }) => id) }, '', excursionUrl(type, data));
-  if (!dialog.open) dialog.showModal();
+  if (!dialog.open) {
+    dialog.dataset.activity = String(firebaseCommunication || conversationActivity.available);
+    if (firebaseCommunication || conversationActivity.available) dialog.show();
+    else dialog.showModal();
+  }
   renderPanel(frame);
 }
 function saveFrame(frame) {
@@ -574,10 +603,11 @@ window.addEventListener('popstate', () => {
     && matchingRoute.workspace === workspace && matchingRoute.preparednessFace === preparednessFace && matchingRoute.learningFace === learningFace
     ? history.state?.panels ?? [] : [];
   if (frames.length) saveFrame(frames.at(-1));
+  for (const frame of frames) if (!ids.includes(frame.id)) frame.dispose?.();
   if (ids.length && ids.every((id) => historyFrames.has(id))) {
     if (!origin) origin = { opener: document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
     frames.splice(0, frames.length, ...ids.map((id) => historyFrames.get(id)));
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) { if (firebaseCommunication || conversationActivity.available) dialog.show(); else dialog.showModal(); }
     renderPanel(frames.at(-1));
   } else if (dialog.open) {
     frames.length = 0;
@@ -591,10 +621,14 @@ window.addEventListener('popstate', () => {
   if (after) after();
   else if (catalog) applyRoute();
   refreshPreparedness();
+  syncContextSharing();
 });
 dialog.addEventListener('cancel', (event) => {
   event.preventDefault();
   backPanel();
+});
+dialog.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !dialog.matches(':modal')) { event.preventDefault(); backPanel(); }
 });
 $('back').addEventListener('click', backPanel);
 $('close').addEventListener('click', () => closePanels());
@@ -607,7 +641,7 @@ $('expand').addEventListener('click', () => {
 function sizePanel(frame) {
   const full = studyCards[frame.type] === 'commandments' || Object.hasOwn(preparednessSections, frame.type) ||
     ['learningArticle', 'learningJourney', 'languageLab', 'visualTeachings', 'jesus', 'origins', 'assessments',
-      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle', 'dictionaryEntry', 'referenceCommentary'].includes(frame.type);
+      'article', 'researchBacklog', 'intertext', 'ancientRead', 'listenArticle', 'dictionaryEntry', 'referenceCommentary', 'fellowshipChat'].includes(frame.type);
   dialog.dataset.workspace = String(full);
   dialog.dataset.expanded = String(full || frame.expanded);
   $('expand').hidden = full;
@@ -642,6 +676,9 @@ const panelNames = {
   note: 'Personal notes', private: 'Private conversations', dm: 'Private conversation',
   conversationInvite: 'Invite to conversation',
   fellowshipActions: 'Fellowship actions', fellowshipInvitations: 'Invitations', conversationInvitation: 'Conversation invitation',
+  fellowshipConversations: 'Conversations', fellowshipCommunities: 'Communities',
+  fellowshipChat: 'Conversation',
+  shareContext: 'Share passage',
   archive: 'Discussion archives', alignment: 'Interlinear', attach: 'Attach a passage',
   law: 'Covenants & Commandments', covenant: 'Covenant', commandment: 'Commandment',
   nt: 'New Testament Notes', sefaria: 'Hebrew Library · Sefaria',
@@ -651,15 +688,25 @@ function activeFrame(frame) {
   return dialog.open && frames.at(-1) === frame;
 }
 function renderPanel(frame) {
-  $('panel-title').textContent = panelNames[frame.type];
+  const conversation = frame.type === 'fellowshipChat';
+  dialog.dataset.conversation = String(conversation);
+  syncConversationViewport();
+  $('conversation-actions').hidden = !conversation;
+  $('conversation-actions').replaceChildren(...(conversation && frame.menu ? [frame.menu] : []));
+  $('panel-title').textContent = conversation ? frame.data.title || 'Conversation' : panelNames[frame.type];
   $('panel-kicker').textContent = frame.type === 'themeManager' ? 'Appearance' : frame.type === 'dm' ? 'Local simulation' :
     frame.type === 'briefingDiscussion' ? 'Preparedness · Fellowship' :
     frame.type === 'prepPrayer' ? 'Community' : Object.hasOwn(preparednessSections, frame.type) ? 'Preparedness workspace' :
     Object.hasOwn(calendarCards, frame.type) ? 'Calendar' :
     Object.hasOwn(learningCards, frame.type) || frame.type === 'originsDetail' ? 'Learning resources' : weekLine();
-  $('back').hidden = frames.length < 2;
+  $('panel-kicker').hidden = conversation;
+  $('back').hidden = !conversation && frames.length < 2;
+  $('back').textContent = conversation ? '‹' : 'Back';
+  $('back').setAttribute('aria-label', conversation ? 'Back to Fellowship' : 'Back');
+  $('close').hidden = conversation;
   $('learning-discuss').hidden = !isLearningResource(frame.type);
   sizePanel(frame);
+  syncContextSharing();
   panel.replaceChildren(...(frame.content ?? []));
   if (!frame.content || frame.retry) {
     frame.retry = false;
@@ -681,6 +728,16 @@ function renderPanel(frame) {
   const focus = frame.focus?.isConnected ? frame.focus : $('panel-title');
   focus.focus({ preventScroll: true });
 }
+function syncConversationViewport() {
+  if (dialog.dataset.conversation !== 'true') return;
+  const viewport = workspaceRect();
+  dialog.style.setProperty('--conversation-viewport-height', `${viewport.height}px`);
+  dialog.style.setProperty('--conversation-viewport-top', `${viewport.top}px`);
+}
+window.visualViewport?.addEventListener('resize', syncConversationViewport);
+window.visualViewport?.addEventListener('scroll', syncConversationViewport);
+window.addEventListener('resize', syncConversationViewport);
+window.addEventListener('workspace:resize', syncConversationViewport);
 setInterval(() => frames.at(-1)?.refresh?.(), 60_000);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) frames.at(-1)?.refresh?.();
@@ -758,22 +815,28 @@ function importLegacy(html, options = {}) {
 function playAudio(url, label) {
   const source = url.startsWith('./corpus/assets/') ? url : webUrl(url);
   if (!source) return;
-  $('player').hidden = false;
-  $('playing').textContent = label;
-  $('audio-status').textContent = source.startsWith('./') ? 'HomeGroups recording' : 'External recording';
-  if (audio.getAttribute('src') !== source) audio.src = source;
-  audio.play().catch(() => {
-    if (!audio.error && audio.getAttribute('src') === source) $('audio-status').textContent = 'Use Play to start the recording.';
-  });
+  audioSession.playRecording(source, label);
 }
-audio.addEventListener('error', () => {
-  if (audio.hasAttribute('src')) $('audio-status').textContent = 'This recording is unavailable.';
-});
+let nativeAudioRequested = false;
+function updateAudioDock(state = audioSession.getState()) {
+  $('playing').textContent = state.title;
+  $('audio-status').textContent = state.message;
+  const orbitReady = document.getElementById('floatingPlayer')?.dataset.audioReady === 'true';
+  $('player').hidden = !state.source || (orbitReady && !nativeAudioRequested);
+}
+audioSession.subscribe(updateAudioDock);
+window.addEventListener('audio:controller-ready', () => updateAudioDock());
+function showAudioControls() {
+  nativeAudioRequested = true;
+  updateAudioDock();
+  const focus = () => { if (audio.hasAttribute('src')) audio.focus({preventScroll:true}); };
+  if (frames.length) closePanels(focus);
+  else focus();
+}
+window.addEventListener('audio:show-controls', showAudioControls);
 $('stop-audio').addEventListener('click', () => {
-  audio.pause();
-  audio.removeAttribute('src');
-  audio.load();
-  $('player').hidden = true;
+  nativeAudioRequested = false;
+  audioSession.stop();
 });
 
 function posts(key) {
@@ -835,47 +898,48 @@ function composer(host, key, addPost, isPrivate = false) {
 }
 
 function renderFellowship() {
-  stopFellowshipPilot?.();
-  fellowshipInviteUser = null;
+  if (!firebaseCommunication) { stopFellowshipPilot?.(); fellowshipInviteUser = null; }
   fellowshipHome?.close();
   const { row: data, year } = active;
   const selectedWeek = week;
   const archive = year !== liveYear;
   const inner = node('article', '', 'sheet');
-  inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
+  const focused = firebaseCommunication;
+  if (focused) {
+    const heading = node('h1', 'Fellowship');
+    heading.id = 'fellowship-title';
+    inner.append(heading);
+    inner.classList.add('fellowship-home-sheet');
+  } else inner.append(renderIntro('fellowship-title', archive ? `Discussion archive · ${year}` : '', 'Fellowship',
     `Week ${week} · ${data.portion_transliteration} · ${data.title_english}`));
   const section = node('section', '', 'thread-card fellowship-conversation');
   section.tabIndex = -1;
   section.setAttribute('aria-label', 'Weekly conversation');
   const discussionTitle = archive ? 'Discussion archive' : selectedWeek === cycleWeek ? 'This week’s discussion' : `Week ${selectedWeek} discussion`;
-  section.append(node('h2', discussionTitle));
+  const discussionHeading = node('h2', focused ? 'Your community' : discussionTitle);
+  section.append(discussionHeading);
   fellowshipHome = archive ? null : mountFellowshipHome(inner, {
     node, text, button, link, cluster,
     inviteConversation: (marker, snapshot) => open('conversationInvite', { marker, snapshot, week: selectedWeek }),
   });
   const links = cluster(
-    link('Conversations', 'https://homegroups.org/?card=fellowship-live&view=messages'),
-    link('Communities', 'https://homegroups.org/?card=fellowship-live&view=explore'),
+    button('Conversations', () => open('fellowshipConversations')),
+    button('Communities', () => open('fellowshipCommunities')),
+    ...(fellowshipPilot ? [button('Chat with…', () => stopFellowshipPilot?.showChatWith?.())] : []),
     button('Invitations', () => open('fellowshipInvitations')),
   );
   links.classList.add('fellowship-links');
   const mount = () => {
-    inner.append(section, links);
+    if (focused) {
+      inner.append(section);
+    } else inner.append(section, links);
     fellowship.replaceChildren(inner);
     if (face === 'fellowship' && workspace === 'study') void fellowshipHome?.load();
   };
   if (fellowshipPilot) {
     mount();
-    if (pilotMode === 'firebase') {
-      import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
-        if (section.isConnected) stopFellowshipPilot = mountFirebaseFellowship(section, {
-          node, text, button, year, week: selectedWeek,
-          configPath: hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
-          setInviteUser(user) { if (section.isConnected) fellowshipInviteUser = user; },
-        });
-      }).catch(() => {
-        if (section.isConnected) section.append(text('Could not open the Firebase sign-in preview.'));
-      });
+    if (firebaseCommunication) {
+      section.append(row('Wednesday HomeGroup', 'Weekly Scripture study', () => stopFellowshipPilot?.showWeekly?.()));
       return;
     }
     import('./fellowship-pilot.js').then(({ mountLocalFellowship }) => {
@@ -892,9 +956,10 @@ function renderFellowship() {
   if (archive) section.append(button(`Return to ${liveYear}`, () => selectYear(liveYear), 'quiet'));
   else {
     section.append(text('What stood out to you in the reading? Bring a question or share what you noticed.'));
-    section.append(link('Open weekly conversation', localPreview
+    if (localPreview || hostedFellowshipPreview) section.append(link('Open weekly conversation', localPreview
       ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${selectedWeek}`
-      : `https://homegroups.org/?card=fellowship-live&view=home&week=${selectedWeek}`));
+      : new URL(`?pilot=firebase&face=fellowship&week=${selectedWeek}`, location.href).href));
+    else section.append(text('Live community conversations are not enabled on this address yet.'));
   }
   const group = fixture(year, week, liveYear, cycleWeek, data.portion_transliteration, data.torah_reading);
   const key = threadKey();
@@ -917,6 +982,30 @@ function renderFellowship() {
   mount();
 }
 
+function ensureCommunication() {
+  if (!firebaseCommunication) {
+    if (!conversationActivity.listTarget.childElementCount) conversationActivity.listTarget.append(text('Signed-in conversations are available in the HomeGroups Fellowship preview.'));
+    return;
+  }
+  if (stopFellowshipPilot || firebaseMountPending) return;
+  firebaseMountPending = true;
+  import('./fellowship-firebase.js').then(({ mountFirebaseFellowship }) => {
+    stopFellowshipPilot = mountFirebaseFellowship(conversationActivity.listTarget, {
+      node, text, button, year:liveYear, week:cycleWeek, passage, readPassage,
+      getStudyContext: () => ({ year:active?.year ?? liveYear, week:week ?? cycleWeek }),
+      onOpenConversation:openFellowshipConversation,
+      onShowList:() => conversationActivity.showList(),
+      onIdentityChange() {
+        conversationActivity.reset();
+        if (frames.some(frame => frame.type === 'shareContext')) closePanels();
+      },
+      configPath:hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
+      setInviteUser(user) { fellowshipInviteUser = user; },
+    });
+  }).catch(() => conversationActivity.listTarget.append(text('Could not open communications. Reload to try again.')))
+    .finally(() => {firebaseMountPending=false;});
+}
+
 function selectYear(year) {
   active.year = year;
   renderFellowship();
@@ -924,6 +1013,102 @@ function selectYear(year) {
   if (face === 'fellowship') $('fellowship-title')?.setAttribute('tabindex', '-1');
   if (face === 'fellowship') $('fellowship-title')?.focus({ preventScroll: true });
 }
+
+function returnToWeeklyConversation() {
+  if (firebaseCommunication) { stopFellowshipPilot?.showWeekly?.(); return; }
+  closePanels(() => {
+    selectWorkspace('study');
+    changeRoute(week, 'fellowship');
+    stopFellowshipPilot?.showWeekly?.();
+    const conversation = fellowship.querySelector('.fellowship-conversation');
+    conversation?.scrollIntoView({ block: 'start' });
+    conversation?.focus({ preventScroll: true });
+  });
+}
+
+function returnToHouseholdChats(privateList = false) {
+  if (firebaseCommunication) { if (privateList) conversationActivity.showList(); else stopFellowshipPilot?.showHousehold?.(); return; }
+  closePanels(() => {
+    selectWorkspace('study');
+    changeRoute(week, 'fellowship');
+    if (privateList) stopFellowshipPilot?.showChatWith?.();
+    else stopFellowshipPilot?.showHousehold?.();
+  });
+}
+
+function openFellowshipConversation(selection) {
+  conversationActivity.open({
+    ...selection,
+    title: selection.kind === 'weekly' ? `Week ${selection.week ?? week} · ${active?.row?.portion_transliteration || 'Weekly study'}`
+      : selection.kind === 'household' ? 'Household' : selection.title || 'Private conversation',
+  });
+}
+
+function currentShareContext() {
+  const frame = frames.at(-1);
+  if (frame?.type === 'shareContext') return frame.data.item;
+  let ref = ['reader', 'verse'].includes(frame?.type) ? frame.selectedReference || frame.data.ref : null;
+  if (!frame && workspace === 'study' && face === 'study' && active?.content) ref = defaultRef();
+  if (!ref) return null;
+  const selection = window.getSelection();
+  if (frame?.type === 'reader' && selection?.rangeCount && !selection.isCollapsed && panel.contains(selection.anchorNode) && panel.contains(selection.focusNode)) {
+    const range = selection.getRangeAt(0);
+    const verses = [...panel.querySelectorAll('.verse[data-reference]')].filter(verse => range.intersectsNode(verse));
+    const first = verses[0]?.dataset.reference;
+    const last = verses.at(-1)?.dataset.reference;
+    if (first && last && first.split(':')[0] === last.split(':')[0]) {
+      ref = first === last ? first : first + '–' + last.split(':')[1];
+      frame.selectedReference = ref;
+    }
+  }
+  const url = new URL('./', location.href);
+  url.searchParams.set('card', 'reader');
+  url.searchParams.set('ref', ref);
+  return { kind: 'scripture', ref, label: ref + ' · KJV', url: url.href };
+}
+function syncContextSharing() {
+  const item = currentShareContext();
+  $('workspace-share').hidden = !item || Boolean(frames.length);
+  $('share-resource').hidden = !item || frames.at(-1)?.type === 'shareContext';
+  for (const control of [$('workspace-share'), $('share-resource')]) {
+    const target = conversationActivity?.active;
+    control.textContent = target && firebaseCommunication ? 'Add to chat' : 'Share';
+    control.setAttribute('aria-label', target && firebaseCommunication ? `Prepare passage for ${target.title}` : 'Share current passage');
+  }
+  conversationActivity?.refreshContext();
+}
+async function shareExternally(item, status) {
+  if (!item?.url) return;
+  try {
+    if (navigator.share) await navigator.share({ title: item.label, url: item.url });
+    else {
+      await navigator.clipboard.writeText(item.url);
+      if (status) status.textContent = 'Passage link copied.';
+    }
+  } catch (error) { if (status && error.name !== 'AbortError') status.textContent = 'Could not share this link. Try copying it instead.'; }
+}
+function openContextSharing() {
+  const item = currentShareContext();
+  if (item && firebaseCommunication) {
+    if (conversationActivity.active) { conversationActivity.prepare(item); return; }
+    let status = $('communication-share-status');
+    if (!status) {
+      status = node('p', '', 'form-caption');
+      status.id = 'communication-share-status';
+      status.setAttribute('role','status');
+      (frames.length ? panel : currentSurface()).append(status);
+    }
+    void shareExternally(item, status);
+    return;
+  }
+  if (item) open('shareContext', { item: { ...item } });
+}
+$('workspace-share').addEventListener('click', openContextSharing);
+$('share-resource').addEventListener('click', openContextSharing);
+document.addEventListener('selectionchange', () => { if (frames.at(-1)?.type === 'reader') conversationActivity.refreshContext(); });
+panel.addEventListener('pointerdown', event => {
+  if (frames.at(-1)?.type === 'reader' && event.target.closest('.verse-text')) delete frames.at(-1).selectedReference;
+});
 
 function isLearningResource(type) {
   return type !== 'learning' && (Object.hasOwn(learningCards, type) || ['people', 'person', 'teaching', 'debate'].includes(type));
@@ -1134,9 +1319,70 @@ const views = {
     if (!fellowshipPilot) target.append(row('Private conversations', 'Existing local Fellowship demo', () => open('private')));
   },
   fellowshipActions(target) {
+    target.append(row('Conversations', 'Weekly community conversation', () => open('fellowshipConversations')),
+      row('Communities', 'Weekly study community', () => open('fellowshipCommunities')));
+    if (fellowshipPilot) target.append(row('Chat with…', 'Household members and saved private chats', () => returnToHouseholdChats(true)));
     if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
     target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
     if (!fellowshipPilot) target.append(row('Private conversations', 'Local demo', () => open('private')));
+  },
+  fellowshipChat(target, frame) {
+    if (!activeFrame(frame)) return;
+    const menu = node('details', '', 'conversation-menu');
+    const toggle = node('summary', '⋯');
+    toggle.setAttribute('aria-label', 'Conversation details');
+    const details = node('div', '', 'conversation-menu-content');
+    details.append(text(frame.data.kind === 'private' ? 'Private conversation' : 'Private community', 'eyebrow'));
+    menu.append(toggle, details);
+    menu.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && menu.open) { event.preventDefault(); event.stopPropagation(); menu.open = false; toggle.focus(); }
+    });
+    frame.menu = menu;
+    if (activeFrame(frame)) $('conversation-actions').replaceChildren(menu);
+    const discussion = stopFellowshipPilot?.mountConversation?.(target, frame.data, { compact: true, detailsTarget: details });
+    if (!discussion) { target.append(text('Sign in from Fellowship to open this conversation.')); return; }
+    frame.onLeave = () => { menu.open = false; discussion.remember?.(); };
+    frame.refresh = () => requestAnimationFrame(() => { if (activeFrame(frame)) discussion.resume?.(); });
+    frame.dispose = () => {
+      discussion();
+      target.replaceChildren();
+      details.replaceChildren();
+      frame.content = null;
+      frame.menu = null;
+      frame.onLeave = frame.refresh = frame.dispose = null;
+    };
+  },
+  shareContext(target, { data }) {
+    const item = data.item;
+    target.append(node('h3', item.label));
+    const status = text('', 'form-caption');
+    status.setAttribute('role', 'status');
+    const activity = conversationActivity.active;
+    if (activity) target.append(button(`Add to ${activity.title}`, () => {
+      if (conversationActivity.prepare(item)) backPanel();
+    }, 'button primary'));
+    if (navigator.share) target.append(button('Share link…', () => shareExternally(item, status), 'quiet'));
+    target.append(button('Copy passage link', async () => {
+      try { await navigator.clipboard.writeText(item.url); status.textContent = 'Passage link copied.'; }
+      catch { status.textContent = item.url; }
+    }, 'quiet'), status);
+  },
+  fellowshipConversations(target) {
+    target.append(row(`Week ${week} · ${active.row.portion_transliteration}`, 'Wednesday HomeGroup · weekly conversation', returnToWeeklyConversation));
+    if (fellowshipPilot) target.append(
+      row('Household conversation', 'A shared room independent of the weekly study', () => returnToHouseholdChats()),
+      row('Chat with…', 'Open saved private conversations', () => returnToHouseholdChats(true)));
+    else {
+      target.append(text('This page includes a clearly labeled local discussion demo.'));
+      if (localPreview || hostedFellowshipPreview) target.append(link('Open signed-in Fellowship', localPreview
+        ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${week}`
+        : new URL(`?pilot=firebase&face=fellowship&week=${week}`, location.href).href));
+      else target.append(text('Live community conversations are not enabled on this address yet.'));
+    }
+  },
+  fellowshipCommunities(target) {
+    target.append(row('Wednesday HomeGroup', 'Weekly Scripture study · membership checked when opening the conversation', returnToWeeklyConversation),
+      text('Signing in does not automatically enroll an account in this community.'));
   },
   fellowshipInvitations(target) {
     target.append(text('Open the link in a Fellowship invitation email to accept or decline.'));
@@ -1444,6 +1690,16 @@ const views = {
   },
   listen(target) {
     const playlist = active.content.sections?.audio_playlist ?? active.content.audio_playlist ?? [];
+    const queue = playlist.map(track => {
+      const sources = {};
+      for (const [language, legacyField] of Object.entries({english:'src', hebrew:'heb', greek:'grk'})) {
+        const source = webUrl(track[legacyField]);
+        if (!source || !/\.mp3(?:[?#]|$)/i.test(source) || source.includes(',')) continue;
+        if (language !== 'english' && /audio\.esv|esvbible\.org/i.test(source)) continue;
+        sources[language] = source;
+      }
+      return {title:track.label || 'Source recording', sources};
+    });
     const local = node('div', '', 'rows');
     const field = node('label', 'Recording language');
     const select = node('select');
@@ -1457,13 +1713,13 @@ const views = {
       const language = select.value;
       const legacyField = { english: 'src', hebrew: 'heb', greek: 'grk' }[language];
       local.replaceChildren();
-      for (const track of playlist) {
+      for (const [index, track] of playlist.entries()) {
         const source = webUrl(track[legacyField]);
         if (!source) continue;
         if (language !== 'english' && /audio\.esv|esvbible\.org/i.test(source)) continue;
         const label = track.label || 'Source recording';
         if (/\.mp3(?:[?#]|$)/i.test(source) && !source.includes(',')) {
-          local.append(row(label, 'External · Verify passage in source', () => playAudio(source, label + ' · ' + LANGUAGES[language])));
+          local.append(row(label, 'External · Verify passage in source', () => audioSession.setPlaylist(queue, {index, language, autoplay:true})));
         } else {
           local.append(link(label + ' · Open provider ↗', source));
         }
@@ -1471,7 +1727,8 @@ const views = {
       if (!local.childElementCount) local.append(text('No matching source recording was found.'));
     }
     select.addEventListener('change', renderTracks);
-    target.append(field, text('Some historical recordings are generic, mismatched, or unavailable. Use weekly Scripture for the assigned text.'), local);
+    const controls = button('Playback controls', showAudioControls, 'quiet');
+    target.append(field, text('Some historical recordings are generic, mismatched, or unavailable. Use weekly Scripture for the assigned text.'), local, controls);
     renderTracks();
   },
   note(target, { data }) {
@@ -1579,6 +1836,7 @@ $('learning-discuss').addEventListener('click', () => {
 });
 
 async function boot() {
+  ensureCommunication();
   try {
     catalog = await schedules();
     history.replaceState({ panels: [] }, '', location.href);
@@ -1604,6 +1862,7 @@ async function boot() {
     study.replaceChildren(text('The weekly schedule could not load.', 'loading'), button('Try again', boot));
   }
 }
+initWorkspaceViewport();
 initAppearance();
 bindThemeDiagnostic(() => {
   if (frames.at(-1)?.type === 'themeManager') backPanel();

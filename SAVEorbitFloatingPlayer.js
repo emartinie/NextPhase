@@ -1,8 +1,6 @@
 // orbitFloatingPlayer.js
 //import { registerResource } from "/js/core/resourceManager.js";
 
-let player = null;
-let audio = null;
 let glowInterval = null;
 let orbitInterval = null;
 
@@ -13,17 +11,26 @@ if (window.__floatingPlayerLoaded) {
 
   // 👇 PUT THE REST OF FILE BELOW THIS LINE
  
-function setupFloatingPlayer() {
+async function setupFloatingPlayer() {
+  const { audioSession } = await import('./audio-session.js');
+  const { activityBounds } = await import('./edge-docking.js');
+  const audio = audioSession.audio;
   const existing = document.getElementById("floatingPlayer");
+  existing?.__audioUnsubscribe?.();
+  existing?.__viewportCleanup?.();
+  existing?.__edgeParking?.destroy();
   if (existing) existing.remove();
 
   // --- Player container ---
+  const initialArea = activityBounds();
   const player = document.createElement("div");
   player.id = "floatingPlayer";
   Object.assign(player.style, {
     position: "fixed",
-    bottom: "1rem",
-    right: "1rem",
+    bottom: "auto",
+    top: Math.max(initialArea.top, initialArea.bottom - 190 - 46) + "px",
+    left: (initialArea.left + Math.max(0, (initialArea.width - 190)/2)) + "px",
+    right: "auto",
     width: "190px",
     height: "190px",
     borderRadius: "50%",
@@ -37,7 +44,7 @@ function setupFloatingPlayer() {
     color: "#fff",
     padding: "10px",
     cursor: "grab",
-    zIndex: 9999,
+    zIndex: 3,
     userSelect: "none",
     overflow: "visible"
   });
@@ -75,6 +82,7 @@ if (floatingPlayer) {
 
   // --- Glow ring ---
   const ring = document.createElement("div");
+  ring.className = "orbit-glow";
   Object.assign(ring.style, {
     position: "absolute",
     inset: "8px",
@@ -90,13 +98,15 @@ if (floatingPlayer) {
   const svgNS = "http://www.w3.org/2000/svg";
   const size = 170, r = 76, C = 2*Math.PI*r;
   const svg = document.createElementNS(svgNS, "svg");
+  svg.classList.add("orbit-progress");
+  svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
   svg.setAttribute("width", size);
   svg.setAttribute("height", size);
   Object.assign(svg.style,{
     position:"absolute",
-    top:"10px",
+    top:"50%",
     left:"50%",
-    transform:"translateX(-50%)",
+    transform:"translate(-50%, -50%)",
     overflow:"visible",
     pointerEvents:"none"
   });
@@ -140,6 +150,7 @@ if (floatingPlayer) {
 
   // --- Center content ---
   const center = document.createElement("div");
+  center.className = "orbit-center";
   Object.assign(center.style, {
     display: "grid",
     placeItems: "center",
@@ -170,9 +181,7 @@ if (floatingPlayer) {
   center.appendChild(titleEl);
 
   // --- Marquee for now playing ---
-  const marquee = document.createElement("marquee");
-  marquee.setAttribute("behavior","scroll");
-  marquee.setAttribute("direction","right");
+  const marquee = document.createElement("div");
   Object.assign(marquee.style,{
     position:"absolute",
     bottom:"8px",
@@ -188,11 +197,7 @@ if (floatingPlayer) {
   marquee.appendChild(fpNowPlaying);
   center.appendChild(marquee);
 
-  // --- Audio element ---
-  const audio = document.createElement("audio");
-  audio.setAttribute("preload","metadata");
-  audio.style.display="none";
-  center.appendChild(audio);
+  // Audio stays in the original persistent host; Orbit only controls that session.
 
   // --- Button helper ---
   const btn = (label,title,cb)=>{
@@ -221,60 +226,38 @@ if (floatingPlayer) {
   };
 
   // --- State ---
-  let autoNext=true, currentLang="eng", currentIndex=0, autoplay=false, docked=true;
-  let playlist=[];
-
   // --- Buttons ---
   const playPauseBtn = btn("▶","Play / Pause",()=>{
-    if(!audio.src){ loadTrack(); return; }
-    if(audio.paused){
-      audio.play().then(()=>playPauseBtn.textContent="⏸").catch(()=>playPauseBtn.textContent="▶");
-    } else {
-      audio.pause();
-      playPauseBtn.textContent="▶";
-    }
+    void audioSession.toggle();
   });
-  audio.addEventListener("play",()=>playPauseBtn.textContent="⏸");
-  audio.addEventListener("pause",()=>playPauseBtn.textContent="▶");
-  audio.addEventListener("ended",()=>playPauseBtn.textContent="▶");
 
   const nextBtn  = btn("⏭","Next",()=>{
-    currentIndex=(currentIndex+1)%playlist.length;
-    loadTrack();
+    audioSession.next();
   });
 
   const langBtn  = btn("🌐","Language",()=>{
-    currentLang=currentLang==="eng" ? "heb" :
-                currentLang==="heb" ? "grk" : "eng";
-    loadTrack();
+    audioSession.cycleLanguage();
   });
 
   const sleepBtn = btn("🌙","Auto-next (sleep) on/off",()=>{
-    autoNext=!autoNext;
-    sleepBtn.style.opacity=autoNext?"1":"0.55";
-    sleepBtn.style.borderColor=autoNext
-      ? "rgba(255,255,255,0.15)"
-      : "rgba(255,255,255,0.35)";
+    audioSession.setAutoNext(!audioSession.getState().autoNext);
   });
   sleepBtn.dataset.active="1";
 
   // --- NEW: Psalms Playlist Button ---
   const psalmsBtn = btn("🎵","Switch to Psalms Playlist",()=>{
     if(typeof psalmsPlaylist!=="undefined" && psalmsPlaylist.length>0){
-      playlist = psalmsPlaylist;
-      currentIndex = 0;
-      loadTrack();
+      const tracks = normalize(psalmsPlaylist);
+      const language = Object.keys(tracks[0]?.sources || {}).find(key => tracks[0].sources[key]);
+      audioSession.setPlaylist(tracks, {language, autoplay:true});
     } else {
-      console.warn("⚠ No psalmsPlaylist defined!");
+      audioSession.notice("No Psalms recording playlist is available.");
     }
   });
 
   // --- NEW: Playback Speed Button ---
   const speedBtn = btn("⏩","Toggle Playback Speed",()=>{
-    const speeds = [1, 1.25, 1.5, 2];
-    let idx = speeds.indexOf(audio.playbackRate);
-    audio.playbackRate = speeds[(idx+1)%speeds.length];
-    speedBtn.textContent = audio.playbackRate+"x";
+    audioSession.cycleRate();
   });
 
     const videoBtn = btn("🎬", "Open Video (popup)", () => { toggleOrbitVideo(); })
@@ -312,7 +295,9 @@ const shareBtn = btn("🔗","Share Track",()=>{
 
   // --- Dock Button ---
 const dockBtn = document.createElement("button");
-dockBtn.textContent = "⫶", "Dock";
+dockBtn.textContent = "›";
+dockBtn.title = "Park player at screen edge";
+dockBtn.setAttribute("aria-label", "Park Orbit player");
 Object.assign(dockBtn.style, {
       padding:"6px 10px",
       borderRadius:"9999px",
@@ -321,7 +306,8 @@ Object.assign(dockBtn.style, {
       color:"#fff",
       backdropFilter:"blur(4px)",
       boxShadow:"0 1px 4px rgba(0,0,0,0.25)",
-      fontSize:"12px",
+      fontSize:"22px",
+      lineHeight:"1",
       cursor:"pointer",
       pointerEvents:"auto",
       userSelect:"none",
@@ -330,56 +316,48 @@ Object.assign(dockBtn.style, {
 });
 player.appendChild(dockBtn);
 
-dockBtn.addEventListener("click", () => {
-  docked = !docked;
-  const dockContainer = document.getElementById("floating-player-root");
-  
-  if (docked && dockContainer) {
-    // Move player into dock container
-    dockContainer.appendChild(player);
-    Object.assign(player.style, {
-      position: "relative",
-      width: "100%",
-      maxWidth: "520px",
-      height: "72px",
-      borderRadius: "14px",
-      left: "0",
-      bottom: "0",
-      right: "0",
-      top: "0",
-      transform: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 10px"
-    });
-  
-    player.classList.add('active')
+function updateDockArrow() {
+  const viewport = window.visualViewport;
+  const rect = player.getBoundingClientRect();
+  const left = rect.left + rect.width/2 < (viewport?.offsetLeft || 0) + (viewport?.width || innerWidth)/2;
+  dockBtn.textContent = left ? "‹" : "›";
+}
+dockBtn.addEventListener("pointerenter", updateDockArrow);
+dockBtn.addEventListener("focus", updateDockArrow);
+dockBtn.addEventListener("touchstart", updateDockArrow, {passive:true});
 
-  } else {
-    // Move player back to floating
-    const host = document.getElementById("playerHost") || document.body;
-host.appendChild(player);
-    Object.assign(player.style, {
-      position: "fixed",
-      width: "190px",
-      height: "190px",
-      bottom: "1rem",
-      right: "1rem",
-      borderRadius: "50%",
-      left: "auto",
-      top: "auto",
-      transform: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "0"
-    });
-    
-    player.classList.add('inactive')
-
+function placeOrbit() {
+  if (player.hidden || !player.isConnected) return;
+  const area = activityBounds(), rect = player.getBoundingClientRect();
+  const marginX = Math.min(48, Math.max(0, (area.width - rect.width)/2));
+  const marginY = Math.min(48, Math.max(0, (area.height - rect.height)/2));
+  const x = Math.max(area.left + marginX, Math.min(rect.left, area.right - rect.width - marginX));
+  const y = Math.max(area.top + marginY, Math.min(rect.top, area.bottom - rect.height - marginY));
+  if (Math.abs(x-rect.left)>8 || Math.abs(y-rect.top)>8) {
+    Object.assign(player.style,{left:x+"px",top:y+"px",right:"auto",bottom:"auto"});
   }
+  updateDockArrow();
+}
+window.addEventListener('workspace:resize', placeOrbit);
+player.__viewportCleanup = () => window.removeEventListener('workspace:resize',placeOrbit);
+
+const parkingReady = import("./edge-docking.js").then(({ createEdgeParking }) => {
+  if (!player.isConnected) return null;
+  player.__edgeParking = createEdgeParking(player, {
+    label: "Orbit player",
+    onRestore() {
+      placeOrbit();
+      updateDockArrow();
+      player.dispatchEvent(new Event("orbit:restored"));
+    },
+  });
+  return player.__edgeParking;
+}).catch(() => {
+  dockBtn.disabled = true;
+  dockBtn.title = "Player parking is unavailable. Reload to try again.";
+  return null;
 });
+dockBtn.addEventListener("click", () => { parkingReady.then(parking => parking?.park()); });
 
 
   // --- Controls container for orbit buttons ---
@@ -426,27 +404,52 @@ host.appendChild(player);
   // --- Append to DOM ---
   player.appendChild(center);
   document.body.appendChild(player);
+  updateDockArrow();
 
-  // --- Playlist / loading ---
-  function normalize(list){ return (list||[]).map(i=>({ title:i.label||i.title||"Untitled", eng:i.eng||i.src||"", heb:i.heb||i.src||"", grk:i.grk||i.src||"" })); }
-  function loadTrack(){
-    const item = playlist[currentIndex]||{};
-    audio.src=item[currentLang]||"";
-    titleEl.textContent=`${item.title||"Untitled"} (${currentLang.toUpperCase()})`;
-    audio.play().catch(()=>{});
-    circleProgress.setAttribute("stroke-dashoffset",C.toString());
-    window.dispatchEvent(new CustomEvent("player:nowPlaying",{detail:{title:item.title||"",lang:currentLang,src:audio.src,index:currentIndex}}));
+  // Preserve the saved player's explicit playlist hooks without owning playback.
+  function normalize(list) {
+    return (Array.isArray(list) ? list : []).map(item => ({
+      title:item.label || item.title || "Recording",
+      sources:{english:item.eng || item.src || "", hebrew:item.heb || "", greek:item.grk || ""},
+    }));
   }
 
-  audio.addEventListener("timeupdate",()=>{ if(audio.duration && !isNaN(audio.duration)){ circleProgress.setAttribute("stroke-dashoffset",(C*(1-audio.currentTime/audio.duration)).toString()); } });
-  audio.addEventListener("loadedmetadata",()=>{ circleProgress.setAttribute("stroke-dashoffset",(C*(1-audio.currentTime/audio.duration)).toString()); });
-  audio.addEventListener("ended",()=>{ if(autoNext){ currentIndex=(currentIndex+1)%playlist.length; loadTrack(); } });
+  titleEl.classList.add("orbit-track-title");
+  fpNowPlaying.className = "orbit-audio-status";
+  fpNowPlaying.setAttribute("role", "status");
+  fpNowPlaying.setAttribute("aria-live", "polite");
+  svg.setAttribute("role", "progressbar");
+  svg.setAttribute("aria-label", "Recording progress");
+  svg.setAttribute("aria-valuemin", "0");
+  svg.setAttribute("aria-valuemax", "100");
+  player.__audioUnsubscribe = audioSession.subscribe(state => {
+    if (titleEl.textContent !== state.title) titleEl.textContent = state.title;
+    titleEl.title = state.title;
+    if (fpNowPlaying.textContent !== state.message) fpNowPlaying.textContent = state.message;
+    playPauseBtn.textContent = state.playing ? "⏸" : "▶";
+    playPauseBtn.setAttribute("aria-label", state.playing ? "Pause recording" : "Play recording");
+    playPauseBtn.disabled = !state.source;
+    nextBtn.disabled = !state.canNext;
+    langBtn.disabled = state.availableLanguages.length < 2;
+    langBtn.setAttribute("aria-label", "Recording language: " + state.language);
+    speedBtn.disabled = !state.source;
+    speedBtn.textContent = state.rate === 1 ? "⏩" : state.rate + "x";
+    sleepBtn.style.opacity = state.autoNext ? "1" : "0.55";
+    sleepBtn.dataset.active = state.autoNext ? "1" : "0";
+    sleepBtn.setAttribute("aria-pressed", String(state.autoNext));
+    const progress = state.duration ? Math.min(1, Math.max(0, state.currentTime/state.duration)) : 0;
+    circleProgress.setAttribute("stroke-dashoffset", String(C*(1-progress)));
+    svg.setAttribute("aria-valuenow", String(Math.round(progress*100)));
+    player.dataset.audioStatus = state.status;
+  });
+  player.dataset.audioReady = "true";
+  window.dispatchEvent(new Event("audio:controller-ready"));
 
   // --- Drag + snap ---
   let isDragging=false,startX,startY,origX,origY;
-  function onPointerDown(e){ isDragging=true; const rect=player.getBoundingClientRect(); origX=rect.left; origY=rect.top; startX=e.type.startsWith("touch")?e.touches[0].clientX:e.clientX; startY=e.type.startsWith("touch")?e.touches[0].clientY:e.clientY; player.style.cursor="grabbing"; e.preventDefault(); }
+  function onPointerDown(e){ if(e.target.closest("button")) return; isDragging=true; const rect=player.getBoundingClientRect(); origX=rect.left; origY=rect.top; startX=e.type.startsWith("touch")?e.touches[0].clientX:e.clientX; startY=e.type.startsWith("touch")?e.touches[0].clientY:e.clientY; player.style.cursor="grabbing"; e.preventDefault(); }
   function onPointerMove(e){ if(!isDragging) return; const clientX=e.type.startsWith("touch")?e.touches[0].clientX:e.clientX; const clientY=e.type.startsWith("touch")?e.touches[0].clientY:e.clientY; player.style.left = origX+(clientX-startX)+"px"; player.style.top = origY+(clientY-startY)+"px"; player.style.right="auto"; player.style.bottom="auto"; }
-  function onPointerUp(){ if(!isDragging) return; isDragging=false; player.style.cursor="grab"; snapToEdge(); }
+  function onPointerUp(){ if(!isDragging) return; isDragging=false; player.style.cursor="grab"; snapToEdge(); updateDockArrow(); }
   function snapToEdge(){ const rect=player.getBoundingClientRect(); const vw=window.innerWidth,vh=window.innerHeight,margin=12; const distances=[rect.left,vw-rect.right,rect.top,vh-rect.bottom]; const min=Math.min(...distances); if(min===distances[1]){ player.style.left="auto"; player.style.right=margin+"px"; } else if(min===distances[0]){ player.style.left=margin+"px"; player.style.right="auto"; } else if(min===distances[2]){ player.style.top=margin+"px"; player.style.bottom="auto"; } else{ player.style.top="auto"; player.style.bottom=margin+"px"; } }
 
   player.addEventListener("mousedown",onPointerDown);
@@ -457,15 +460,11 @@ host.appendChild(player);
   window.addEventListener("touchend",onPointerUp);
 
   // --- External hooks ---
-  window.addEventListener("player:updatePlaylist", e=>{ playlist=normalize(e.detail.playlist||[]); currentIndex=0; loadTrack(); });
-  window.addEventListener("player:setLang", e=>{ const l=e.detail.lang?.toLowerCase(); if(["eng","heb","grk"].includes(l)){ currentLang=l; loadTrack(); } });
+  window.addEventListener("player:updatePlaylist", e=>{ audioSession.setPlaylist(normalize(e.detail.playlist), {language:"english", autoplay:true}); });
+  window.addEventListener("player:setLang", e=>{ const language={eng:"english",heb:"hebrew",grk:"greek"}[e.detail.lang?.toLowerCase()]; if(language) audioSession.setLanguage(language); });
 
   // --- Auto-load weekData ---
-  if(window.weekData?.sections?.audio_playlist){ playlist=normalize(window.weekData.sections.audio_playlist); }
-  loadTrack();
-
-  // --- Update marquee ---
-  window.addEventListener("player:nowPlaying", e=>{ const item=e.detail||{}; fpNowPlaying.textContent=`${item.title||""} (${item.lang?.toUpperCase()||""})`; });
+  if(window.weekData?.sections?.audio_playlist){ audioSession.setPlaylist(normalize(window.weekData.sections.audio_playlist), {language:"english"}); }
 }
 
 document.addEventListener("DOMContentLoaded", setupFloatingPlayer);
@@ -537,17 +536,13 @@ applyOrbitGlow();
 }
 
 function destroyFloatingPlayer() {
-  if (audio) {
-    audio.pause();
-    audio.src = "";
-    audio.remove();
-    audio = null;
-  }
-
-  if (player) {
-    player.remove();
-    player = null;
-  }
+  // Removing a controller must never remove or stop the shared audio element.
+  const player = document.getElementById("floatingPlayer");
+  player?.__audioUnsubscribe?.();
+  player?.__viewportCleanup?.();
+  player?.__edgeParking?.destroy();
+  player?.remove();
+  window.dispatchEvent(new Event("audio:controller-ready"));
 
   if (glowInterval) clearInterval(glowInterval);
   if (orbitInterval) clearInterval(orbitInterval);
@@ -557,3 +552,4 @@ function destroyFloatingPlayer() {
   //init: setupFloatingPlayer,
   //destroy: destroyFloatingPlayer
 //})
+

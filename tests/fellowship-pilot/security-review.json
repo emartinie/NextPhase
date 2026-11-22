@@ -1,0 +1,24 @@
+{
+  "score": 3,
+  "summary": "Provisional source review, not a security certification. Existing authorization grants are preserved and a least-privilege group-profile block is proposed locally. Real rules enforcement and deployed configuration remain unverified.",
+  "findings": [
+    {
+      "check": "Runtime rule enforcement",
+      "severity": "major",
+      "issue": "The emulator suite cannot start without its Java runtime and Firestore JAR. Browser contract checks use synthetic adapters, not the rules engine.",
+      "recommendation": "Restore the official emulator tools and pass the existing and extended deny/allow tests before a real pilot release."
+    },
+    {
+      "check": "Deployed authority and enrollment",
+      "severity": "major",
+      "issue": "The owner supplied the current published rules; the app now uses their membership-protected thread read without requiring direct membership reads. Provider linkage and memberships of the four real Auth accounts remain unverified. Extended test rules include grants absent from the published baseline.",
+      "recommendation": "Validate the owner-supplied baseline in the emulator, verify intended enrollments without logging private data, and obtain approval for any minimal profile extension. Do not publish the entire extended test fixture."
+    },
+    {
+      "check": "Identity labels",
+      "severity": "minor",
+      "issue": "Display names are self-chosen, can be duplicated, and must not be treated as verified legal identities or an authorization source.",
+      "recommendation": "Use UID-bound ownership and group membership for every authorization decision; let pilot members choose recognizable names."
+    }
+  ]
+}

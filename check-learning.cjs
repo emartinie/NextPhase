@@ -31,13 +31,14 @@ async function checkLanguageLab(phone, url, presentations) {
   await dialog.getByText('Kaph · K / Kh', { exact: true }).waitFor();
   await tap('Play Alephbet song');
   await phone.waitForFunction(() => {
-    const player = document.querySelector('.alphabet-song');
+    const player = document.getElementById('audio');
     return player && player.readyState >= 1 && player.duration > 0 && !player.paused;
   });
   await tap('Greek');
   await dialog.getByRole('heading', { name: 'Greek alphabet', exact: true }).waitFor();
   assert.equal(await dialog.locator('.alphabet-tile').count(), 24);
-  assert.ok(await dialog.locator('audio').evaluate(player => player.paused));
+  assert.equal(await phone.locator('audio').count(), 1);
+  assert.ok(await phone.locator('#audio').evaluate(player => player.paused));
   await tap('Choose Sigma');
   assert.equal(await glyph.textContent(), 'Σ σ/ς');
   await dialog.getByText(/Transliteration · s.*Sound · s as in seed/).waitFor();

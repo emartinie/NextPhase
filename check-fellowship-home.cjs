@@ -192,13 +192,24 @@ async function run() {
           void change({ uid: 'member', displayName: 'Test Sender', getIdToken: async () => 'test-member-token' });
           return () => {};
         }`,
-      'firebase-firestore.js': `export const getFirestore = () => ({}); export const doc = () => ({});
-        export const collection = () => ({}); export const getDocFromServer = async () => ({ exists: () => true, data: () => ({ open: true }) });
-        export const query = () => ({}); export const orderBy = () => ({}); export const limit = () => ({});
-        export function onSnapshot(_query, _options, next) {
-          next({ metadata: { fromCache: false }, docs: [{ metadata: { hasPendingWrites: false },
-            data: () => ({ authorId: 'member', body: 'A reply from the Firestore test fixture.' }) }] });
-          return () => {};
+      'firebase-firestore.js': `export const getFirestore = () => ({ path: '' });
+        export const doc = (base, ...parts) => ({ path: [base.path, ...parts].filter(Boolean).join('/') });
+        export const collection = doc;
+        export const getDocFromServer = async () => ({ exists: () => true, data: () => ({ displayName: 'Test Sender' }) });
+        export const query = base => base; export const orderBy = () => ({}); export const limit = () => ({});
+        export function onSnapshot(query, _options, next) {
+          let active = true;
+          queueMicrotask(() => {
+            if (!active) return;
+            if (query.path.includes('/members/')) next({ metadata: { fromCache: false }, exists: () => true });
+            else if (query.path.endsWith('/profiles')) next({ metadata: { fromCache: false }, docs: [{
+              id: 'member', metadata: { hasPendingWrites: false }, data: () => ({ displayName: 'Test Sender' }) }] });
+            else if (query.path.endsWith('/messages')) next({ metadata: { fromCache: false }, docs: [{
+              id: 'fixture-reply', metadata: { hasPendingWrites: false },
+              data: () => ({ authorId: 'member', body: 'A reply from the Firestore test fixture.' }) }] });
+            else next({ metadata: { fromCache: false }, exists: () => true, data: () => ({ open: true }) });
+          });
+          return () => { active = false; };
         }`,
     };
     await phone.route('https://www.gstatic.com/firebasejs/13.3.0/**', route => route.fulfill({

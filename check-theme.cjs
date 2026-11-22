@@ -28,17 +28,17 @@ async function checkAppearance(page, url) {
 
   await page.goto(url + '?week=6');
   await page.locator('#study-title').waitFor();
-  await active('nextphase');
+  await active('cosmic');
   const top = await color('.top');
   const dock = await color('.dock');
   await manager.click();
-  await choose('Cosmic Glass');
-  await active('cosmic');
+  await choose('Midnight Sapphire');
+  await active('sapphire');
   assert.notEqual(await color('.top'), top);
   assert.notEqual(await color('.dock'), dock);
   await page.goBack();
   await dialog.waitFor({ state: 'hidden' });
-  await active('nextphase');
+  await active('cosmic');
 
   await manager.click();
   await choose('Ancient Parchment');
