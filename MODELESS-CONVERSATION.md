@@ -1,5 +1,11 @@
 # Persistent communication experiment
 
+## Integration approval — 22 November 2026
+
+The owner approved merging this iteration and cleaning up its disposable artifacts. The owner reports completing the iPhone conversation journey before the latest viewport-only commit; a subsequent phone screenshot shows the full header/week selector and bottom app navigation clear of Safari controls. That screenshot does not expose a build marker, so it is evidence of the observed phone layout rather than independent identification of the deployed commit. The final code checkpoint is `10c2923ff925443f0311d9f31dc78667d970b0b8`; the final viewport, syntax and packaging checks passed as recorded below. Personal design preferences are deferred to future iterations, not treated as blockers to this approved merge.
+
+Merge through the existing PR into the NextPhase development repository. Its existing GitHub Pages publication is separate from the Firebase `iphone-pilot` channel. This approval does not deploy Firebase live Hosting, rules, authentication settings or real records, and does not affect the original HomeGroups production application. The known source/provider, page-memory draft persistence and inherited Orbit lifecycle limitations remain documented. Preserve source tests, uploaded originals, screenshots and useful validation evidence; cleanup is limited to reproducible temporary packaging and disposable browser profiles.
+
 ## Visible workspace and Safari chrome — 21 November 2026
 
 ### Native browser insetting candidate after phone measurements
