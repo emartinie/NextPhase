@@ -300,6 +300,7 @@ async function applyRoute() {
     [study.scrollTop, fellowship.scrollTop] = active.scroll;
   } catch {
     if (sequence !== renderSequence) return;
+    active.content = null;
     study.replaceChildren(text('The weekly study could not load.', 'loading'), button('Try again', applyRoute));
     fellowship.replaceChildren(text('The weekly study could not load.', 'loading'));
   }
@@ -965,9 +966,8 @@ function renderFellowship() {
   if (archive) section.append(button(`Return to ${liveYear}`, () => selectYear(liveYear), 'quiet'));
   else {
     section.append(text('What stood out to you in the reading? Bring a question or share what you noticed.'));
-    if (localPreview || hostedFellowshipPreview) section.append(link('Open weekly conversation', localPreview
-      ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${selectedWeek}`
-      : new URL(`?pilot=firebase&face=fellowship&week=${selectedWeek}`, location.href).href));
+    if (localPreview) section.append(link('Open weekly conversation',
+      `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${selectedWeek}`));
     else section.append(text('Live community conversations are not enabled on this address yet.'));
   }
   const group = fixture(year, week, liveYear, cycleWeek, data.portion_transliteration, data.torah_reading);
@@ -1383,9 +1383,8 @@ const views = {
       row('Chat with…', 'Open saved private conversations', () => returnToHouseholdChats(true)));
     else {
       target.append(text('This page includes a clearly labeled local discussion demo.'));
-      if (localPreview || hostedFellowshipPreview) target.append(link('Open signed-in Fellowship', localPreview
-        ? `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${week}`
-        : new URL(`?pilot=firebase&face=fellowship&week=${week}`, location.href).href));
+      if (localPreview) target.append(link('Open signed-in Fellowship',
+        `http://localhost:8770/NextPhase/?pilot=firebase&face=fellowship&week=${week}`));
       else target.append(text('Live community conversations are not enabled on this address yet.'));
     }
   },
