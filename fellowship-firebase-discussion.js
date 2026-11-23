@@ -55,8 +55,9 @@ export function mountFirebaseDiscussion(target, {
   }
   attachment.append(attachControl, refLabel);
   const contextual = node('div', '', 'conversation-context-actions');
+  let chooser;
   if (getShareContext) {
-    const chooser = node('div', '', 'conversation-attachment-panel');
+    chooser = node('div', '', 'conversation-attachment-panel');
     chooser.append(contextual, refLabel);
     attachment.append(chooser);
     attachment.addEventListener('toggle', () => {
@@ -131,12 +132,55 @@ export function mountFirebaseDiscussion(target, {
   }
   function hasLayout() { return surface.isConnected && surface.getClientRects().length > 0; }
   function fitComposer() {
-    if (!compact || !field.isConnected) return;
+    if (!compact || !field.isConnected || !form.getClientRects().length) return;
+    // Keep the reply usable while the attachment tray needs room above it.
+    if (chooser && attachment.open) { field.style.height = '48px'; return; }
+    const frame = target.closest('.communication-surface');
+    const fixed = form.getBoundingClientRect().height - field.getBoundingClientRect().height;
+    const limit = frame ? Math.max(48,Math.min(112,target.getBoundingClientRect().height - fixed - 40)) : 112;
     field.style.height = 'auto';
-    field.style.height = Math.min(112, Math.max(44, field.scrollHeight)) + 'px';
+    field.style.height = Math.min(limit, Math.max(frame ? 48 : 44, field.scrollHeight)) + 'px';
   }
+  let attachmentFrame;
+  function fitAttachment() {
+    attachmentFrame = null;
+    if (!active || !chooser || !form.getClientRects().length) return;
+    fitComposer();
+    if (!attachment.open) return;
+    const frame = target.closest('.communication-surface');
+    if (!frame || frame.hidden || frame.inert) return;
+    const bounds = frame.getBoundingClientRect();
+    const header = frame.querySelector('.conversation-window-header')?.getBoundingClientRect();
+    const top = Math.max(bounds.top,header?.bottom ?? bounds.top) + 8;
+    // The existing full-screen surface already follows the visual viewport.
+    // Size only the tray; never grow the composer or introduce another viewport.
+    const available = Math.max(0,form.getBoundingClientRect().top - 8 - top);
+    form.style.setProperty('--conversation-attachment-room',Math.floor(available)+'px');
+    if (document.activeElement === reference) {
+      // Keep focus inside the tray without asking Safari to scroll the page.
+      const tray = chooser.getBoundingClientRect();
+      const input = reference.getBoundingClientRect();
+      if (input.bottom > tray.bottom - 8) chooser.scrollTop += input.bottom - tray.bottom + 8;
+      else if (input.top < tray.top + 8) chooser.scrollTop -= tray.top + 8 - input.top;
+    }
+  }
+  function scheduleAttachmentFit() {
+    if (!active || !chooser || attachmentFrame) return;
+    attachmentFrame = requestAnimationFrame(fitAttachment);
+  }
+  const attachmentObserver = compact && chooser && typeof ResizeObserver === 'function'
+    ? new ResizeObserver(scheduleAttachmentFit) : null;
+  if (attachmentObserver) { attachmentObserver.observe(form); attachmentObserver.observe(target); }
+  attachment.addEventListener('toggle',() => {
+    fitComposer();
+    if (attachment.open) scheduleAttachmentFit();
+    else form.style.removeProperty('--conversation-attachment-room');
+  },{signal:events.signal});
+  for (const event of ['resize','workspace:resize']) window.addEventListener(event,scheduleAttachmentFit,{signal:events.signal});
+  for (const event of ['resize','scroll']) window.visualViewport?.addEventListener(event,scheduleAttachmentFit,{signal:events.signal});
   field.addEventListener('input', () => { remember(); fitComposer(); }, { signal: events.signal });
   reference.addEventListener('input', () => { remember(); updateReferencePreview(); }, { signal: events.signal });
+  reference.addEventListener('focus', scheduleAttachmentFit, { signal: events.signal });
   surface.addEventListener('scroll', () => { if (restored && hasLayout()) state.top = surface.scrollTop; }, { signal: events.signal });
 
   function availability() {
@@ -429,6 +473,8 @@ export function mountFirebaseDiscussion(target, {
     remember();
     active = false;
     events.abort();
+    attachmentObserver?.disconnect();
+    if (attachmentFrame) cancelAnimationFrame(attachmentFrame);
     for (const stop of stops.splice(0)) stop();
   };
   close.remember = remember;

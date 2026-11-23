@@ -1,129 +1,148 @@
-import { activityBounds, positionEdgeHandle } from './edge-docking.js';
+import { communicationRect, positionEdgeHandle, layoutDetails, recordCommunicationLayout } from './edge-docking.js';
 
-// One application-level communication surface: list and conversation share it.
+// The existing list and conversation share two presentations: full screen or sideparked.
 export function createConversationWindow({ node, text, button, mountConversation, getShareContext, shareExternally, onChange }) {
   const root = node('section', '', 'conversation-window communication-surface');
   root.hidden = true;
-  root.setAttribute('role', 'region');
+  root.inert = true;
+  root.dataset.mode = 'minimized';
+  root.setAttribute('role', 'dialog');
+  root.setAttribute('aria-modal', 'true');
+  root.setAttribute('aria-hidden', 'true');
   root.setAttribute('aria-labelledby', 'active-conversation-name');
   root.setAttribute('data-no-workspace-swipe', '');
   const header = node('header', '', 'conversation-window-header');
   const back = button('‹', () => showList(), 'quiet');
   back.setAttribute('aria-label', 'Back to conversations');
-  const grip = node('div', '', 'communication-drag');
-  grip.tabIndex = 0;
-  grip.setAttribute('role', 'button');
-  grip.setAttribute('aria-label', 'Move communication window. Drag to either edge to minimize. Arrow keys move; Alt and left or right arrow dock; Home resets position.');
-  const mark = node('span', '⠿', 'communication-grip');
-  mark.setAttribute('aria-hidden', 'true');
+  const titles = node('div', '', 'communication-title');
+  const kicker = node('span', 'HomeGroups Fellowship', 'communication-kicker');
   const heading = node('h2', 'Conversations');
   heading.id = 'active-conversation-name';
   heading.tabIndex = -1;
-  grip.append(mark, heading);
-  const minimizeButton = button('−', () => minimize(), 'quiet');
-  minimizeButton.setAttribute('aria-label', 'Minimize communications');
-  const expand = button('↗', () => setMode(root.dataset.mode === 'expanded' ? 'open' : 'expanded'), 'quiet');
-  expand.setAttribute('aria-label', 'Expand communications');
-  const closeButton = button('×', () => dismiss(), 'quiet');
-  closeButton.setAttribute('aria-label', 'Close communications');
-  header.append(back, grip, minimizeButton, expand, closeButton);
+  titles.append(kicker, heading);
+  const parkButton = button('›', () => minimize(), 'quiet communication-park');
+  parkButton.setAttribute('aria-label', 'Sidepark communications');
+  parkButton.title = 'Return to HomeGroups';
+  header.append(back, titles, parkButton);
+  if (new URLSearchParams(location.search).get('layout') === 'check') {
+    const copy = button('Copy layout', async () => {
+      try { await navigator.clipboard.writeText(JSON.stringify(layoutDetails(),null,2)); copy.textContent = 'Copied'; }
+      catch { copy.textContent = 'Copy unavailable'; }
+    }, 'quiet communication-layout-copy');
+    copy.setAttribute('aria-label','Copy communication layout details');
+    header.insertBefore(copy,parkButton);
+  }
   const list = node('div', '', 'communication-list');
   const content = node('div', '', 'conversation-window-content');
   content.hidden = true;
   root.append(header, list, content);
   const launcher = button('', () => show(), 'communication-launcher');
   launcher.setAttribute('aria-label', 'Open communications');
-  const icon = node('span', '', 'communication-launcher-icon');
-  icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5A8.5 8.5 0 0 1 10.5 3h2A8.5 8.5 0 0 1 21 11.5Z"/></svg>';
-  icon.setAttribute('aria-hidden', 'true');
-  const launcherLabel = node('span', 'Conversations');
+  launcher.dataset.docked = 'true';
   const edgeArrow = node('span', '‹', 'communication-edge-arrow');
   edgeArrow.setAttribute('aria-hidden', 'true');
-  launcher.append(icon, launcherLabel, edgeArrow);
+  launcher.append(edgeArrow);
   const viewportLayer = node('div', '', 'communication-viewport');
+  viewportLayer.hidden = true;
   viewportLayer.append(root);
   document.body.append(viewportLayer, launcher);
-  let current;
-  let discussion;
-  let stopped = false;
-  let visible = false;
-  let view = 'list';
-  let position;
-  let normalPosition;
-  let drag;
-  let resumeFocus;
-  let dockSide = 'right';
-
+  let current, discussion, resumeFocus, motion;
+  let stopped = false, visible = false, view = 'list', dockSide = 'right';
+  const covered = new Map();
   const activeSelection = () => view === 'conversation' ? current : null;
-  const bounds = activityBounds;
-  function place(desired = position, moving = false) {
+
+  function coverWorkspace(fullscreen) {
+    document.body.dataset.communicator = fullscreen ? 'fullscreen' : 'sideparked';
+    if (fullscreen) {
+      for (const element of document.body.children) {
+        if (!(element instanceof HTMLElement) || element === viewportLayer || element === launcher || ['SCRIPT','STYLE','LINK'].includes(element.tagName)) continue;
+        if (!covered.has(element)) covered.set(element, element.inert);
+        element.inert = true;
+        element.setAttribute('data-communication-covered', '');
+      }
+    } else {
+      for (const [element, inert] of covered) {
+        element.inert = inert;
+        element.removeAttribute('data-communication-covered');
+      }
+      covered.clear();
+    }
+  }
+  const observer = new MutationObserver(() => {
+    if (root.dataset.mode === 'fullscreen') coverWorkspace(true);
+  });
+  observer.observe(document.body, {childList:true});
+
+  function place() {
     if (root.hidden) return;
-    const area = bounds();
-    const expanded = root.dataset.mode === 'expanded';
-    const width = Math.min(expanded ? 620 : 352, area.width * (expanded ? 1 : .92));
-    const mobile = (window.visualViewport?.width || innerWidth) < 700;
-    const height = expanded ? area.height : mobile
-      ? Math.min(312, Math.max(Math.min(248, area.height), area.height * .45))
-      : Math.min(520, Math.max(Math.min(300, area.height), area.height * .78));
-    const x = Math.max(area.left - (moving ? width + 12 : 0), Math.min(desired?.x ?? area.right-width, moving ? area.right + 12 : area.right-width));
-    const y = Math.max(area.top, Math.min(desired?.y ?? area.bottom-height, area.bottom-height));
-    position = {x, y};
-    Object.assign(root.style, {left:x+'px', top:y+'px', right:'auto', width:width+'px', height:height+'px'});
-    root.style.setProperty('--window-height',height+'px');
+    recordCommunicationLayout('before-layout');
+    const area = communicationRect();
+    if (!area) return;
+    Object.assign(viewportLayer.style, {left:area.left+'px', top:area.top+'px', width:area.width+'px', height:area.height+'px'});
+    root.style.setProperty('--window-height',area.height+'px');
+    recordCommunicationLayout('after-layout');
   }
   function refreshContext() {
-    const selected = activeSelection();
-    const minimized = visible && root.dataset.mode === 'minimized';
-    launcher.dataset.docked = String(minimized);
+    launcher.dataset.docked = 'true';
     launcher.dataset.side = dockSide;
     edgeArrow.textContent = dockSide === 'left' ? '›' : '‹';
-    launcherLabel.textContent = selected ? selected.title : 'Conversations';
-    launcher.setAttribute('aria-label', minimized ? 'Reopen communications' : 'Open communications');
-    launcher.title = minimized ? `Reopen ${selected?.title || 'conversations'} from ${dockSide} edge` : 'Open your conversations';
-    placeLauncher();
-  }
-  function placeLauncher() {
-    const minimized = visible && root.dataset.mode === 'minimized';
-    if (!minimized) {
-      for (const property of ['left','right','top','bottom']) launcher.style.removeProperty(property);
-      return;
-    }
+    parkButton.textContent = dockSide === 'left' ? '‹' : '›';
+    launcher.setAttribute('aria-label', visible ? 'Reopen communications' : 'Open communications');
+    launcher.title = 'Open ' + (activeSelection()?.title || 'conversations');
     positionEdgeHandle(launcher, dockSide);
   }
   function notify() { refreshContext(); onChange?.(activeSelection()); }
+  function animate(fullscreen) {
+    motion?.cancel();
+    motion = null;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof root.animate !== 'function') {
+      root.hidden = !fullscreen;
+      viewportLayer.hidden = !fullscreen;
+      return;
+    }
+    const shift = dockSide === 'left' ? '-18px' : '18px';
+    const frames = [{opacity:0,transform:'translateX('+shift+')'},{opacity:1,transform:'translateX(0)'}];
+    motion = root.animate(fullscreen ? frames : [...frames].reverse(), {duration:160,easing:'cubic-bezier(.2,.7,.2,1)'});
+    if (!fullscreen) motion.onfinish = () => {
+      if (root.dataset.mode === 'minimized') { root.hidden = true; viewportLayer.hidden = true; }
+    };
+  }
   function setMode(mode, focus = true) {
     if (stopped) return;
+    const fullscreen = mode === 'fullscreen';
+    const changed = root.dataset.mode !== mode;
     discussion?.remember?.();
-    if (mode === 'expanded' && root.dataset.mode !== 'expanded') normalPosition = position && {...position};
-    const reducing = root.dataset.mode === 'expanded' && mode === 'open';
-    root.dataset.mode = mode;
-    expand.textContent = mode === 'expanded' ? '↙' : '↗';
-    expand.setAttribute('aria-label', mode === 'expanded' ? 'Reduce communications' : 'Expand communications');
-    root.hidden = mode === 'minimized' || !visible;
-    launcher.hidden = !root.hidden;
-    if (mode === 'minimized') {
+    if (!fullscreen) {
       resumeFocus = root.contains(document.activeElement) ? document.activeElement : null;
-      if (root.contains(document.activeElement)) document.activeElement.blur();
-      if (focus) launcher.focus({preventScroll:true});
-    } else {
-      place(reducing ? normalPosition : position);
+      if (resumeFocus) resumeFocus.blur();
+    }
+    root.dataset.mode = mode;
+    root.inert = !fullscreen;
+    root.setAttribute('aria-hidden',String(!fullscreen));
+    launcher.hidden = fullscreen;
+    coverWorkspace(fullscreen);
+    if (fullscreen) {
+      viewportLayer.hidden = false;
+      root.hidden = false;
+      place();
+      if (changed) animate(true);
       requestAnimationFrame(() => {
+        if (root.dataset.mode !== 'fullscreen') return;
         discussion?.resume?.();
         if (focus) {
-          const focusTarget = resumeFocus?.isConnected && content.contains(resumeFocus) && view === 'conversation' ? resumeFocus : heading;
-          focusTarget.focus({preventScroll:true});
+          const target = resumeFocus?.isConnected && resumeFocus.getClientRects().length && !resumeFocus.disabled && content.contains(resumeFocus) && view === 'conversation' ? resumeFocus : heading;
+          target.focus({preventScroll:true});
         }
         resumeFocus = null;
       });
+    } else {
+      if (!root.hidden && changed) animate(false);
+      else { root.hidden = true; viewportLayer.hidden = true; }
+      if (focus) launcher.focus({preventScroll:true});
     }
     notify();
   }
-  function show() {
-    if (stopped) return;
-    visible = true;
-    root.hidden = false;
-    setMode('open');
-  }
+  function show() { if (!stopped) { visible = true; setMode('fullscreen'); } }
   function showList(openSurface = true) {
     discussion?.remember?.();
     if (content.contains(document.activeElement)) document.activeElement.blur();
@@ -134,126 +153,81 @@ export function createConversationWindow({ node, text, button, mountConversation
     heading.textContent = 'Conversations';
     back.hidden = true;
     root.dataset.view = view;
-    if (openSurface) show();
-    else notify();
+    if (openSurface) show(); else notify();
   }
+  // Retain the caller's cleanup/recipient-clearing contract without a third presentation.
   function dismiss() {
-    discussion?.();
-    discussion = null;
-    current = null;
+    discussion?.(); discussion = null; current = null;
     content.replaceChildren();
-    visible = false;
-    root.hidden = true;
-    root.dataset.mode = 'closed';
-    launcher.hidden = false;
-    resumeFocus = null;
+    visible = false; resumeFocus = null;
     showList(false);
-    launcher.focus({preventScroll:true});
+    setMode('minimized');
   }
   function reset() {
-    const wasVisible = visible && !root.hidden;
-    discussion?.();
-    discussion = null;
-    current = null;
-    dockSide = 'right';
+    const wasFullscreen = root.dataset.mode === 'fullscreen';
+    discussion?.(); discussion = null; current = null;
+    dockSide = 'right'; resumeFocus = null;
     content.replaceChildren();
-    resumeFocus = null;
     showList(false);
-    if (wasVisible) show();
-    else { root.hidden = true; launcher.hidden = false; }
+    if (wasFullscreen) show(); else { visible = false; setMode('minimized',false); }
   }
-  function minimize(focus = true) { if (visible) setMode('minimized', focus); }
+  function minimize(focus = true) { if (visible) setMode('minimized',focus); }
   function open(selection) {
     if (stopped) return;
     const same = current && JSON.stringify(current) === JSON.stringify(selection);
     if (!same) {
-      discussion?.();
-      content.replaceChildren();
-      current = {...selection};
+      discussion?.(); content.replaceChildren(); current = {...selection};
       const info = node('details', '', 'communication-members');
-      info.append(node('summary', selection.kind === 'private' ? 'Conversation info' : 'Members'));
-      discussion = mountConversation(content, selection, {
-        compact:true, detailsTarget:info, getShareContext, shareExternally,
-      });
+      info.append(node('summary',selection.kind === 'private' ? 'Conversation info' : 'Members'));
+      discussion = mountConversation(content,selection,{compact:true,detailsTarget:info,getShareContext,shareExternally});
       if (!discussion) { current = null; showList(); return; }
       content.querySelector('.conversation-stream')?.prepend(info);
     }
-    view = 'conversation';
-    root.dataset.view = view;
-    content.hidden = false;
-    content.inert = false;
-    list.hidden = true;
-    heading.textContent = selection.title;
-    back.hidden = false;
+    view = 'conversation'; root.dataset.view = view;
+    content.hidden = false; content.inert = false; list.hidden = true;
+    heading.textContent = selection.title; back.hidden = false;
     show();
   }
   function prepare(item) {
     if (!activeSelection() || item?.kind !== 'scripture' || discussion?.stageReference?.(item.ref) !== true) return false;
-    show();
-    return true;
+    show(); return true;
   }
-  function endDrag(event, cancelled = false) {
-    if (!drag || event.pointerId !== drag.id) return;
-    const moved = drag.moved;
-    const area = bounds();
-    const rect = root.getBoundingClientRect();
-    const viewport = window.visualViewport;
-    const viewportLeft = viewport?.offsetLeft || 0;
-    const viewportRight = viewportLeft + (viewport?.width || innerWidth);
-    const leftIntent = rect.left < area.left - Math.min(64, rect.width * .22)
-      || (event.clientX <= viewportLeft + 24 && rect.left < area.left - 16);
-    const rightIntent = rect.right > area.right + Math.min(64, rect.width * .22)
-      || (event.clientX >= viewportRight - 24 && rect.right > area.right + 16);
-    drag = null;
-    root.classList.remove('communication-moving');
-    if (grip.hasPointerCapture?.(event.pointerId)) grip.releasePointerCapture(event.pointerId);
-    place();
-    if (moved && !cancelled && (leftIntent || rightIntent)) {
-      dockSide = leftIntent ? 'left' : 'right';
-      minimize();
-    }
-  }
-  grip.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || event.isPrimary === false) return;
-    const rect = root.getBoundingClientRect();
-    drag = {id:event.pointerId, x:event.clientX, y:event.clientY, origin:{x:rect.left,y:rect.top}, moved:false};
-    event.preventDefault();
-    try { grip.setPointerCapture(event.pointerId); } catch { /* Synthetic/nonactive pointers cannot be captured. */ }
-  });
-  grip.addEventListener('pointermove', event => {
-    if (!drag || event.pointerId !== drag.id) return;
-    const dx = event.clientX-drag.x, dy = event.clientY-drag.y;
-    if (!drag.moved && Math.hypot(dx,dy)<6) return;
-    drag.moved = true;
-    root.classList.add('communication-moving');
-    place({x:drag.origin.x+dx,y:drag.origin.y+dy}, true);
-    event.preventDefault();
-  });
-  grip.addEventListener('pointerup', event => endDrag(event));
-  grip.addEventListener('pointercancel', event => endDrag(event, true));
-  grip.addEventListener('lostpointercapture', () => {drag=null;root.classList.remove('communication-moving');place();});
-  grip.addEventListener('keydown', event => {
-    const moves = {ArrowLeft:[-20,0],ArrowRight:[20,0],ArrowUp:[0,-20],ArrowDown:[0,20]};
+  root.addEventListener('keydown',event => {
     if (event.altKey && ['ArrowLeft','ArrowRight'].includes(event.key)) {
-      event.preventDefault();dockSide=event.key === 'ArrowLeft' ? 'left' : 'right';minimize();
-    } else if (event.key === 'Home') {event.preventDefault();position=null;place();}
-    else if (moves[event.key]) {event.preventDefault();place({x:position.x+moves[event.key][0],y:position.y+moves[event.key][1]});}
+      event.preventDefault(); dockSide = event.key === 'ArrowLeft' ? 'left' : 'right'; minimize();
+    } else if (event.key === 'Escape') {
+      event.preventDefault(); event.stopPropagation();
+      const attachment = content.querySelector('.conversation-attachment[open]');
+      if (attachment) { attachment.open = false; attachment.querySelector('summary')?.focus(); }
+      else minimize();
+    } else if (event.key === 'Tab') {
+      const controls = [...root.querySelectorAll('button,input,textarea,select,summary,[tabindex="0"],a[href]')].filter(item=>!item.disabled && !item.closest('[inert]') && item.getClientRects().length);
+      const first = controls[0], last = controls.at(-1);
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === heading)) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
   });
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {event.preventDefault();event.stopPropagation();minimize();}
-  });
-  const updateViewport = () => { place(); placeLauncher(); };
-  window.visualViewport?.addEventListener('resize', updateViewport);
-  window.visualViewport?.addEventListener('scroll', updateViewport);
-  window.addEventListener('resize', updateViewport);
-  window.addEventListener('workspace:resize', updateViewport);
-  back.hidden = true;
-  root.dataset.view = 'list';
+  const updateViewport = () => { discussion?.remember?.(); place(); refreshContext(); };
+  window.visualViewport?.addEventListener('resize',updateViewport);
+  window.visualViewport?.addEventListener('scroll',updateViewport);
+  window.addEventListener('resize',updateViewport);
+  window.addEventListener('workspace:resize',updateViewport);
+  window.addEventListener('pageshow',updateViewport);
+  root.addEventListener('focusin',updateViewport);
+  root.addEventListener('focusout',updateViewport);
+  back.hidden = true; root.dataset.view = 'list'; refreshContext();
   return {
-    open, show, showList, dismiss, reset, prepare, refreshContext, minimize,
-    listTarget:list,
-    get active() {return activeSelection();},
-    get available() {return visible;},
-    close() {dismiss();stopped=true;viewportLayer.remove();launcher.remove();window.visualViewport?.removeEventListener('resize',updateViewport);window.visualViewport?.removeEventListener('scroll',updateViewport);window.removeEventListener('resize',updateViewport);window.removeEventListener('workspace:resize',updateViewport);},
+    open,show,showList,dismiss,reset,prepare,refreshContext,minimize,listTarget:list,
+    get active() { return activeSelection(); },
+    get available() { return visible; },
+    get fullscreen() { return root.dataset.mode === 'fullscreen'; },
+    close() {
+      dismiss(); stopped = true; motion?.cancel(); observer.disconnect(); coverWorkspace(false);
+      viewportLayer.remove(); launcher.remove();
+      window.visualViewport?.removeEventListener('resize',updateViewport);
+      window.visualViewport?.removeEventListener('scroll',updateViewport);
+      window.removeEventListener('resize',updateViewport); window.removeEventListener('workspace:resize',updateViewport);
+      window.removeEventListener('pageshow',updateViewport);
+    },
   };
 }

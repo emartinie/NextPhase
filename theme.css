@@ -1,27 +1,37 @@
 /* Activity surface roles remain centralized with the existing Theme Manager. */
 :root {
   --communication-scheme: dark;
-  --communication-bg: #1b222c;
-  --communication-field: #121820;
-  --communication-layer: #283341;
-  --communication-own: #233c53;
-  --communication-text: #eff4f8;
-  --communication-muted: #afbdcb;
-  --communication-edge: #4b5d70;
-  --communication-green: #bddfa8;
-  --communication-blue: #9acbfa;
-  --communication-on-accent: #14221c;
-  --communication-hover: #344456;
+  --communication-bg: #0c1521;
+  --communication-top: #102333;
+  --communication-blue-depth: #112c42;
+  --communication-green-depth: #10312f;
+  --communication-own-depth: #1c4255;
+  --communication-field: #142332;
+  --communication-layer: #1a2b3c;
+  --communication-own: #193c4d;
+  --communication-text: #eef5fb;
+  --communication-muted: #b3c5d4;
+  --communication-edge: #526c81;
+  --communication-divider: #253b4e;
+  --communication-green: #a5dfbf;
+  --communication-blue: #98ccf3;
+  --communication-on-accent: #10251e;
+  --communication-hover: #20394b;
 }
 :root[data-theme="parchment"] {
   --communication-scheme: light;
   --communication-bg: #f1f4f8;
+  --communication-top: #e8eef2;
+  --communication-blue-depth: #e2edf7;
+  --communication-green-depth: #e5eee8;
+  --communication-own-depth: #dceaf8;
   --communication-field: #ffffff;
   --communication-layer: #e4eaf0;
   --communication-own: #dceaf8;
   --communication-text: #1b2733;
   --communication-muted: #45586b;
   --communication-edge: #6b7886;
+  --communication-divider: #cbd6df;
   --communication-green: #345e2c;
   --communication-blue: #205c92;
   --communication-on-accent: #ffffff;
@@ -30,12 +40,17 @@
 :root[data-theme="diagnostic"] {
   --communication-scheme: light;
   --communication-bg: #00e66a;
+  --communication-top: #00e66a;
+  --communication-blue-depth: #00e66a;
+  --communication-green-depth: #00e66a;
+  --communication-own-depth: #00bbd4;
   --communication-field: #fa00ed;
   --communication-layer: #00bbd4;
   --communication-own: #00bbd4;
   --communication-text: #101010;
   --communication-muted: #4b0055;
   --communication-edge: #735b00;
+  --communication-divider: #735b00;
   --communication-green: #00238c;
   --communication-blue: #00238c;
   --communication-on-accent: #ffffff;

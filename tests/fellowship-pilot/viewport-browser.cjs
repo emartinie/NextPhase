@@ -40,9 +40,10 @@ async function main() {
         });
         const result=await page.evaluate(()=>{
           const app=document.querySelector('.app').getBoundingClientRect(),dock=document.querySelector('.dock').getBoundingClientRect();
-          return {app:{x:app.x,y:app.y,width:app.width,height:app.height,bottom:app.bottom},dockBottom:dock.bottom,overflow:document.documentElement.scrollWidth>innerWidth,scrollY};
+        return {app:{x:app.x,y:app.y,width:app.width,height:app.height,bottom:app.bottom},dockBottom:dock.bottom,overflow:document.documentElement.scrollWidth>innerWidth,scrollY,
+          outside:[...document.body.children].map(node=>({name:node.id||node.className,hidden:node.hidden,rect:node.getBoundingClientRect().toJSON()})).filter(item=>item.rect.right>innerWidth+1)};
         });
-        assert.equal(result.overflow,false);assert.equal(result.scrollY,0);assert.ok(result.dockBottom<=result.app.bottom+1);
+        assert.equal(result.overflow,false,JSON.stringify(result));assert.equal(result.scrollY,0);assert.ok(result.dockBottom<=result.app.bottom+1);
         assert.equal(await page.locator('#study .today h2').evaluate(node=>node.scrollWidth<=node.clientWidth+1),true,'Long passage labels must wrap inside their card');
         return result;
       }
@@ -75,7 +76,7 @@ async function main() {
       await page.evaluate(()=>document.body.style.removeProperty('height'));
       await orbitControl('Park player at screen edge');
       await page.getByRole('button',{name:'Open communications',exact:true}).click();
-      await page.getByRole('button',{name:'Minimize communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
       await page.evaluate(async()=>{
         const {audioSession}=await import('./audio-session.js');
         window.__viewportAudio=audioSession.audio;audioSession.audio.muted=true;
@@ -91,9 +92,9 @@ async function main() {
       await page.getByRole('button',{name:'Reopen communications',exact:true}).click();
       await page.waitForFunction(()=>{
         const box=document.querySelector('.communication-surface').getBoundingClientRect(),app=document.querySelector('.app').getBoundingClientRect(),dock=document.querySelector('.dock').getBoundingClientRect();
-        return box.top>=app.top&&box.bottom<=dock.top+1;
+        return box.top>=app.top&&box.bottom<=app.bottom+1&&Math.abs(box.width-app.width)<1;
       });
-      await page.getByRole('button',{name:'Close communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
 
       await page.setViewportSize({width:320,height:640});await layout(560,320);await chromeFits();
       await page.evaluate(()=>{
@@ -137,7 +138,9 @@ async function main() {
       await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async value=>{window.__layoutCopy=value;}},configurable:true}));
       await page.getByRole('button',{name:'Copy layout details',exact:true}).click();
       const report=JSON.parse(await page.evaluate(()=>window.__layoutCopy));
-      assert.deepEqual(Object.keys(report),['build','device','viewportPolicy','safeArea','screen','visual','app','header','dock','week','appPosition','brandFont']);
+      assert.deepEqual(Object.keys(report),['build','device','viewportPolicy','safeArea','screen','visual','app','header','dock','week','appPosition','brandFont','communication','communicationTrace']);
+      assert.equal(report.communication.mode,'minimized');
+      assert.ok(report.communicationTrace.length<=40);
       assert.equal(report.viewportPolicy,'width=device-width, initial-scale=1');
       assert.equal(report.device.pixelRatio,3);
       assert.equal(report.device.standalone,false);

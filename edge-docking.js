@@ -17,6 +17,28 @@ export function workspaceRect() {
   return {...rect, width:Math.max(0,rect.right-rect.left), height:Math.max(0,rect.bottom-rect.top)};
 }
 
+// Full-screen communications are independent of the covered workspace's
+// screen position. Keyboard panning can move that workspace outside the visual
+// viewport. Anchor one absolute layer in document coordinates instead of
+// intersecting its fixed descendants with the moved workspace rectangle.
+export function communicationRect() {
+  const viewport = window.visualViewport;
+  const app = document.querySelector('.app');
+  const width = viewport?.width ?? document.documentElement.clientWidth;
+  const height = viewport?.height ?? innerHeight;
+  // Retain the last valid layout during transient keyboard/rotation metrics.
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
+  const left = Number.isFinite(viewport?.pageLeft) ? viewport.pageLeft : scrollX + (viewport?.offsetLeft || 0);
+  const top = Number.isFinite(viewport?.pageTop) ? viewport.pageTop : scrollY + (viewport?.offsetTop || 0);
+  return {
+    left:Math.max(0,left), top:Math.max(0,top),
+    width:Math.min(width,app?.offsetWidth || width),
+    // Preserve the existing conservative toolbar/small-viewport size cap,
+    // using layout dimensions rather than a focus-panned bounding rectangle.
+    height:Math.min(height,app?.offsetHeight || height),
+  };
+}
+
 export function initWorkspaceViewport() {
   const root = document.documentElement, viewport = window.visualViewport;
   let frame, lastReset;
@@ -60,6 +82,28 @@ export function initWorkspaceViewport() {
   };
 }
 
+const communicationLayoutTrace = [];
+function communicationLayout() {
+  const element = document.querySelector('.communication-surface');
+  if (!element) return null;
+  const box = node => {
+    const rect = node.getBoundingClientRect();
+    return {x:rect.x,y:rect.y,width:rect.width,height:rect.height};
+  };
+  return {mode:element.dataset.mode,hidden:element.hidden,inert:element.inert,
+    visibility:getComputedStyle(element).visibility,frame:box(element),
+    layer:box(element.parentElement),workspace:box(document.querySelector('.app'))};
+}
+export function recordCommunicationLayout(reason) {
+  if (new URLSearchParams(location.search).get('layout') !== 'check') return;
+  const viewport = window.visualViewport;
+  communicationLayoutTrace.push({reason,at:Math.round(performance.now()),scrollX,scrollY,
+    focus:document.activeElement?.tagName,
+    visual:viewport ? {width:viewport.width,height:viewport.height,offsetTop:viewport.offsetTop,pageTop:viewport.pageTop,scale:viewport.scale} : null,
+    communication:communicationLayout()});
+  if (communicationLayoutTrace.length > 40) communicationLayoutTrace.shift();
+}
+
 export function layoutDetails() {
   const rect = selector => {
     const node = document.querySelector(selector);
@@ -77,7 +121,7 @@ export function layoutDetails() {
   probe.remove();
   return {
     build:document.querySelector('meta[name="homegroups-build"]')?.content || 'local',
-    device:{width:window.screen.width,height:window.screen.height,pixelRatio:devicePixelRatio,standalone:matchMedia('(display-mode:standalone)').matches},
+    device:{width:window.screen.width,height:window.screen.height,pixelRatio:devicePixelRatio,standalone:matchMedia('(display-mode:standalone)').matches || navigator.standalone === true},
     viewportPolicy:document.querySelector('meta[name="viewport"]')?.content || '',
     safeArea,
     screen:{width:innerWidth,height:innerHeight,clientWidth:document.documentElement.clientWidth,clientHeight:document.documentElement.clientHeight,scrollX,scrollY},
@@ -85,6 +129,8 @@ export function layoutDetails() {
     app:rect('.app'),header:rect('.top'),dock:rect('.dock'),week:rect('#week-button'),
     appPosition:getComputedStyle(document.querySelector('.app')).position,
     brandFont:getComputedStyle(document.querySelector('.brand')).fontSize,
+    communication:communicationLayout(),
+    communicationTrace:communicationLayoutTrace.slice(),
   };
 }
 
