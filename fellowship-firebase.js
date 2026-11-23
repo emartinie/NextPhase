@@ -12,7 +12,7 @@ function signInError(error) {
     case 'auth/operation-not-allowed':
       return 'Google sign-in needs to be enabled in HomeGroups Fellowship first.';
     case 'auth/unauthorized-domain':
-      return 'This preview address needs to be added to the project’s authorized domains.';
+      return 'Google sign-in is not enabled for this website address yet. Please contact HomeGroups.';
     case 'auth/popup-blocked':
       return 'Your browser blocked Google sign-in. Allow the sign-in window and try again.';
     case 'auth/popup-closed-by-user':
@@ -43,7 +43,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
 
   async function connect() {
     const response = await fetch(configPath, { signal: controller.signal });
-    if (!response.ok) throw new Error('The Firebase preview configuration could not be loaded.');
+    if (!response.ok) throw new Error('Could not connect to HomeGroups Fellowship. Please reload to try again.');
     const config = await response.json();
     if (config.projectId !== projectId) throw new Error('Expected the HomeGroups Fellowship Firebase project.');
     const [firebase, authSdk] = await Promise.all([
