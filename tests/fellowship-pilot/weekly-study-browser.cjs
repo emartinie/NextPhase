@@ -6,7 +6,8 @@ const { createPreviewServer, startPagesCheck, pagesMount } = require('../../serv
 async function main() {
   const server = createPreviewServer({ mount: pagesMount });
   const local = await startPagesCheck(server);
-  const origin = 'https://emartinie.github.io';
+  // Keep the non-Firebase static-host branch covered even as Pages gains sign-in.
+  const origin = 'https://public-homegroups.example';
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.NEXTPHASE_CHROME || undefined,
@@ -87,7 +88,7 @@ async function main() {
     assert.equal(await renderPage.locator('#study h1').innerText(), 'He Sent');
     assert.equal(await renderPage.getByRole('button', { name: 'Try again', exact: true }).count(), 0);
     assert.deepEqual(errors, []);
-    console.log('Passed public GitHub Pages origin: default Week 8, Week 7/8 navigation, Fellowship conversation links, bundled reader, and recovery after download or render failure. All requests intercepted; no live sign-in, data or Firebase changes.');
+    console.log('Passed non-Firebase public origin: default Week 8, Week 7/8 navigation, Fellowship conversation links, bundled reader, and recovery after download or render failure. All requests intercepted; no live sign-in, data or Firebase changes.');
   } finally {
     await browser?.close();
     await new Promise(resolve => server.close(resolve));
