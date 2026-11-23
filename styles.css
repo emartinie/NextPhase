@@ -352,16 +352,18 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .communication-surface .conversation-stream .message p{line-height:1.5;margin:2px 0}
 .communication-surface .conversation-stream .message .quiet{max-width:100%;white-space:normal;text-align:left;border-color:var(--communication-edge);font-size:14px}
 .communication-surface .conversation-saved{position:static;display:block;margin-top:3px;text-align:right;font-size:10px;line-height:1;color:var(--muted)}
-.communication-surface .conversation-composer{align-self:center;width:min(100%,880px);margin:0 auto!important;padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:8px;border-top:1px solid var(--communication-divider);background:var(--card)}
+.communication-surface .conversation-composer{align-self:center;width:min(100%,880px);min-width:0;grid-template-columns:46px minmax(0,1fr) 46px;margin:0 auto!important;padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:8px;border-top:1px solid var(--communication-divider);background:var(--card)}
 .communication-surface .conversation-composer textarea{font-size:16px;min-height:46px;border-color:var(--communication-divider);background:var(--field-surface);padding:11px 14px;box-shadow:none}
 .communication-surface .conversation-composer>.form-caption{font-size:12px}
 .communication-surface .conversation-composer>button{height:46px;width:46px;min-height:46px;border:0;font-size:24px}
 .communication-surface .conversation-attachment summary{min-height:46px;height:46px;border:0;background:transparent;color:var(--communication-blue)}
-.communication-attachment-panel{position:absolute;bottom:calc(100% + 8px);inset-inline:12px;z-index:3;max-height:min(300px,calc(var(--window-height) - 140px));overflow:auto;padding:14px;border:1px solid var(--communication-divider);border-radius:16px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
+.conversation-composer>.conversation-attachment{position:static;min-width:0}
+.conversation-attachment-panel{position:absolute;bottom:calc(100% + 8px);inset-inline:12px;z-index:3;width:auto;min-width:0;max-width:calc(100% - 24px);max-height:min(300px,var(--conversation-attachment-room,calc(var(--window-height) - 140px)));overflow:auto;overscroll-behavior:contain;touch-action:pan-y;padding:14px;border:1px solid var(--communication-divider);border-radius:16px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
 .conversation-attachment-panel>label{font-size:12px}
-.conversation-context-actions{display:grid;gap:6px;margin-bottom:8px}
+.communication-surface .conversation-composer:has(>.conversation-attachment[open])>.conversation-reference-preview{display:none}
+.conversation-context-actions{display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;gap:6px;margin-bottom:8px}
 .conversation-context-actions:empty{display:none}
-.conversation-context-actions .quiet{font-size:13px;text-align:left;overflow-wrap:anywhere}
+.conversation-context-actions .quiet{display:block;width:100%;min-width:0;max-width:100%;font-size:13px;text-align:left;white-space:normal;word-break:normal;overflow-wrap:break-word}
 .communication-surface .conversation-attachment-panel input{margin-top:6px}
 .conversation-reference-preview{grid-column:1/-1;display:flex;align-items:center;gap:4px;min-width:0}
 .conversation-reference-preview .quiet{min-height:36px;font-size:12px;padding:6px 10px;color:var(--communication-blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -377,7 +379,7 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .top-actions{display:flex;align-items:center;gap:5px}
 #workspace-share{font-size:12px;padding-inline:8px}
 @media(max-width:380px){#workspace-share{display:none!important}}
-@media(max-height:400px){.communication-surface .conversation-window-header{min-height:54px;padding-block:5px}.communication-kicker{font-size:9px}.communication-title h2{font-size:17px}.communication-surface .conversation-composer{padding-block:7px}.communication-surface .conversation-stream{padding-block:8px}}
+@media(max-height:400px){.communication-surface .conversation-window-header{min-height:54px;padding-block:5px}.communication-kicker{font-size:9px}.communication-title h2{font-size:17px}.communication-surface .conversation-composer{padding-block:7px}.communication-surface .conversation-stream{padding-block:8px}.conversation-attachment-panel{padding:8px 12px}}
 dialog[data-activity=true]{z-index:4}
 .communication-surface::before{position:absolute;inset:0 0 auto;z-index:2;height:1px;content:"";pointer-events:none;background:linear-gradient(90deg,var(--communication-top),var(--communication-blue),var(--communication-green),var(--communication-top));opacity:.5}
 .communication-surface{background-image:radial-gradient(ellipse at 100% 0,var(--communication-blue-depth),transparent 52%),radial-gradient(ellipse at 0 100%,var(--communication-green-depth),transparent 58%)}

@@ -96,6 +96,112 @@ async function main() {
   async function restore(page) {
     await page.getByRole('button',{name:'Reopen communications',exact:true}).click();await full(page);
   }
+  async function attachmentChecks(page) {
+    const draft='Keep this reply while choosing a passage.\n'+'An unfinished thought worth preserving.\n'.repeat(5);
+    await field(page).fill(draft);
+    await park(page);
+    await page.getByRole('button',{name:'Read passage',exact:true}).click();
+    await page.locator('#dialog .verse').first().waitFor();
+    await page.getByLabel('Scripture reference',{exact:true}).fill('Genesis 32:4–32:13');
+    await page.getByRole('button',{name:'Open passage',exact:true}).click();
+    await page.locator('.verse[data-reference="Genesis 32:13"]').waitFor();
+    await restore(page);
+    const tray=surface(page).locator('.conversation-attachment-panel');
+    const toggle=surface(page).locator('.conversation-attachment > summary');
+    const refField=surface(page).getByLabel('Scripture reference (optional)',{exact:true});
+    const count=fixture.posts.get(dorothy).length;
+    const baseComposer=(await surface(page).locator('.conversation-composer').boundingBox()).height;
+    async function readable(label) {
+      await page.waitForFunction(()=>{
+        const root=document.querySelector('.communication-surface'),panel=root.querySelector('.conversation-attachment-panel');
+        const box=panel.getBoundingClientRect(),frame=root.getBoundingClientRect(),header=root.querySelector('.conversation-window-header').getBoundingClientRect(),form=root.querySelector('.conversation-composer').getBoundingClientRect();
+        const field=root.querySelector('textarea').getBoundingClientRect(),button=panel.querySelector('button').getBoundingClientRect();
+        return getComputedStyle(panel).position==='absolute'&&box.width>=Math.min(300,frame.width-40)&&button.width>=220&&box.top>=header.bottom+4&&box.bottom<=form.top-3&&field.bottom<=frame.bottom+1;
+      });
+      const result=await page.evaluate(()=>{
+        const root=document.querySelector('.communication-surface'),panel=root.querySelector('.conversation-attachment-panel'),form=root.querySelector('.conversation-composer');
+        const box=panel.getBoundingClientRect(),reply=form.querySelector('textarea').getBoundingClientRect();
+        return {width:box.width,height:box.height,top:box.top,replyBottom:reply.bottom,frameBottom:root.getBoundingClientRect().bottom,scrolls:panel.scrollHeight>panel.clientHeight,overflow:getComputedStyle(panel).overflowY,offsetParent:panel.offsetParent.className,actionHeights:[...panel.querySelectorAll('.conversation-context-actions button')].map(item=>item.getBoundingClientRect().height)};
+      });
+      assert.equal(result.offsetParent,'conversation-composer');
+      assert.equal(result.overflow,'auto');
+      assert.ok(result.actionHeights.every(height=>height<=84),'Long passage labels must wrap as ordinary readable lines');
+      assert.equal(await field(page).inputValue(),draft,'Opening and resizing must preserve the entire unfinished reply');
+      assert.equal(fixture.posts.get(dorothy).length,count,'Attachment actions must not send a message');
+      console.log('Readable attachment '+label+': '+JSON.stringify(result));
+      return result;
+    }
+    await toggle.click();
+    await surface(page).getByRole('button',{name:/^Attach Genesis 32/}).waitFor();
+    await readable('Genesis / 375px');
+    assert.ok((await surface(page).locator('.conversation-composer').boundingBox()).height<=baseComposer,'Opening the chooser must not grow the composer');
+    await page.screenshot({path:path.join(artifacts,'06-attachment-phone.png')});
+    await toggle.click();
+    await tray.waitFor({state:'hidden'});
+    assert.equal(await field(page).inputValue(),draft);
+    // Reopen/select through actual UI, retaining review-before-send and the attached reference.
+    await toggle.click();
+    await surface(page).getByRole('button',{name:/^Attach Genesis 32/}).click();
+    await tray.waitFor({state:'hidden'});
+    assert.equal(await refField.inputValue(),'Genesis 32:4–32:13');
+    assert.equal(await field(page).inputValue(),draft);
+    await toggle.click();
+    for(const size of [{width:320,height:481},{width:375,height:300},{width:320,height:260},{width:375,height:240}]) {
+      await page.setViewportSize(size);await full(page);
+      const result=await readable(size.width+'x'+size.height+' / existing attachment');
+      if(size.height<=300)assert.equal(result.scrolls,true,'A short viewport must scroll the tray internally');
+      if(size.width===320&&size.height===260)await page.screenshot({path:path.join(artifacts,'07-attachment-keyboard-sized.png')});
+    }
+    // Focus and scroll the reference field inside the bounded tray, not the outer page.
+    await refField.fill('Ezekiel 37:1–5');
+    await readable('reference input focused');
+    await page.waitForFunction(()=>{
+      const panel=document.querySelector('.conversation-attachment-panel'),input=panel.querySelector('input'),a=input.getBoundingClientRect(),b=panel.getBoundingClientRect();
+      return a.top>=b.top&&a.bottom<=b.bottom;
+    });
+    assert.equal(await page.evaluate(()=>scrollY),0);
+    await page.keyboard.press('Escape');await tray.waitFor({state:'hidden'});
+    assert.equal(await surface(page).getAttribute('data-mode'),'fullscreen','Escape closes attachments before sideparking');
+    assert.equal(await refField.inputValue(),'Ezekiel 37:1–5');
+    // A longer real book label, reached using the existing public reader.
+    await park(page);
+    await page.getByLabel('Scripture reference',{exact:true}).fill('1 Thessalonians 4:13–5:11');
+    await page.getByRole('button',{name:'Open passage',exact:true}).click();
+    await page.locator('.verse[data-reference="I Thessalonians 5:11"]').waitFor();
+    await page.setViewportSize({width:375,height:481});await restore(page);
+    await toggle.click();
+    await surface(page).getByRole('button',{name:/^Attach 1 Thessalonians/}).waitFor();
+    await readable('long book / portrait');
+    // Safari can shrink/pan its visual viewport without changing the layout viewport.
+    await page.evaluate(()=>{
+      window.__nativeAttachmentViewport=visualViewport;
+      const viewport=Object.assign(new EventTarget(),{width:375,height:260,offsetTop:40,offsetLeft:0,scale:1});
+      Object.defineProperty(window,'visualViewport',{value:viewport,configurable:true});
+      window.dispatchEvent(new Event('resize'));
+    });
+    await full(page);await readable('visual viewport 260px / offset 40px');
+    await page.screenshot({path:path.join(artifacts,'08-attachment-visual-viewport.png')});
+    await refField.fill('Genesis 32:4–32:13');await readable('visual viewport / input focus');
+    await page.evaluate(()=>{
+      Object.defineProperty(window,'visualViewport',{value:window.__nativeAttachmentViewport,configurable:true});
+      delete window.__nativeAttachmentViewport;window.dispatchEvent(new Event('resize'));
+    });
+    await full(page);
+    await surface(page).getByRole('button',{name:'Share passage link…',exact:true}).click();
+    await surface(page).getByText('Passage link copied.',{exact:true}).waitFor();
+    const link=await page.evaluate(()=>window.__testClipboard);
+    assert.equal(new URL(link).searchParams.has('room'),false);
+    assert.equal(new URL(link).searchParams.has('pilot'),false);
+    await readable('external share / no send');
+    await surface(page).getByRole('button',{name:/^Attach 1 Thessalonians/}).click();
+    await tray.waitFor({state:'hidden'});
+    assert.equal(await refField.inputValue(),'1 Thessalonians 4:13–5:11');
+    assert.equal(await field(page).inputValue(),draft);
+    assert.equal(fixture.posts.get(dorothy).length,count);
+    await surface(page).getByRole('button',{name:'Remove attached Scripture',exact:true}).click();
+    await park(page);await page.locator('#close').click();await restore(page);
+    console.log('Passed attachments: full-width long labels, bounded internally scrolling tray, accessible composer, compact/editing focus, viewport resize/offset, toggle/Escape/select, external sharing and preserved unsent draft.');
+  }
   try {
     browser=await chromium.launch({executablePath:process.env.NEXTPHASE_CHROME||undefined,args:['--disable-gpu','--renderer-process-limit=2','--disable-gpu-shader-disk-cache','--disk-cache-size=1048576']});
     const phone=await open('miriam',true);
@@ -107,6 +213,8 @@ async function main() {
     await phone.screenshot({path:path.join(artifacts,'01-conversations-phone.png')});
     await surface(phone).getByRole('button',{name:'Dorothy (test)',exact:true}).click();
     await surface(phone).getByText('Earlier message 29',{exact:false}).waitFor();
+    await attachmentChecks(phone);
+    if (process.argv.includes('--attachments-only')) { assert.deepEqual(errors,[]); return; }
     await field(phone).fill('My unfinished reply to Dorothy');
     await phone.locator('.conversation-stream').evaluate(node=>{node.scrollTop=100;});
     const savedTop=await phone.locator('.conversation-stream').evaluate(node=>node.scrollTop);
@@ -189,6 +297,15 @@ async function main() {
     await surface(peer).getByRole('button',{name:'Eddie (test)',exact:true}).click();
     await surface(peer).getByText('My unfinished reply to Dorothy',{exact:true}).waitFor();
     await full(peer);
+    await surface(peer).locator('.conversation-attachment > summary').click();
+    const desktopTray=surface(peer).locator('.conversation-attachment-panel');
+    await desktopTray.waitFor();
+    assert.ok((await desktopTray.boundingBox()).width>=700,'Desktop attachments use the readable composer width');
+    assert.ok((await desktopTray.boundingBox()).y>=(await surface(peer).locator('.conversation-window-header').boundingBox()).height);
+    await surface(peer).getByLabel('Scripture reference (optional)',{exact:true}).fill('Genesis 32:4–32:13');
+    await peer.keyboard.press('Escape');
+    await desktopTray.waitFor({state:'hidden'});
+    await surface(peer).getByRole('button',{name:'Remove attached Scripture',exact:true}).click();
     await field(peer).fill('Yes, let’s read that together.');
     await surface(peer).getByRole('button',{name:'Send reply',exact:true}).click();
     await surface(phone).getByText('Yes, let’s read that together.',{exact:true}).waitFor();
