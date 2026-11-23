@@ -47,7 +47,7 @@ async function main() {
     await page.locator('#study .today').waitFor();
     await page.getByRole('button',{name:'Open communications',exact:true}).click();
     await surface(page).getByRole('button',{name:'Sign in with Google',exact:true}).click();
-    await surface(page).getByRole('button',{name:'Household',exact:true}).waitFor();
+    await surface(page).getByRole('button',{name:'Family',exact:true}).waitFor();
     return page;
   }
   async function checkThemeContrast(page,theme) {
@@ -66,12 +66,12 @@ async function main() {
   const artifacts=path.resolve('.pilot-tmp/communicator-fullscreen');
   require('node:fs').mkdirSync(artifacts,{recursive:true});
   async function full(page) {
-    await page.waitForFunction(()=>{
+    await page.waitForFunction(expected=>{
       const root=document.querySelector('.communication-surface'),app=document.querySelector('.app');
       if(root.dataset.mode!=='fullscreen'||root.hidden||root.inert||!app.inert)return false;
       const a=root.getBoundingClientRect(),b=app.getBoundingClientRect(),v=visualViewport;
-      return Math.abs(a.left-b.left)<1&&Math.abs(a.width-b.width)<1&&Math.abs(a.height-Math.min(b.height,v.height))<1&&a.top>=0&&a.bottom<=innerHeight+1;
-    });
+      return Math.abs(b.width-expected.width)<1&&Math.abs(a.left-b.left)<1&&Math.abs(a.width-b.width)<1&&Math.abs(a.height-Math.min(b.height,v.height))<1&&a.top>=0&&a.bottom<=innerHeight+1;
+    },page.viewportSize());
     await page.evaluate(()=>Promise.all(document.querySelector('.communication-surface').getAnimations().map(animation=>animation.finished.catch(()=>{}))));
     assert.equal(await page.locator('.app').evaluate(node=>getComputedStyle(node).visibility),'hidden','Background workspace must not compete with the communicator');
     assert.equal(await surface(page).getByRole('button',{name:/Expand communications|Reduce communications|Close communications/}).count(),0);
@@ -332,6 +332,10 @@ async function main() {
     for(const theme of ['cosmic','sapphire','parchment','olam-haba','diagnostic','nextphase'])await checkThemeContrast(phone,theme);
     await checkThemeContrast(phone,'cosmic');
     await phone.screenshot({path:path.join(artifacts,'01-conversations-phone.png')});
+    await surface(phone).getByRole('button',{name:'Family',exact:true}).click();
+    assert.equal(await phone.locator('#active-conversation-name').textContent(),'Family');
+    await surface(phone).locator('.conversation-composer').waitFor();
+    await back(phone);
     await surface(phone).getByRole('button',{name:'Dorothy (test)',exact:true}).click();
     await surface(phone).getByText('Earlier message 29',{exact:false}).waitFor();
     await keyboardViewportChecks(phone);
@@ -456,8 +460,8 @@ async function main() {
     assert.equal(await field(phone).inputValue(),'','Account sign-out must erase private drafts');
     await phone.context().close();
     const outsider=await open('outsider');
-    await surface(outsider).getByRole('button',{name:'Household',exact:true}).click();
-    await surface(outsider).getByText('This account does not have access to Household conversation.',{exact:false}).waitFor();
+    await surface(outsider).getByRole('button',{name:'Family',exact:true}).click();
+    await surface(outsider).getByText('This account does not have access to Family conversation.',{exact:false}).waitFor();
     assert.equal(await field(outsider).isVisible(),false);
     assert.equal(await surface(outsider).locator('.message').count(),0);
     assert.deepEqual(errors,[]);

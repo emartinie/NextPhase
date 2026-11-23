@@ -2,6 +2,8 @@
 
 NextPhase opens to the current weekly Bible study. It is a development and review environment. The default demo mode includes local simulated Fellowship discussions, private conversations, games and preparedness exercises. The separate HomeGroups Fellowship Firebase pilot uses real authentication and authorized persisted messages; see its operational section below. Neither mode connects to the original HomeGroups production data.
 
+Production cutover is being prepared separately. Reviewed HTTPS HomeGroups/Firebase production destinations now select the real communication path automatically, using Firebase Hosting's reserved configuration endpoint; this requires the actual Hosting/domain/Auth setup and does not turn local learning/preparedness demonstrations into delivered community conversations. [Cutover status, remaining legacy dependencies and release requirements](PRODUCTION-CUTOVER.md).
+
 - **Study** has the weekly schedule, daily readings, Passage reader, and personal notes.
 - **Study Tools** opens Covenants & Commandments, New Testament Notes, Hebrew Library, Teachers & Scholars, Sources and Investigations, Learning, Prayer Map, and Calendar.
 - **Study discussion** flips to the current week's Fellowship. Game invitations remain in its contextual actions.

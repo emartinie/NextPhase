@@ -1,7 +1,6 @@
 
 const original = 'https://github.com/emartinie/HGBibleApp/blob/1e31cc4dd984adc638db2aa87571618fee1f3e31/';
 export const catalogSource = 'https://github.com/emartinie/MainStage/blob/5766768580e6252f81a49df18f1218d94a645052/2-prepper/flat_index.json';
-export const legacyLibrary = 'https://emartinie.github.io/MainStage/2-prepper/index.html';
 export const radioSource = original + 'cards/amateurradio.html';
 export const mapSource = original + 'js/radiomap.js';
 export const prayerSource = original + 'js/prayermap.js';

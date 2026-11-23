@@ -106,7 +106,11 @@ export function createStudyTools({ node, text, button, link, cluster, disclosure
     for (const item of links ?? []) {
       if (typeof item?.url !== 'string') continue;
       if (item.url.startsWith('?card=ancient-library')) {
-        actions.append(link(item.label + ' · HomeGroups ↗', 'https://emartinie.github.io/HGBibleApp/' + item.url));
+        const query = new URLSearchParams(item.url.slice(1));
+        const data = Object.fromEntries(['book', 'work', 'volume', 'chapter', 'verse', 'q']
+          .filter(key => query.has(key)).map(key => [key,query.get(key)]));
+        const view = data.book ? data.chapter ? 'ancientRead' : 'ancientDetail' : 'ancientLibrary';
+        actions.append(button(item.label, () => open(view,data)));
       } else if (webUrl(item.url)) {
         const ref = /^https?:\/\/(?:www\.)?sefaria\.org\//i.test(item.url) ? sefariaRef(item.url) : '';
         actions.append(ref ? button(item.label, () => open('sefaria', { ref, url: item.url })) : link(item.label || 'Open source ↗', item.url));

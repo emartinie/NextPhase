@@ -2,6 +2,8 @@
 
 This development pass starts from merged NextPhase commit `01d91189b59e66d3e17b753e3c2b3841416d54d2` on `feature/fullscreen-communicator`. It supersedes the floating presentation in MODELESS-CONVERSATION.md; the existing Firebase services, message schema, rules, authorization and page-memory session model remain unchanged.
 
+Owner acceptance, 23 November 2026: Eddie confirmed keyboard and attachment behavior passed in both ordinary iPhone Safari and the installed Home Screen app, then authorized the merge. PR #10 merged as `79f656b24530a3b15b18fd0a6ab6f6ccd6af63ba`. This supersedes the earlier pending-device-review labels below; those remain the historical implementation record. The full homegroups.org replacement has separate [cutover requirements](PRODUCTION-CUTOVER.md).
+
 ## Two presentations
 
 - **Full screen:** the one communication surface fills the available application/visual viewport on mobile and desktop. Its list and active conversation remain views of the same surface. There is no floating-width layout, drag grip, expand/reduce control or competing HomeGroups header/dock.

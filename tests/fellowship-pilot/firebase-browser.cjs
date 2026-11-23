@@ -163,10 +163,10 @@ async function main() {
       assert.equal(conversationReads.filter(item=>item.uid==='outsider'&&item.path.endsWith('/messages')).length,0);
       assert.deepEqual(membershipReads,[]);
       assert.equal(profiles.size,0);
-      await first.getByRole('button',{name:'Household conversation',exact:true}).click();
+      await first.getByRole('button',{name:'Family conversation',exact:true}).click();
       await first.getByText('Community members: Miriam Ellis, Daniel Brooks, Ruth, Ezra',{exact:true}).waitFor();
       await send(first,'The household room works under the existing group rules.');
-      await second.getByRole('button',{name:'Household conversation',exact:true}).click();
+      await second.getByRole('button',{name:'Family conversation',exact:true}).click();
       await second.getByText('The household room works under the existing group rules.',{exact:true}).waitFor();
       assert.deepEqual(pageErrors,[]);
       console.log('Passed published-rules contract: direct membership/profile reads denied, authorized replies and Scripture return work, nonmembers remain blocked.');
@@ -341,7 +341,7 @@ async function main() {
     assert.equal(await privateDraft.inputValue(),'Keep my private draft');
     const chooseHousehold=async page=>{
       await page.locator('.fellowship-links').getByRole('button',{name:'Chat with…',exact:true}).click();
-      await page.getByRole('button',{name:'Household conversation',exact:true}).click();
+      await page.getByRole('button',{name:'Family conversation',exact:true}).click();
       await page.getByRole('textbox',{name:'Reply',exact:true}).waitFor();
     };
     for(const page of householdPages) await chooseHousehold(page);
