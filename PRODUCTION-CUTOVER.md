@@ -49,6 +49,12 @@ Full replacement is **not yet ready**. The approved Communicator merge is comple
 
 ## Consolidated NextPhase baseline
 
+### GitHub Pages startup correction
+
+The first consolidated Pages build exposed a host-specific regression: `renderFellowship` and its conversation-list panel still referenced the removed `hostedFellowshipPreview` variable. A browser using the GitHub Pages origin reproduced `ReferenceError` after the Week 8 JSON returned HTTP 200. The shared render catch replaced the study with a misleading load error; its cached content also made Try again return without retrying.
+
+Both obsolete references are removed, preserving the localhost-only developer links and the separate authorized Firebase-host path. A failed render now clears its incomplete content checkpoint so Try again can rerender. The focused `weekly-study-browser.cjs` exercises the GitHub Pages origin with local-only request interception: default Week 8, Week 7/8 selection, the Fellowship conversation list, bundled reader, failed-download recovery and a one-time rendering failure followed by successful retry. This reproduces the host-selection failure without requiring real accounts or changing live services; it is not physical Safari verification.
+
 Eddie requested merging the completed NextPhase work into one clean main codebase. This is source consolidation, not approval to publish Hosting, change DNS, or modify live Firebase rules, Authentication or records. The existing four-account community and saved conversations are preserved. Its visible Household labels now read Family; stored group, room and private-chat identifiers remain unchanged.
 
 Automatic per-member Family provisioning and self-service Family invitations are deferred. Their unmerged local preparation is preserved separately and is not included in this baseline. In particular, signing in does not grant access to another family's conversations, and new-relative onboarding is not claimed as operational. The future requirement is one unique initial Family for each newly provisioned Fellowship member, idempotent creation, and separately authorized invitations between families.
