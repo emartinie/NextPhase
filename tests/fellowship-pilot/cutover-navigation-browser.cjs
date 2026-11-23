@@ -43,8 +43,67 @@ async function main(){
     await page.getByRole('button',{name:'Find members',exact:true}).click();
     assert.equal(await page.getByRole('link',{name:'Original member map',exact:true}).count(),0);
     assert.equal(await page.locator('.fellowship-map-picker').isVisible(),true);
+    // Known copied article permalinks reuse supplied text; unknown pages stay
+    // unresolved, and outside-source URLs are not reclassified as local text.
+    const locations=await page.evaluate(async()=>{
+      const {articleLocation}=await import('./learning.js');
+      return [
+        'https://homegroups.org/the-remnant/#line%201',
+        'http://www.homegroups.org/WHERE-DID-THE-SABBATH-GO/',
+        'https://homegroups.org/equipping/the-story/',
+        'https://homegroups.org/vision/',
+        'https://homegroups.org.example.com/the-remnant/',
+        'https://www.sefaria.org/Genesis.1',
+      ].map(articleLocation);
+    });
+    assert.deepEqual(locations,[
+      {file:'the_remnant.html',anchor:'line 1'},
+      {file:'where_did_the_sabbath_go.html',anchor:''},
+      {file:'the_story.html',anchor:''}, {file:''}, {file:''}, {file:''},
+    ]);
+    const articleCatalog=require('../../corpus/learning/index.json').articles;
+    for(const file of ['where_did_the_sabbath_go.html','the_remnant.html','torah_commandments.html','the_law_is_dead.html','the_story.html']) {
+      assert.ok(articleCatalog.some(item=>item.file===file),'Mapped permalink must name a supplied catalog article: '+file);
+    }
+    await page.goto(url+'?week=7&card=articles&file=torah_commandments.html');
+    const localArticle=page.locator('.learning-article a[href*="file=the_remnant.html"]').first();
+    await localArticle.waitFor();await localArticle.click();
+    await page.waitForFunction(()=>new URL(location.href).searchParams.get('file')==='the_remnant.html');
+    await page.locator('.learning-article').waitFor();
+    assert.equal(new URL(page.url()).origin,new URL(url).origin);
+    assert.equal(page.context().pages().length,1);
+    await page.goto(url+'?week=46');
+    await page.getByRole('button',{name:'Tools',exact:true}).click();
+    await page.getByRole('button',{name:/^Weekly commentary/}).click();
+    const commentaryLink=page.locator('#dialog a[href*="file=the_story.html"]').first();
+    await commentaryLink.waitFor();await commentaryLink.click();
+    await page.waitForFunction(()=>new URL(location.href).searchParams.get('file')==='the_story.html');
+    await page.locator('.learning-article').waitFor();
+    // Real production-host policy with a failed Firebase config request. All
+    // requests are intercepted locally; this does not contact homegroups.org.
+    const publicPage=await browser.newPage({...devices['iPhone 13'],viewport:{width:375,height:667}});
+    publicPage.setDefaultTimeout(25000);
+    let configRequests=0;
+    await publicPage.route('**/*',async route=>{
+      const address=new URL(route.request().url());
+      if(address.hostname!=='homegroups.org')return route.abort();
+      if(address.pathname==='/__/firebase/init.json'){
+        configRequests++;
+        return route.fulfill({status:503,contentType:'application/json',body:'{}'});
+      }
+      const local=new URL(address.pathname+address.search,new URL(url).origin);
+      const response=await fetch(local,{headers:route.request().headers().range?{Range:route.request().headers().range}:{}});
+      return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
+    });
+    await publicPage.goto('https://homegroups.org/NextPhase/?week=7');
+    await publicPage.locator('#study .today').waitFor();
+    await publicPage.getByRole('button',{name:'Read passage',exact:true}).click();
+    await publicPage.locator('#dialog .verse').first().waitFor();
+    assert.ok((await publicPage.locator('#dialog .verse-text').first().textContent()).trim());
+    assert.ok(configRequests>0,'Exercise the real hosted Firebase path, not local demo mode');
+    await publicPage.close();
     assert.deepEqual(errors,[]);
-    console.log('Passed phone-sized cutover routes: covenant source → local Ancient Library with exact work/volume/chapter, local Be Ready catalog return, and member discovery without legacy-map navigation. External source citations remain intentional.');
+    console.log('Passed phone-sized cutover routes: exact local Ancient Library citations, Be Ready return, member discovery, supplied-article permalinks and public bundled Scripture despite Firebase config failure. External sources and unresolved legacy pages are not silently replaced. No live requests or writes.');
   }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

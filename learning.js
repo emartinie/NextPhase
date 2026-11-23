@@ -5,8 +5,26 @@ import { audioSession } from './audio-session.js';
 const progressKey = 'nextphase-learning-paths-v1';
 const legacyProgressKey = 'hg:discipleship:v1';
 const originalArticles = 'https://github.com/emartinie/HGBibleApp/blob/';
+// Exact supplied articles only. Unknown legacy pages remain unresolved rather
+// than being silently redirected to a different resource.
+const legacyArticles = {
+  '/where-did-the-sabbath-go':'where_did_the_sabbath_go.html',
+  '/the-remnant':'the_remnant.html',
+  '/torah-commandments':'torah_commandments.html',
+  '/the-law-is-dead':'the_law_is_dead.html',
+  '/equipping/the-story':'the_story.html',
+};
 
 export function articleLocation(value) {
+  if (/^https?:\/\//i.test(String(value ?? ''))) {
+    try {
+      const address = new URL(value);
+      const file = ['homegroups.org','www.homegroups.org'].includes(address.hostname)
+        ? legacyArticles[address.pathname.replace(/\/+$/,'').toLowerCase()] : null;
+      if (!file) return {file:''};
+      value = file + address.hash;
+    } catch { return {file:''}; }
+  }
   const [file, ...parts] = String(value ?? '').split('#');
   const name = file.replace(/^\.?\/?(?:articles\/)?/i, '').toLowerCase();
   if (!/^[a-z0-9_-]+\.html$/.test(name)) return { file: '' };

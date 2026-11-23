@@ -13,7 +13,7 @@ import { createCommonGroundViews } from './common-ground.js';
 import { createLibraryViews } from './preparedness-library.js';
 import { createMapViews } from './preparedness-map.js';
 import { createRadioViews } from './preparedness-radio.js';
-import { articleLocation, createLearningViews } from './learning.js';
+import { articleLocation, articleUrl, createLearningViews } from './learning.js';
 import { createLearningEnrichment } from './learning-enrichment.js';
 import { createTopicalViews } from './learning-topical.js';
 import { createReferenceViews } from './learning-references.js';
@@ -798,7 +798,16 @@ function importLegacy(html, options = {}) {
         if (original.localName === 'a' && options.anchor) {
           options.anchor(original, copied);
         } else if (original.localName === 'a' && webUrl(original.getAttribute('href'))) {
-          Object.assign(copied, { href: webUrl(original.getAttribute('href')), target: '_blank', rel: 'noopener noreferrer' });
+          const value = webUrl(original.getAttribute('href'));
+          const article = articleLocation(value);
+          if (article.file) {
+            copied.href = articleUrl(article.file,article.anchor);
+            copied.addEventListener('click',event => {
+              if (event.button || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              open('learningArticle',article);
+            });
+          } else Object.assign(copied, { href:value, target:'_blank', rel:'noopener noreferrer' });
         }
         if (original.classList.contains('scripture-box')) copied.className = 'scripture-box';
         if (['ltr', 'rtl', 'auto'].includes(original.dir)) copied.dir = original.dir;
@@ -1040,7 +1049,7 @@ function openFellowshipConversation(selection) {
   conversationActivity.open({
     ...selection,
     title: selection.kind === 'weekly' ? `Week ${selection.week ?? week} · ${active?.row?.portion_transliteration || 'Weekly study'}`
-      : selection.kind === 'household' ? 'Household' : selection.title || 'Private conversation',
+      : selection.kind === 'household' ? 'Family' : selection.title || 'Private conversation',
   });
 }
 
@@ -1321,7 +1330,7 @@ const views = {
   fellowshipActions(target) {
     target.append(row('Conversations', 'Weekly community conversation', () => open('fellowshipConversations')),
       row('Communities', 'Weekly study community', () => open('fellowshipCommunities')));
-    if (fellowshipPilot) target.append(row('Chat with…', 'Household members and saved private chats', () => returnToHouseholdChats(true)));
+    if (fellowshipPilot) target.append(row('Chat with…', 'Family members and saved private chats', () => returnToHouseholdChats(true)));
     if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
     target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
     if (!fellowshipPilot) target.append(row('Private conversations', 'Local demo', () => open('private')));
@@ -1370,7 +1379,7 @@ const views = {
   fellowshipConversations(target) {
     target.append(row(`Week ${week} · ${active.row.portion_transliteration}`, 'Wednesday HomeGroup · weekly conversation', returnToWeeklyConversation));
     if (fellowshipPilot) target.append(
-      row('Household conversation', 'A shared room independent of the weekly study', () => returnToHouseholdChats()),
+      row('Family conversation', 'A shared room independent of the weekly study', () => returnToHouseholdChats()),
       row('Chat with…', 'Open saved private conversations', () => returnToHouseholdChats(true)));
     else {
       target.append(text('This page includes a clearly labeled local discussion demo.'));

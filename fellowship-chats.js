@@ -19,7 +19,7 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
     control.append(avatar, copy, arrow);
     return control;
   }
-  controls.append(entry(compact ? 'Household' : 'Household conversation', () => choose({ kind: 'household', title: 'Household conversation' }), true),
+  controls.append(entry(compact ? 'Family' : 'Family conversation', () => choose({ kind: 'household', title: 'Family conversation' }), true),
     entry(compact ? 'Weekly study' : 'Weekly study conversation', () => choose({ kind: 'weekly' }), true));
   const status = text('Loading saved private conversations…', 'form-caption');
   status.setAttribute('role', 'status');
@@ -77,7 +77,7 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
       chats = [];
       people.replaceChildren();
       status.textContent = error.code === 'permission-denied'
-        ? 'Private conversations are not enabled for this account yet. The household and weekly rooms have separate access checks.'
+        ? 'Private conversations are not enabled for this account yet. The Family and weekly rooms have separate access checks.'
         : 'Saved conversations could not load. Close and reopen Fellowship to try again.';
     }));
   return {

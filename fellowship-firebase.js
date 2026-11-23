@@ -113,7 +113,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
             displayName: user.displayName, ...(getStudyContext?.() || { year, week }),
             ...(selection.kind === 'weekly' ? { year: selection.year, week: selection.week } : {}),
             passage, readPassage, surface,
-            ...(selection.kind === 'household' ? { groupId: 'household-pilot', threadId: 'household', title: 'Household conversation' } : {}),
+            ...(selection.kind === 'household' ? { groupId: 'household-pilot', threadId: 'household', title: 'Family conversation' } : {}),
             ...(selection.kind === 'private' ? { groupId: 'household-pilot', privateChatId: selection.id, title: selection.title } : {}),
             ...options,
           });
@@ -130,11 +130,11 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
           if (selection.kind === 'household') route.searchParams.set('room', 'household');
           else route.searchParams.delete('room');
           history.replaceState(history.state, '', route);
-          onConversationChange?.(selection.kind === 'weekly' ? null : selection.kind === 'private' ? 'Private conversation' : 'Household');
+          onConversationChange?.(selection.kind === 'weekly' ? null : selection.kind === 'private' ? 'Private conversation' : 'Family');
           mountConversation(discussion, selection);
         };
         const requestedRoom = new URLSearchParams(location.search).get('room') === 'household'
-          ? { kind: 'household', title: 'Household conversation' } : { kind: 'weekly' };
+          ? { kind: 'household', title: 'Family conversation' } : { kind: 'weekly' };
         if (!focused) selectRoom(roomSelections.get(user.uid) || requestedRoom);
         try { chats = mountFellowshipChats(chatHub, { node, text, button, firestore, db, uid: user.uid, onSelect: selectRoom, compact: focused }); }
         catch { chatHub.append(text('Saved private chats are not available yet.', 'form-caption')); }
@@ -149,7 +149,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
   });
   const close = () => { controller.abort(); unsubscribe?.(); stopDiscussion?.(); chats?.close(); };
   close.showChatWith = () => { if (onShowList) onShowList(); else if (chats) chats.show(); else selectRoom({ kind: 'weekly' }); };
-  close.showHousehold = () => selectRoom({ kind: 'household', title: 'Household conversation' });
+  close.showHousehold = () => selectRoom({ kind: 'household', title: 'Family conversation' });
   close.showWeekly = () => selectRoom({ kind: 'weekly' });
   close.mountConversation = (host, selection, options) => mountConversation?.(host, selection, options);
   return close;
