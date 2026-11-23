@@ -24,6 +24,7 @@ import { bindWorkspaceSwipe } from './workspace-swipe.js';
 import { createConversationWindow } from './conversation-window.js';
 import { audioSession } from './audio-session.js';
 import { initWorkspaceViewport, workspaceRect } from './edge-docking.js';
+import { fellowshipRuntime } from './site-runtime.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -32,13 +33,7 @@ const dialog = $('dialog');
 const panel = $('panel-body');
 const audio = $('audio');
 const now = new Date();
-const requestedPilot = new URLSearchParams(location.search).get('pilot');
-const localPreview = ['127.0.0.1', 'localhost'].includes(location.hostname);
-const hostedFellowshipPreview = location.protocol === 'https:'
-  && /^homegroups-fellowship--iphone-pilot-[a-z0-9]+\.web\.app$/.test(location.hostname);
-const pilotMode = localPreview ? requestedPilot
-  : hostedFellowshipPreview && requestedPilot === 'firebase' ? 'firebase' : null;
-const firebaseCommunication = pilotMode === 'firebase' || hostedFellowshipPreview;
+const { localPreview, pilotMode, firebaseCommunication, configPath:firebaseConfigPath } = fellowshipRuntime(location.href);
 const fellowshipPilot = firebaseCommunication || pilotMode === 'fellowship';
 let stopFellowshipPilot;
 let fellowshipHome;
@@ -1004,7 +999,7 @@ function ensureCommunication() {
         conversationActivity.reset();
         if (frames.some(frame => frame.type === 'shareContext')) closePanels();
       },
-      configPath:hostedFellowshipPreview ? '/__/firebase/init.json' : './__fellowship-firebase/config',
+      configPath:firebaseConfigPath,
       setInviteUser(user) { fellowshipInviteUser = user; },
     });
   }).catch(() => conversationActivity.listTarget.append(text('Could not open communications. Reload to try again.')))

@@ -1,6 +1,5 @@
 import { mountMemberMap } from './fellowship-map.js';
 
-const memberMap = 'https://homegroups.org/?card=prayermap';
 const number = new Intl.NumberFormat();
 let mapRequest;
 let automaticAttempted = false;
@@ -156,7 +155,7 @@ export function mountFellowshipHome(target, { node, text, button, link, cluster,
     const pagination = cluster(prev, next);
     const pickerHeading = node('div', '', 'fellowship-profile-header');
     pickerHeading.append(node('strong', 'Members in this view'), button('Close', () => toggleMembers(false), 'quiet'));
-    browse.append(pickerHeading, list, pagination, link('Original member map', memberMap));
+    browse.append(pickerHeading, list, pagination);
     function updateList(trigger) {
       if (browse.hidden) return;
       const visible = map.visible();

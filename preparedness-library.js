@@ -1,6 +1,6 @@
 
 import {
-  catalogSource, legacyLibrary, researchSource, researchGroups, featured,
+  catalogSource, researchSource, researchGroups, featured,
   searchCatalog, catalogLocation, publicEditions, getPreparednessAsset,
 } from './preparedness-resources.js';
 
@@ -99,7 +99,7 @@ export function createLibraryViews({ node, text, button, cluster, disclosure, li
         disclosure('Catalog sources and ' + catalog.skippedPDFs.length + ' skipped PDFs',
           text('The source index did not extract these files. Their paths are preserved separately from the 1,061 indexed records.'),
           skipped, cluster(link('Original Drive folder ↗', sources.root),
-            link('Legacy library ↗', legacyLibrary), link('Pinned index source ↗', catalogSource))),
+            link('Pinned index source ↗', catalogSource))),
       );
       render();
     },
@@ -129,7 +129,7 @@ export function createLibraryViews({ node, text, button, cluster, disclosure, li
           'The index has no article text or direct PDF URL. Use the original source links below.'),
         cluster(...(direct ? [link('Open matching source file ↗', direct)] : []),
           link(match.folder ? 'Open matched source folder ↗' : 'Open original library folder ↗', match.url),
-          link('View original catalog ↗', legacyLibrary)));
+          button('Browse Be Ready catalog', () => open('prepLibrary'))));
       if (edition) target.append(text(edition.note), link('Read the public edition ↗', edition.url),
         link('Current USDA canning guidance ↗', 'https://nchfp.uga.edu/resources/publications_usda/P20'));
       if (match.archives.length) {
