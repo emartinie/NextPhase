@@ -1,4 +1,4 @@
-import { workspaceRect, positionEdgeHandle } from './edge-docking.js';
+import { communicationRect, positionEdgeHandle, layoutDetails, recordCommunicationLayout } from './edge-docking.js';
 
 // The existing list and conversation share two presentations: full screen or sideparked.
 export function createConversationWindow({ node, text, button, mountConversation, getShareContext, shareExternally, onChange }) {
@@ -24,6 +24,14 @@ export function createConversationWindow({ node, text, button, mountConversation
   parkButton.setAttribute('aria-label', 'Sidepark communications');
   parkButton.title = 'Return to HomeGroups';
   header.append(back, titles, parkButton);
+  if (new URLSearchParams(location.search).get('layout') === 'check') {
+    const copy = button('Copy layout', async () => {
+      try { await navigator.clipboard.writeText(JSON.stringify(layoutDetails(),null,2)); copy.textContent = 'Copied'; }
+      catch { copy.textContent = 'Copy unavailable'; }
+    }, 'quiet communication-layout-copy');
+    copy.setAttribute('aria-label','Copy communication layout details');
+    header.insertBefore(copy,parkButton);
+  }
   const list = node('div', '', 'communication-list');
   const content = node('div', '', 'conversation-window-content');
   content.hidden = true;
@@ -35,6 +43,7 @@ export function createConversationWindow({ node, text, button, mountConversation
   edgeArrow.setAttribute('aria-hidden', 'true');
   launcher.append(edgeArrow);
   const viewportLayer = node('div', '', 'communication-viewport');
+  viewportLayer.hidden = true;
   viewportLayer.append(root);
   document.body.append(viewportLayer, launcher);
   let current, discussion, resumeFocus, motion;
@@ -66,9 +75,12 @@ export function createConversationWindow({ node, text, button, mountConversation
 
   function place() {
     if (root.hidden) return;
-    const area = workspaceRect();
-    Object.assign(root.style, {left:area.left+'px', top:area.top+'px', right:'auto', width:area.width+'px', height:area.height+'px'});
+    recordCommunicationLayout('before-layout');
+    const area = communicationRect();
+    if (!area) return;
+    Object.assign(viewportLayer.style, {left:area.left+'px', top:area.top+'px', width:area.width+'px', height:area.height+'px'});
     root.style.setProperty('--window-height',area.height+'px');
+    recordCommunicationLayout('after-layout');
   }
   function refreshContext() {
     launcher.dataset.docked = 'true';
@@ -85,12 +97,15 @@ export function createConversationWindow({ node, text, button, mountConversation
     motion = null;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof root.animate !== 'function') {
       root.hidden = !fullscreen;
+      viewportLayer.hidden = !fullscreen;
       return;
     }
     const shift = dockSide === 'left' ? '-18px' : '18px';
     const frames = [{opacity:0,transform:'translateX('+shift+')'},{opacity:1,transform:'translateX(0)'}];
     motion = root.animate(fullscreen ? frames : [...frames].reverse(), {duration:160,easing:'cubic-bezier(.2,.7,.2,1)'});
-    if (!fullscreen) motion.onfinish = () => { if (root.dataset.mode === 'minimized') root.hidden = true; };
+    if (!fullscreen) motion.onfinish = () => {
+      if (root.dataset.mode === 'minimized') { root.hidden = true; viewportLayer.hidden = true; }
+    };
   }
   function setMode(mode, focus = true) {
     if (stopped) return;
@@ -107,6 +122,7 @@ export function createConversationWindow({ node, text, button, mountConversation
     launcher.hidden = fullscreen;
     coverWorkspace(fullscreen);
     if (fullscreen) {
+      viewportLayer.hidden = false;
       root.hidden = false;
       place();
       if (changed) animate(true);
@@ -121,7 +137,7 @@ export function createConversationWindow({ node, text, button, mountConversation
       });
     } else {
       if (!root.hidden && changed) animate(false);
-      else root.hidden = true;
+      else { root.hidden = true; viewportLayer.hidden = true; }
       if (focus) launcher.focus({preventScroll:true});
     }
     notify();
@@ -196,6 +212,9 @@ export function createConversationWindow({ node, text, button, mountConversation
   window.visualViewport?.addEventListener('scroll',updateViewport);
   window.addEventListener('resize',updateViewport);
   window.addEventListener('workspace:resize',updateViewport);
+  window.addEventListener('pageshow',updateViewport);
+  root.addEventListener('focusin',updateViewport);
+  root.addEventListener('focusout',updateViewport);
   back.hidden = true; root.dataset.view = 'list'; refreshContext();
   return {
     open,show,showList,dismiss,reset,prepare,refreshContext,minimize,listTarget:list,
@@ -208,6 +227,7 @@ export function createConversationWindow({ node, text, button, mountConversation
       window.visualViewport?.removeEventListener('resize',updateViewport);
       window.visualViewport?.removeEventListener('scroll',updateViewport);
       window.removeEventListener('resize',updateViewport); window.removeEventListener('workspace:resize',updateViewport);
+      window.removeEventListener('pageshow',updateViewport);
     },
   };
 }

@@ -316,11 +316,11 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .reference-unresolved { display: inline; font-size: .9em; color: var(--muted); }
 
 /* One full-screen Communicator; parked controls share HomeGroups edge geometry. */
-.communication-viewport{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;contain:layout}
+.communication-viewport{position:absolute;max-width:100%;z-index:30;pointer-events:none}
 [data-communication-covered]{visibility:hidden!important}
 .communication-surface[inert]{pointer-events:none}
 .communication-surface,.communication-launcher{color-scheme:var(--communication-scheme);--bg:var(--communication-field);--card:var(--communication-bg);--layer:var(--communication-layer);--ink:var(--communication-text);--muted:var(--communication-muted);--edge:var(--communication-edge);--leaf:var(--communication-green);--amber:var(--communication-blue);--row-surface:var(--communication-own);--field-surface:var(--communication-field);--field-border:var(--communication-divider);--action-surface:var(--communication-green);--action-text:var(--communication-on-accent);--action-border:var(--communication-green);--button-hover:var(--communication-hover);color:var(--ink)}
-.communication-surface{position:fixed;pointer-events:auto;isolation:isolate;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border:0;border-radius:0;max-width:none;max-height:none;background:var(--card);box-shadow:none;font:400 15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+.communication-surface{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;isolation:isolate;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border:0;border-radius:0;max-width:none;max-height:none;background:var(--card);box-shadow:none;font:400 15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
 .communication-surface :focus-visible{outline:2px solid var(--communication-blue);outline-offset:-2px}
 .communication-surface .conversation-window-header{display:flex;align-items:center;flex:none;gap:10px;min-height:70px;padding:10px max(16px,calc((100% - 920px)/2),env(safe-area-inset-right)) 10px max(16px,calc((100% - 920px)/2),env(safe-area-inset-left));border-bottom:1px solid var(--communication-divider);background:linear-gradient(110deg,var(--communication-top),var(--communication-bg))}
 .communication-title{flex:1;min-width:0}
@@ -328,6 +328,7 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .communication-title h2{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:650 20px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;letter-spacing:-.025em;outline:none}
 .communication-surface .conversation-window-header>.quiet{display:grid;place-items:center;flex:none;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;font-size:30px;font-weight:400;color:var(--communication-blue)}
 .communication-surface .conversation-window-header>.communication-park{background:var(--communication-layer)}
+.communication-surface .conversation-window-header>.communication-layout-copy{font-size:10px;line-height:1.2;max-width:46px;padding:2px}
 .communication-list{flex:1;align-self:center;width:min(100%,820px);min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 12px max(16px,env(safe-area-inset-bottom))}
 .communication-list>.form-caption{padding:16px 8px;font-size:14px}
 .communication-list>.form-caption:empty{display:none}

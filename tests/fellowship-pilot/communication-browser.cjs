@@ -84,6 +84,7 @@ async function main() {
     if(side==='left') {await page.locator('#active-conversation-name').focus();await page.keyboard.press('Alt+ArrowLeft');}
     else await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
     await surface(page).waitFor({state:'hidden'});
+    assert.equal(await page.locator('.communication-viewport').evaluate(node=>node.hidden),true,'Parked wrapper must not affect document bounds');
     assert.equal(await surface(page).getAttribute('data-mode'),'minimized');
     assert.equal(await page.locator('.app').evaluate(node=>node.inert),false);
     assert.equal(await launcher(page).getAttribute('data-docked'),'true');
@@ -95,6 +96,126 @@ async function main() {
   }
   async function restore(page) {
     await page.getByRole('button',{name:'Reopen communications',exact:true}).click();await full(page);
+  }
+  async function keyboardViewportChecks(page) {
+    // Reproduce the geometry failure, not the physical iOS keyboard engine.
+    // WebKit may pan the document while an editor is focused. The covered
+    // workspace must not be used as a clipping boundary for communications.
+    await page.setViewportSize({width:375,height:667});
+    await field(page).fill('Keep this draft through keyboard panning.');
+    await field(page).focus();
+    await page.evaluate(async()=>{
+      const {audioSession}=await import('./audio-session.js');
+      window.__keyboardAudio=audioSession.audio;audioSession.audio.muted=true;
+      audioSession.playRecording('./corpus/learning/alephbet-song.mp3','Keyboard continuity check');
+    });
+    await page.waitForFunction(()=>window.__keyboardAudio.currentTime>.05);
+    const audioTime=await page.evaluate(()=>window.__keyboardAudio.currentTime);
+    await page.evaluate(async()=>{
+      window.__nativeKeyboardViewport=visualViewport;
+      const viewport=Object.assign(new EventTarget(),{width:375,height:240,offsetTop:300,offsetLeft:0,pageLeft:0,scale:1});
+      Object.defineProperty(viewport,'pageTop',{get(){return this.__omitPageTop?undefined:scrollY+this.offsetTop;}});
+      Object.defineProperty(window,'visualViewport',{value:viewport,configurable:true});
+      document.body.style.height='1800px';
+      window.scrollTo(0,300);
+      viewport.dispatchEvent(new Event('resize'));window.dispatchEvent(new Event('resize'));
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    });
+    const result=await page.evaluate(()=>({
+      app:document.querySelector('.app').getBoundingClientRect().toJSON(),
+      communicator:document.querySelector('.communication-surface').getBoundingClientRect().toJSON(),
+      layer:document.querySelector('.communication-viewport').getBoundingClientRect().toJSON(),
+      mode:document.querySelector('.communication-surface').dataset.mode,
+      hidden:document.querySelector('.communication-surface').hidden,
+      inert:document.querySelector('.communication-surface').inert,
+      workspaceVisibility:getComputedStyle(document.querySelector('.app')).visibility,
+      scrollY,visual:{height:visualViewport.height,offsetTop:visualViewport.offsetTop,pageTop:visualViewport.pageTop},
+    }));
+    console.log('Focused document-pan geometry: '+JSON.stringify(result));
+    await page.screenshot({path:path.join(artifacts,'10-keyboard-document-pan.png')});
+    assert.ok(result.communicator.height>=239,'A panned hidden workspace must not collapse the full-screen Communicator');
+    async function usable(label) {
+      await page.waitForFunction(()=>{
+        const root=document.querySelector('.communication-surface'),box=root.getBoundingClientRect(),viewport=visualViewport;
+        const header=root.querySelector('.conversation-window-header').getBoundingClientRect();
+        const composer=root.querySelector('.conversation-composer').getBoundingClientRect();
+        const send=root.querySelector('.conversation-composer > button'),button=send.getBoundingClientRect();
+        const messages=root.querySelector('.conversation-stream').getBoundingClientRect();
+        return root.dataset.mode==='fullscreen'&&!root.hidden&&!root.inert&&box.height>=239&&
+          Math.abs(box.top-((viewport.pageTop??scrollY+viewport.offsetTop)-scrollY))<1&&box.height<=viewport.height+1&&
+          header.top>=box.top&&composer.bottom<=box.bottom+1&&messages.height>=20&&
+          send.contains(document.elementFromPoint(button.x+button.width/2,button.y+button.height/2));
+      }).catch(async error=>{
+        console.log('Keyboard layout failure '+label+': '+JSON.stringify(await page.evaluate(()=>{
+          const root=document.querySelector('.communication-surface'),form=root.querySelector('.conversation-composer'),send=form.querySelector('button.primary');
+          const b=send.getBoundingClientRect(),v=visualViewport;
+          return {frame:root.getBoundingClientRect().toJSON(),form:form.getBoundingClientRect().toJSON(),header:root.querySelector('header').getBoundingClientRect().toJSON(),messages:root.querySelector('.conversation-stream').getBoundingClientRect().toJSON(),scrollY,visual:{height:v.height,offsetTop:v.offsetTop,pageTop:v.pageTop},hit:document.elementFromPoint(b.x+b.width/2,b.y+b.height/2)?.outerHTML.slice(0,200)};
+        })));
+        throw error;
+      });
+      assert.equal(await field(page).inputValue(),'Keep this draft through keyboard panning.');
+      console.log('Usable keyboard layout: '+label);
+    }
+    await usable('document scroll + visual viewport pan');
+    // Opening attachments, focusing their field and dismissal keep the same view.
+    await surface(page).locator('.conversation-attachment > summary').click();
+    const tray=surface(page).locator('.conversation-attachment-panel');
+    const ref=surface(page).getByLabel('Scripture reference (optional)',{exact:true});
+    await ref.fill('Genesis 32:4–32:13');
+    await usable('attachment input focused');
+    await page.waitForFunction(()=>{
+      const panel=document.querySelector('.conversation-attachment-panel').getBoundingClientRect();
+      const input=document.querySelector('.conversation-attachment-panel input').getBoundingClientRect();
+      return input.top>=panel.top&&input.bottom<=panel.bottom;
+    });
+    await page.keyboard.press('Escape');await tray.waitFor({state:'hidden'});
+    // WebKit also reports visual pan with no document scroll. Exercise the
+    // pageTop coordinate directly, and the offsetTop + scroll fallback.
+    for(const fallback of [false,true]) {
+      await field(page).focus();
+      await page.evaluate(async fallback=>{
+        window.scrollTo(0,0);
+        Object.assign(visualViewport,{offsetTop:220,__omitPageTop:fallback,height:260});
+        // Move only the covered workspace as another independent constraint.
+        document.querySelector('.app').style.transform='translateY(-350px)';
+        visualViewport.dispatchEvent(new Event('scroll'));
+        window.dispatchEvent(new Event('resize'));
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      },fallback);
+      await usable(fallback?'offset fallback / unscrolled document':'visual-only pan / unscrolled document');
+    }
+    const beforeZero=await surface(page).boundingBox();
+    await page.evaluate(async()=>{
+      visualViewport.height=0;visualViewport.dispatchEvent(new Event('resize'));window.dispatchEvent(new Event('resize'));
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    });
+    assert.ok((await surface(page).boundingBox()).height>=beforeZero.height-1,'Transient zero metrics must keep the last valid surface');
+    // Restore the native viewport after blur, as keyboard dismissal does.
+    await page.evaluate(async()=>{
+      document.activeElement.blur();window.scrollTo(0,0);
+      document.body.style.removeProperty('height');document.querySelector('.app').style.removeProperty('transform');
+      Object.defineProperty(window,'visualViewport',{value:window.__nativeKeyboardViewport,configurable:true});
+      delete window.__nativeKeyboardViewport;window.dispatchEvent(new Event('resize'));
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    });
+    await full(page);
+    assert.equal(await field(page).inputValue(),'Keep this draft through keyboard panning.');
+    assert.equal(await ref.inputValue(),'Genesis 32:4–32:13');
+    await surface(page).getByRole('button',{name:'Remove attached Scripture',exact:true}).click();
+    await park(page);await restore(page);
+    assert.equal(await field(page).inputValue(),'Keep this draft through keyboard panning.');
+    await page.waitForFunction(time=>window.__keyboardAudio===document.getElementById('audio')&&!window.__keyboardAudio.paused&&window.__keyboardAudio.currentTime>time,audioTime);
+    await page.evaluate(async()=>{const {audioSession}=await import('./audio-session.js');audioSession.stop();delete window.__keyboardAudio;});
+    await page.setViewportSize({width:375,height:481});await full(page);
+    if (await surface(page).getByRole('button',{name:'Copy communication layout details',exact:true}).count()) {
+      await surface(page).getByRole('button',{name:'Copy communication layout details',exact:true}).click();
+      await page.waitForFunction(()=>document.querySelector('.communication-layout-copy').textContent==='Copied');
+      const details=JSON.parse(await page.evaluate(()=>window.__testClipboard));
+      assert.equal(details.communication.mode,'fullscreen');
+      assert.ok(details.communicationTrace.length>0&&details.communicationTrace.length<=40);
+      assert.ok(!JSON.stringify(details).includes('Keep this draft'),'Layout capture must omit private draft contents');
+    }
+    console.log('Passed keyboard geometry regression: document/visual pan, moved covered workspace, zero-metric transient, usable header/messages/composer/send and attachments, dismissal/sideparking, retained draft/reference and continued Orbit audio. This is not physical iOS verification.');
   }
   async function attachmentChecks(page) {
     const draft='Keep this reply while choosing a passage.\n'+'An unfinished thought worth preserving.\n'.repeat(5);
@@ -204,7 +325,7 @@ async function main() {
   }
   try {
     browser=await chromium.launch({executablePath:process.env.NEXTPHASE_CHROME||undefined,args:['--disable-gpu','--renderer-process-limit=2','--disable-gpu-shader-disk-cache','--disk-cache-size=1048576']});
-    const phone=await open('miriam',true);
+    const phone=await open('miriam',true,process.argv.includes('--keyboard-repro')?'?pilot=firebase&week=7&layout=check':'?pilot=firebase&week=7');
     await full(phone);
     assert.equal(await surface(phone).getAttribute('data-view'),'list');
     assert.equal(await phone.locator('#stage').getAttribute('data-face'),'study');
@@ -213,6 +334,8 @@ async function main() {
     await phone.screenshot({path:path.join(artifacts,'01-conversations-phone.png')});
     await surface(phone).getByRole('button',{name:'Dorothy (test)',exact:true}).click();
     await surface(phone).getByText('Earlier message 29',{exact:false}).waitFor();
+    await keyboardViewportChecks(phone);
+    if (process.argv.includes('--keyboard-repro') || process.argv.includes('--keyboard-only')) { assert.deepEqual(errors,[]); return; }
     await attachmentChecks(phone);
     if (process.argv.includes('--attachments-only')) { assert.deepEqual(errors,[]); return; }
     await field(phone).fill('My unfinished reply to Dorothy');

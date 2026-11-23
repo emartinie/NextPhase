@@ -40,9 +40,10 @@ async function main() {
         });
         const result=await page.evaluate(()=>{
           const app=document.querySelector('.app').getBoundingClientRect(),dock=document.querySelector('.dock').getBoundingClientRect();
-          return {app:{x:app.x,y:app.y,width:app.width,height:app.height,bottom:app.bottom},dockBottom:dock.bottom,overflow:document.documentElement.scrollWidth>innerWidth,scrollY};
+        return {app:{x:app.x,y:app.y,width:app.width,height:app.height,bottom:app.bottom},dockBottom:dock.bottom,overflow:document.documentElement.scrollWidth>innerWidth,scrollY,
+          outside:[...document.body.children].map(node=>({name:node.id||node.className,hidden:node.hidden,rect:node.getBoundingClientRect().toJSON()})).filter(item=>item.rect.right>innerWidth+1)};
         });
-        assert.equal(result.overflow,false);assert.equal(result.scrollY,0);assert.ok(result.dockBottom<=result.app.bottom+1);
+        assert.equal(result.overflow,false,JSON.stringify(result));assert.equal(result.scrollY,0);assert.ok(result.dockBottom<=result.app.bottom+1);
         assert.equal(await page.locator('#study .today h2').evaluate(node=>node.scrollWidth<=node.clientWidth+1),true,'Long passage labels must wrap inside their card');
         return result;
       }
@@ -137,7 +138,9 @@ async function main() {
       await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async value=>{window.__layoutCopy=value;}},configurable:true}));
       await page.getByRole('button',{name:'Copy layout details',exact:true}).click();
       const report=JSON.parse(await page.evaluate(()=>window.__layoutCopy));
-      assert.deepEqual(Object.keys(report),['build','device','viewportPolicy','safeArea','screen','visual','app','header','dock','week','appPosition','brandFont']);
+      assert.deepEqual(Object.keys(report),['build','device','viewportPolicy','safeArea','screen','visual','app','header','dock','week','appPosition','brandFont','communication','communicationTrace']);
+      assert.equal(report.communication.mode,'minimized');
+      assert.ok(report.communicationTrace.length<=40);
       assert.equal(report.viewportPolicy,'width=device-width, initial-scale=1');
       assert.equal(report.device.pixelRatio,3);
       assert.equal(report.device.standalone,false);
