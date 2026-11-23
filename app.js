@@ -550,7 +550,8 @@ async function openLinkedStudyCard() {
 function open(type, data = {}, restoredFrame) {
   if (!active?.content || pendingClose) return;
   if (firebaseCommunication && ['fellowshipConversations', 'fellowshipChat'].includes(type)) { conversationActivity.showList(); return; }
-  if (!firebaseCommunication) conversationActivity.minimize();
+  const returnToCommunication = conversationActivity.fullscreen;
+  conversationActivity.minimize(false);
   if (type === 'learning') {
     const enter = () => { selectWorkspace('learning'); changeLearningFace('study'); };
     if (frames.length) closePanels(enter);
@@ -570,8 +571,11 @@ function open(type, data = {}, restoredFrame) {
     return;
   }
   if (type === 'briefingDiscussion') data = { ...data, year: active.year, week };
-  if (!frames.length) origin = { opener: document.activeElement === document.body ? $('tools-button') : document.activeElement, view: currentSurface(), top: currentSurface().scrollTop };
-  else saveFrame(frames.at(-1));
+  if (!frames.length) origin = { opener: document.activeElement === document.body ? $('tools-button') : document.activeElement, view: currentSurface(), top: currentSurface().scrollTop, communication:returnToCommunication };
+  else {
+    saveFrame(frames.at(-1));
+    if (returnToCommunication && origin) origin.communication = true;
+  }
   const frame = restoredFrame ?? { id: ++frameSequence, type, data, top: 0, expanded: type === 'games' || type === 'preparedness' };
   frames.push(frame);
   historyFrames.set(frame.id, frame);
@@ -614,6 +618,7 @@ window.addEventListener('popstate', () => {
     dialog.close();
     origin?.opener?.focus({ preventScroll: true });
     if (origin?.view) origin.view.scrollTop = origin.top;
+    if (origin?.communication) conversationActivity.show();
     origin = null;
   }
   const after = pendingClose;

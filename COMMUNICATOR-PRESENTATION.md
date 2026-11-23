@@ -1,0 +1,24 @@
+# Full-screen Fellowship Communicator
+
+This development pass starts from merged NextPhase commit `01d91189b59e66d3e17b753e3c2b3841416d54d2` on `feature/fullscreen-communicator`. It supersedes the floating presentation in MODELESS-CONVERSATION.md; the existing Firebase services, message schema, rules, authorization and page-memory session model remain unchanged.
+
+## Two presentations
+
+- **Full screen:** the one communication surface fills the available application/visual viewport on mobile and desktop. Its list and active conversation remain views of the same surface. There is no floating-width layout, drag grip, expand/reduce control or competing HomeGroups header/dock.
+- **Sideparked:** the same persistent 44px edge arrow restores the current list/chat view. The header's outward arrow and Escape sidepark it. Existing Alt+Left/Right shortcuts select the parked side. These are the only presentation modes, `fullscreen` and `minimized`; compatibility cleanup APIs do not introduce a third visible state.
+- Workspace content, Orbit and other body-level surfaces are temporarily hidden and inert while full screen, without unmounting them or pausing audio. Original inert state is restored on sideparking; late-mounted background surfaces are covered too. Keyboard focus stays inside the full-screen surface. Reduced-motion preference skips the short opening/parking animation.
+- Opening a message's Scripture reference sideparks the Communicator and uses the existing reader/history architecture. Closing the reader stack restores the full-screen conversation. Workspace and unfinished drafts remain intact. Contextual sharing prepares a reference for review; sending still uses the existing authorized write operation.
+
+## Presentation
+
+The Theme Manager's centralized communication roles provide midnight-blue surfaces, slate incoming bubbles, blue/teal outgoing bubbles and restrained green actions. Static cyan/emerald depth gradients, a fine illuminated upper edge and inset avatar highlights give the full-screen canvas depth without a background download, continuous animation or expensive blur. Existing light and diagnostic palettes remain supported. Native system typography, a compact contextual header, initials and privacy labels, comfortable touch targets and a keyboard-sized composer replace the nested floating frame. Desktop content has a readable measure within a full-screen background, not a centered floating card. The list does not invent message previews, unread counts, presence, read receipts or participation. No new network font or UI dependency is introduced.
+
+The Fellowship Navigator's map, communities, flip and workspace navigation are preserved. Users uncover them by sideparking. The original media session, account isolation, immutable saved messages, supported newest-50-message behavior and per-account/per-conversation drafts remain in their existing components. Drafts are still page-memory only; reload, sign-out and cross-device recovery have not been added.
+
+## Validation and review
+
+Focused checks use synthetic identities and local data only. `communication-browser.cjs` now checks the two-state contract instead of the superseded floating/dragging contract: full application coverage on phone/desktop, independent drafts and positions, both edge handles, background isolation, keyboard-sized and landscape layouts, contextual Scripture review/send, direct reader return, peer receipt, public external sharing, reduced motion, focus/text selection, six-theme contrast samples, sign-out clearing and outsider denial. `viewport-browser.cjs` retains the Safari geometry/reading/audio fixtures. `orbit-browser.cjs --phone-only` checks that the covered player stays mounted and playing and that shared handles, original logo/video and media controls still work. These are presentation/adapter checks, not new emulator or live Google/Firebase validation.
+
+Phone-sized review captures with synthetic names and histories are under ignored `.pilot-tmp/communicator-fullscreen/` on F:. These are rendered application captures, not physical iPhone Safari screenshots. The first integration run caught a nested-reader return flag that is now preserved when a passage is opened above an existing resource; its corrected run passed. A later test incorrectly expected the retained, hidden conversation list to be removed from the DOM; its assertion now checks that the list is out of view. Failed development runs are not counted as passes.
+
+Physical iPhone Safari still needs review of real browser-toolbars/safe areas, keyboard opening/dismissal, first focus after restore, the actual Google sign-in popup and native sharing. Sampled contrast ratios do not establish full accessibility compliance. The existing `iphone-pilot` packaging process is the review path; no production deployment, Firebase rules/authentication changes, real record writes or merge is included in this pass.

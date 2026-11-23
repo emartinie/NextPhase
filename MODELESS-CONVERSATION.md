@@ -1,5 +1,7 @@
 # Persistent communication experiment
 
+The later [full-screen Communicator presentation](COMMUNICATOR-PRESENTATION.md) supersedes the floating/dragging visual contract below. This file preserves its implementation and validation history; the messaging, privacy and session-continuity foundations are reused.
+
 ## Integration approval — 22 November 2026
 
 The owner approved merging this iteration and cleaning up its disposable artifacts. The owner reports completing the iPhone conversation journey before the latest viewport-only commit; a subsequent phone screenshot shows the full header/week selector and bottom app navigation clear of Safari controls. That screenshot does not expose a build marker, so it is evidence of the observed phone layout rather than independent identification of the deployed commit. The final code checkpoint is `10c2923ff925443f0311d9f31dc78667d970b0b8`; the final viewport, syntax and packaging checks passed as recorded below. Personal design preferences are deferred to future iterations, not treated as blockers to this approved merge.

@@ -75,7 +75,7 @@ async function main() {
       await page.evaluate(()=>document.body.style.removeProperty('height'));
       await orbitControl('Park player at screen edge');
       await page.getByRole('button',{name:'Open communications',exact:true}).click();
-      await page.getByRole('button',{name:'Minimize communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
       await page.evaluate(async()=>{
         const {audioSession}=await import('./audio-session.js');
         window.__viewportAudio=audioSession.audio;audioSession.audio.muted=true;
@@ -91,9 +91,9 @@ async function main() {
       await page.getByRole('button',{name:'Reopen communications',exact:true}).click();
       await page.waitForFunction(()=>{
         const box=document.querySelector('.communication-surface').getBoundingClientRect(),app=document.querySelector('.app').getBoundingClientRect(),dock=document.querySelector('.dock').getBoundingClientRect();
-        return box.top>=app.top&&box.bottom<=dock.top+1;
+        return box.top>=app.top&&box.bottom<=app.bottom+1&&Math.abs(box.width-app.width)<1;
       });
-      await page.getByRole('button',{name:'Close communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
 
       await page.setViewportSize({width:320,height:640});await layout(560,320);await chromeFits();
       await page.evaluate(()=>{

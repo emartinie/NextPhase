@@ -115,7 +115,10 @@ async function main() {
       assert.equal(mediaState.videoFace,true);assert.equal(mediaState.videoPlaying,true);
       await page.waitForFunction(before=>document.getElementById('audio').currentTime!==before,mediaState.time);
       await page.getByRole('button',{name:'Open communications',exact:true}).click();
-      await page.getByRole('button',{name:'Minimize communications',exact:true}).click();
+      assert.equal(await page.locator('#floatingPlayer').evaluate(node=>getComputedStyle(node).visibility),'hidden','Fullscreen communications must cover Orbit without stopping its audio');
+      assert.equal(await page.locator('#audio').evaluate(audio=>audio.paused),false);
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
+      await page.locator('.communication-surface').waitFor({state:'hidden'});
       const orbitHandle=await restore.boundingBox(),chatHandle=await page.locator('.communication-launcher:not(.orbit-edge-handle)').boundingBox();
       assert.equal(orbitHandle.width,44);assert.equal(orbitHandle.height,44);
       assert.ok(orbitHandle.y>=chatHandle.y+chatHandle.height+4,'Two parked activities need separate, predictable handles');
@@ -133,7 +136,8 @@ async function main() {
       await face('orbitVideo');
       assert.equal(await page.evaluate(()=>document.getElementById('audio')===window.__originalOrbit.audio&&!window.__originalOrbit.audio.paused),true);
       await page.getByRole('button',{name:'Reopen communications',exact:true}).click();
-      await page.getByRole('button',{name:'Close communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
+      await page.locator('.communication-surface').waitFor({state:'hidden'});
       // Put the retained player at a known left-side location; exercise the real button again.
       // Legacy animated body dragging is separate from this button-parking contract.
       await page.locator('#floatingPlayer').evaluate(player=>{player.style.left='60px';player.style.right='auto';});
@@ -161,9 +165,10 @@ async function main() {
       });
       for(const item of progress)assert.ok(Math.abs(item.offset-item.length*(1-item.value))<.001);
       assert.equal(await page.locator('#audio').evaluate(audio=>audio.paused&&!audio.hasAttribute('src')),true);
-      await page.getByRole('button',{name:'Open communications',exact:true}).click();
+      await page.getByRole('button',{name:'Reopen communications',exact:true}).click();
       assert.equal(await page.locator('.communication-surface').isVisible(),true,'Global conversation access stays available');
-      await page.getByRole('button',{name:'Close communications',exact:true}).click();
+      await page.getByRole('button',{name:'Sidepark communications',exact:true}).click();
+      await page.locator('.communication-surface').waitFor({state:'hidden'});
       await page.locator('#week-button').click();
       await page.locator('#dialog').waitFor();
       await page.locator('#close').click();

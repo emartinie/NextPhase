@@ -9,11 +9,14 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
     if (!compact) return button(label, select, 'quiet');
     const control = button('', select, 'communication-entry');
     control.setAttribute('aria-label', label);
-    const avatar = node('span', label.split(/\s+/).slice(0,2).map(word=>word[0]).join(''), 'communication-avatar');
+    const initials = (label.match(/\p{L}[\p{L}\p{M}]*/gu) || []).slice(0,2).map(word=>word[0]).join('').toUpperCase();
+    const avatar = node('span', initials, 'communication-avatar');
     avatar.setAttribute('aria-hidden','true');
     const copy = node('span', label, 'communication-entry-name');
-    if (shared) copy.append(node('small','Group conversation'));
-    control.append(avatar, copy);
+    copy.append(node('small',shared ? 'Group conversation' : 'Private conversation'));
+    const arrow = node('span','›','communication-entry-open');
+    arrow.setAttribute('aria-hidden','true');
+    control.append(avatar, copy, arrow);
     return control;
   }
   controls.append(entry(compact ? 'Household' : 'Household conversation', () => choose({ kind: 'household', title: 'Household conversation' }), true),

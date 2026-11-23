@@ -315,87 +315,76 @@ progress[aria-label="Journey completion"] { width: 100%; accent-color: var(--lea
 .reference-citation:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
 .reference-unresolved { display: inline; font-size: .9em; color: var(--muted); }
 
-/* The active conversation coexists with the workspace and its public readers. */
-.conversation-window{--window-height:min(460px,calc((var(--activity-height,100dvh) - 110px) * .62));position:fixed;z-index:10;right:max(10px,env(safe-area-inset-right));top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 68px);width:min(410px,calc(100% - 20px));height:var(--window-height);display:flex;flex-direction:column;min-height:0;overflow:visible;border:1px solid var(--edge);border-radius:18px;background:var(--card);box-shadow:0 10px 42px var(--dialog-shadow,#000b)}
-.conversation-window-header{display:flex;align-items:center;gap:3px;min-height:53px;padding:5px 6px 5px 14px;border-bottom:1px solid var(--edge);flex:0 0 auto}
-.conversation-window-header h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:680 15px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
-.conversation-window-header>.quiet{min-width:40px;min-height:44px;padding:0;border:0;font-size:23px}
-.conversation-window-header .conversation-menu summary{min-width:40px;font-size:23px}
-.conversation-window-content.conversation-view{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;border-radius:0 0 18px 18px}
-.conversation-window .conversation-stream{padding:10px 14px}
-.conversation-window .conversation-composer{padding:8px 10px;gap:6px}
-.conversation-window .conversation-menu-content{right:0;max-height:calc(var(--window-height) - 65px)}
-.conversation-tray{display:none}
-.conversation-window[data-mode=minimized]{width:auto;max-width:calc(100% - 20px);height:48px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 120px);border-radius:24px}
-.conversation-window[data-mode=minimized]>.conversation-window-header,.conversation-window[data-mode=minimized]>.conversation-window-content{display:none}
-.conversation-window[data-mode=minimized]>.conversation-tray{display:flex;align-items:center;gap:0;padding:2px 4px;min-width:0}
-.conversation-tray .quiet{border:0;min-height:44px;border-radius:22px;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:calc(100vw - 76px)}
-.conversation-tray .quiet+button{min-width:44px;font-size:24px;padding:0}
-.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 90px);width:min(640px,calc(100% - 20px));top:calc(var(--activity-top,0px) + 12px)}
-.conversation-attachment-panel{position:absolute;bottom:calc(100% + 8px);inset-inline:10px;z-index:3;max-height:45dvh;overflow:auto;padding:12px;border:1px solid var(--edge);border-radius:12px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
+/* One full-screen Communicator; parked controls share HomeGroups edge geometry. */
+.communication-viewport{position:fixed;inset:0;z-index:30;pointer-events:none;overflow:hidden;contain:layout}
+[data-communication-covered]{visibility:hidden!important}
+.communication-surface[inert]{pointer-events:none}
+.communication-surface,.communication-launcher{color-scheme:var(--communication-scheme);--bg:var(--communication-field);--card:var(--communication-bg);--layer:var(--communication-layer);--ink:var(--communication-text);--muted:var(--communication-muted);--edge:var(--communication-edge);--leaf:var(--communication-green);--amber:var(--communication-blue);--row-surface:var(--communication-own);--field-surface:var(--communication-field);--field-border:var(--communication-divider);--action-surface:var(--communication-green);--action-text:var(--communication-on-accent);--action-border:var(--communication-green);--button-hover:var(--communication-hover);color:var(--ink)}
+.communication-surface{position:fixed;pointer-events:auto;isolation:isolate;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border:0;border-radius:0;max-width:none;max-height:none;background:var(--card);box-shadow:none;font:400 15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+.communication-surface :focus-visible{outline:2px solid var(--communication-blue);outline-offset:-2px}
+.communication-surface .conversation-window-header{display:flex;align-items:center;flex:none;gap:10px;min-height:70px;padding:10px max(16px,calc((100% - 920px)/2),env(safe-area-inset-right)) 10px max(16px,calc((100% - 920px)/2),env(safe-area-inset-left));border-bottom:1px solid var(--communication-divider);background:linear-gradient(110deg,var(--communication-top),var(--communication-bg))}
+.communication-title{flex:1;min-width:0}
+.communication-kicker{display:block;margin-bottom:2px;color:var(--communication-blue);font-size:10px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.communication-title h2{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:650 20px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;letter-spacing:-.025em;outline:none}
+.communication-surface .conversation-window-header>.quiet{display:grid;place-items:center;flex:none;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;font-size:30px;font-weight:400;color:var(--communication-blue)}
+.communication-surface .conversation-window-header>.communication-park{background:var(--communication-layer)}
+.communication-list{flex:1;align-self:center;width:min(100%,820px);min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 12px max(16px,env(safe-area-inset-bottom))}
+.communication-list>.form-caption{padding:16px 8px;font-size:14px}
+.communication-list>.form-caption:empty{display:none}
+.communication-list .fellowship-account{position:static;max-width:none;margin-left:auto;width:fit-content}
+.communication-list .fellowship-account summary{min-height:44px;padding:12px 8px;font-size:12px;color:var(--muted)}
+.communication-list .fellowship-account[open]{border:0;padding:0 8px 8px;background:transparent}
+.communication-list>button{margin:12px 8px}
+.communication-room-list{display:grid;gap:2px}
+.communication-entry{display:flex;align-items:center;gap:13px;min-height:68px;width:100%;padding:10px 12px;text-align:left;border:0;border-radius:12px;background:transparent;color:var(--ink);font-size:15px}
+.communication-entry:focus-visible{background:var(--layer)}
+@media(hover:hover){.communication-entry:hover{background:var(--layer)}}
+.communication-avatar{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:50%;background:var(--layer);color:var(--communication-blue);font-size:14px;font-weight:650;letter-spacing:-.02em}
+.communication-entry-name{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.communication-entry-name small{display:block;margin-top:2px;color:var(--muted);font-size:12px;font-weight:400}
+.communication-entry-open{flex:none;margin-left:auto;color:var(--muted);font-size:24px;font-weight:400}
+.communication-surface .conversation-window-content.conversation-view{display:flex;flex:1;flex-direction:column;width:100%;min-height:0;overflow:hidden;border-radius:0;background:var(--card)}
+.communication-surface .conversation-stream{align-self:center;width:min(100%,880px);padding:18px max(16px,env(safe-area-inset-right)) 20px max(16px,env(safe-area-inset-left));touch-action:pan-y}
+.communication-surface .conversation-stream .message{max-width:min(85%,560px);width:fit-content;position:relative;border:0;border-radius:18px 18px 18px 5px;padding:10px 14px;margin:10px auto 10px 0;background:var(--layer);font-size:15px}
+.communication-surface .conversation-stream .message[data-own=true]{margin-left:auto;margin-right:0;border-radius:18px 18px 5px 18px;background:var(--row-surface);box-shadow:none}
+.communication-surface .conversation-stream .message[data-own=true]>strong{display:none}
+.communication-surface .conversation-stream .message strong{font-size:11px;font-weight:600}
+.communication-surface .conversation-stream .message p{line-height:1.5;margin:2px 0}
+.communication-surface .conversation-stream .message .quiet{max-width:100%;white-space:normal;text-align:left;border-color:var(--communication-edge);font-size:14px}
+.communication-surface .conversation-saved{position:static;display:block;margin-top:3px;text-align:right;font-size:10px;line-height:1;color:var(--muted)}
+.communication-surface .conversation-composer{align-self:center;width:min(100%,880px);margin:0 auto!important;padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:8px;border-top:1px solid var(--communication-divider);background:var(--card)}
+.communication-surface .conversation-composer textarea{font-size:16px;min-height:46px;border-color:var(--communication-divider);background:var(--field-surface);padding:11px 14px;box-shadow:none}
+.communication-surface .conversation-composer>.form-caption{font-size:12px}
+.communication-surface .conversation-composer>button{height:46px;width:46px;min-height:46px;border:0;font-size:24px}
+.communication-surface .conversation-attachment summary{min-height:46px;height:46px;border:0;background:transparent;color:var(--communication-blue)}
+.communication-attachment-panel{position:absolute;bottom:calc(100% + 8px);inset-inline:12px;z-index:3;max-height:min(300px,calc(var(--window-height) - 140px));overflow:auto;padding:14px;border:1px solid var(--communication-divider);border-radius:16px;background:var(--card);box-shadow:0 8px 24px var(--dialog-shadow,#000b)}
 .conversation-attachment-panel>label{font-size:12px}
 .conversation-context-actions{display:grid;gap:6px;margin-bottom:8px}
 .conversation-context-actions:empty{display:none}
 .conversation-context-actions .quiet{font-size:13px;text-align:left;overflow-wrap:anywhere}
-.conversation-window .conversation-attachment-panel input{margin-top:6px}
+.communication-surface .conversation-attachment-panel input{margin-top:6px}
 .conversation-reference-preview{grid-column:1/-1;display:flex;align-items:center;gap:4px;min-width:0}
-.conversation-reference-preview .quiet{min-height:32px;font-size:12px;padding:5px 9px;color:var(--leaf);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.conversation-reference-preview .quiet:first-child{max-width:calc(100% - 40px)}
-.conversation-reference-preview .quiet:last-child{font-size:20px;min-width:36px;padding:0;border:0}
-dialog[data-activity=true]{z-index:4}
+.conversation-reference-preview .quiet{min-height:36px;font-size:12px;padding:6px 10px;color:var(--communication-blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conversation-reference-preview .quiet:first-child{max-width:calc(100% - 44px)}
+.conversation-reference-preview .quiet:last-child{font-size:22px;min-width:44px;padding:0;border:0}
+.communication-members{margin-bottom:12px;border:0;background:transparent;font-size:12px;color:var(--muted)}
+.communication-members summary{padding:4px 0;min-height:36px;font-size:12px;font-weight:500}
+.communication-members p{font-size:12px;margin:4px 0 8px}
+.communication-launcher{position:fixed;z-index:10;display:grid;place-items:center;min-width:44px;min-height:44px;width:44px;height:44px;padding:0;border:1px solid var(--edge);border-radius:12px 0 0 12px;background:var(--card);color:var(--communication-blue);box-shadow:0 4px 14px var(--dialog-shadow,#000b);--communication-safe-left:env(safe-area-inset-left,0px);--communication-safe-right:env(safe-area-inset-right,0px)}
+.communication-launcher[data-side=left]{border-radius:0 12px 12px 0}
+.communication-edge-arrow{display:block;font-size:28px;line-height:1}
+.communication-launcher[data-docked=true] :is(.communication-launcher-icon,.communication-launcher-icon+span){display:none}
 .top-actions{display:flex;align-items:center;gap:5px}
 #workspace-share{font-size:12px;padding-inline:8px}
-@media(min-width:850px){.conversation-window{--window-height:min(570px,calc(var(--activity-height,100dvh) - 120px));right:20px;top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - var(--window-height) - 24px)}.conversation-window[data-mode=minimized]{top:calc(var(--activity-top,0px) + var(--activity-height,100dvh) - 76px)}.conversation-window[data-mode=expanded]{--window-height:calc(var(--activity-height,100dvh) - 48px);top:calc(var(--activity-top,0px) + 24px)}}
-
-/* The communication list and conversation share one movable, bounded surface. */
-.communication-viewport{position:fixed;inset:0;z-index:10;pointer-events:none;overflow:hidden;contain:layout}
-.communication-surface,.communication-launcher{color-scheme:var(--communication-scheme);--bg:var(--communication-field);--card:var(--communication-bg);--layer:var(--communication-layer);--ink:var(--communication-text);--muted:var(--communication-muted);--edge:var(--communication-edge);--leaf:var(--communication-green);--amber:var(--communication-blue);--row-surface:var(--communication-own);--field-surface:var(--communication-field);--field-border:var(--communication-edge);--action-surface:var(--communication-green);--action-text:var(--communication-on-accent);--action-border:var(--communication-green);--button-hover:var(--communication-hover);color:var(--ink)}
-.communication-surface{pointer-events:auto;isolation:isolate;border-radius:14px;box-shadow:0 8px 32px var(--dialog-shadow,#000b)}
-.communication-surface .conversation-window-header{gap:0;min-height:48px;padding:2px 4px;border-bottom:1px solid var(--edge)}
-.communication-surface .conversation-window-header>.quiet{min-width:44px;min-height:44px;padding:0;font-size:25px}
-.communication-drag{display:flex;align-items:center;gap:5px;flex:1;min-width:0;min-height:44px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
-.communication-grip{color:var(--muted);font-size:17px;flex:0 0 auto}
-.communication-drag h2{font-size:15px;font-weight:650}
-.communication-moving .communication-drag{cursor:grabbing}
-.communication-list{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px 10px 10px}
-.communication-list>.form-caption{padding:8px}
-.communication-list>.form-caption:empty{display:none}
-.communication-list .fellowship-account{position:static;max-width:none;margin-left:auto;width:fit-content}
-.communication-list .fellowship-account summary{min-height:40px;padding:10px 4px;font-size:12px}
-.communication-list .fellowship-account[open]{border:0;padding:0;background:transparent}
-.communication-list>button{margin:10px 4px}
-.communication-room-list{display:grid;gap:0}
-.communication-entry{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:5px;text-align:left;border:0;border-radius:9px;background:transparent;color:var(--ink);font-size:15px}
-.communication-entry:focus-visible{background:var(--layer)}
-@media(hover:hover){.communication-entry:hover{background:var(--layer)}}
-.communication-avatar{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:50%;background:var(--layer);color:var(--communication-blue);font-size:12px;font-weight:650}
-.communication-entry-name{font-weight:600;overflow-wrap:anywhere}
-.communication-entry-name small{display:block;color:var(--muted);font-size:11px;font-weight:400;margin-top:2px}
-.communication-surface .conversation-window-content{background:var(--card);border-radius:0 0 16px 16px}
-.communication-surface .conversation-stream{padding:8px 10px;touch-action:pan-y}
-.communication-surface .conversation-stream .message{max-width:88%;width:fit-content;position:relative;border:0;border-radius:12px;padding:7px 10px;margin:6px auto 6px 0;background:var(--layer);font-size:15px}
-.communication-surface .conversation-stream .message[data-own=true]{margin-left:auto;margin-right:0;background:var(--row-surface,var(--layer));box-shadow:inset 0 0 0 1px var(--edge)}
-.communication-surface .conversation-stream .message[data-own=true]>strong{display:none}
-.communication-surface .conversation-stream .message strong{font-size:11px}
-.communication-surface .conversation-stream .message p{line-height:1.42;margin:2px 0}
-.communication-surface .conversation-saved{position:static;display:block;text-align:right;font-size:10px;line-height:1}
-.communication-surface .conversation-composer{padding:7px 8px;gap:5px;border-top:1px solid var(--edge);background:var(--card)}
-.communication-surface .conversation-composer textarea{font-size:16px}
-.communication-surface .conversation-composer>.form-caption{font-size:11px}
-.communication-members{margin-bottom:3px;border:0;background:transparent;font-size:12px;color:var(--muted)}
-.communication-members summary{padding:3px 0;min-height:30px;font-size:11px;font-weight:500}
-.communication-members p{font-size:12px;margin:3px 0 8px}
-.communication-launcher{position:fixed;z-index:10;right:max(12px,env(safe-area-inset-right));bottom:calc(68px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:7px;min-height:44px;max-width:calc(100vw - 24px);padding:9px 13px;border:1px solid var(--edge);border-radius:24px;background:var(--card);color:var(--ink);box-shadow:0 4px 14px var(--dialog-shadow,#000b);font-size:13px;font-weight:600}
-.communication-launcher>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.communication-launcher-icon{display:grid;place-items:center;color:var(--leaf)}
-.communication-launcher-icon svg{width:20px;height:20px}
-.communication-edge-arrow{display:none}
-.communication-launcher{--communication-safe-left:env(safe-area-inset-left,0px);--communication-safe-right:env(safe-area-inset-right,0px)}
-.communication-launcher[data-docked=true]{display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border-radius:12px 0 0 12px;color:var(--communication-blue)}
-.communication-launcher[data-docked=true][data-side=left]{border-radius:0 12px 12px 0}
-.communication-launcher[data-docked=true] :is(.communication-launcher-icon,.communication-launcher-icon+span){display:none}
-.communication-launcher[data-docked=true] .communication-edge-arrow{display:block;font-size:28px;line-height:1}
 @media(max-width:380px){#workspace-share{display:none!important}}
+@media(max-height:400px){.communication-surface .conversation-window-header{min-height:54px;padding-block:5px}.communication-kicker{font-size:9px}.communication-title h2{font-size:17px}.communication-surface .conversation-composer{padding-block:7px}.communication-surface .conversation-stream{padding-block:8px}}
+dialog[data-activity=true]{z-index:4}
+.communication-surface::before{position:absolute;inset:0 0 auto;z-index:2;height:1px;content:"";pointer-events:none;background:linear-gradient(90deg,var(--communication-top),var(--communication-blue),var(--communication-green),var(--communication-top));opacity:.5}
+.communication-surface{background-image:radial-gradient(ellipse at 100% 0,var(--communication-blue-depth),transparent 52%),radial-gradient(ellipse at 0 100%,var(--communication-green-depth),transparent 58%)}
+.communication-surface .conversation-window-content.conversation-view{background:transparent}
+.communication-avatar{background:linear-gradient(140deg,var(--communication-blue-depth),var(--communication-layer));box-shadow:inset 0 1px 0 var(--communication-edge)}
+.communication-surface .conversation-stream .message[data-own=true]{background:linear-gradient(140deg,var(--communication-own),var(--communication-own-depth))}
+.communication-surface .conversation-window-header>.communication-park{box-shadow:inset 0 1px 0 var(--communication-edge)}
 
 /* Keep app chrome inside the visible screen, including mobile browser controls. */
 :root{--workspace-height:var(--workspace-visible-height,100dvh);--workspace-layout-height:var(--workspace-layout-visible-height,100dvh)}
