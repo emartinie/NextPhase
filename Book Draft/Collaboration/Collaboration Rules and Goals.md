@@ -19,7 +19,7 @@ Before substantial writing, revision, reorganization, or research for this book,
 - Respect the author's decisions about what belongs in a chapter and what should be deferred.
 
 ## Manuscript preservation
-- Preserve the original manuscript and the files in `Original Manuscript/` as source material.
+- Preserve the original manuscript and the files in `Original Content/` as source material.
 - Never silently revise previously approved chapters.
 - Keep original material, new drafts, and editorial guidance distinguishable.
 - Reopen the exact requested source before using it; do not substitute another manuscript without agreement.
