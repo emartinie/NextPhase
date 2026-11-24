@@ -200,9 +200,9 @@ What might we accomplish if we could bring more of those things together in one 
 
 Not simply a place to talk about the things we believed, but a place to begin living them together.
 
-That question would become increasingly important as I pursued another dream.
+At the time, I wasn't looking to buy a farm. I was trying to turn the homestead I already had into one.
 
-I wanted to buy a farm.
+It was my wife and Melissa who brought the possibility of purchasing a farm to my attention.
 
 ---
 
