@@ -30,5 +30,10 @@ Before substantial writing, revision, reorganization, or research for this book,
 - Avoid unnecessary repeated confirmations when the request and authorization are clear.
 - State limitations and incomplete work accurately.
 
+## Draft workflow
+- Save new chapter drafts directly in `Working Drafts/` as Markdown, verify the saved file, and share its link rather than reproducing the chapter inline in conversation.
+- Move chapters into `Approved Drafts/` only upon the author's approval.
+- Preserve substantive manuscript writing in repository files rather than leaving it solely in conversation.
+
 ## Living agreement
 Add or revise rules as we learn how to work together more effectively. This document governs the collaboration and is not itself a chapter of the book.
