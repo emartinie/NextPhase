@@ -1,5 +1,19 @@
 # Chapter Three — Everything Changed When I Became a Father
 
+I don't remember the exact moment when I stopped being the most important person in my own life.
+
+I know there was a time when my decisions were largely about me. Where I wanted to go, what I wanted to accomplish, what I wanted to own, and what I hoped my future would look like.
+
+Then I became a father.
+
+The world didn't change. I did.
+
+I had spent much of my childhood wondering why the adults around me made the decisions they made. Now there were children looking to me, and I was the adult whose decisions would help shape their world.
+
+It was one thing to know what I had needed from a father.
+
+It was another thing entirely to become one.
+
 I knew I was going to be a father long before I ever saw my daughter.
 
 I knew Zoe was growing inside her mother's womb. I knew that someday there would be another human being in my life, someone I would be responsible for, someone who would depend on me for things I hadn't yet begun to understand.
