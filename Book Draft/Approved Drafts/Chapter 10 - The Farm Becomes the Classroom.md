@@ -54,7 +54,7 @@ What interested me wasn't simply the ability to grow things differently.
 
 I wanted to understand how these systems worked, what could be accomplished with them, and how that knowledge could be made useful to other people.
 
-The farm included a fifty-thousand-gallon fish tank in the ground. I developed indoor growing environments and a showroom where different approaches to cultivation could be explored.
+I built a fifty-thousand-gallon fish tank in the ground from scratch. I developed indoor growing environments and a showroom where different approaches to cultivation could be explored.
 
 I also designed home aquaponics units that were manufactured by a friend and mentor in China.
 
