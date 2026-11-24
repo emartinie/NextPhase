@@ -66,7 +66,7 @@ There was more to the venture than the crop itself.
 
 There was also the technology associated with agriculture and the opportunity to demonstrate what that technology could accomplish.
 
-I had already designed home aquaponics units that were manufactured by a friend and mentor in China. Much of what I had learned through years of working with technology, developing systems, and conducting international business was applicable to the agricultural endeavors I was pursuing.
+I had already designed home aquaponics units and my friend Travis had designed units that were manufactured by a friend and mentor in China. Much of what I had learned through years of working with technology, developing systems, and conducting international business was applicable to the agricultural endeavors I was pursuing.
 
 I hadn't left everything I knew behind when I set out to leave Gibson.
 
