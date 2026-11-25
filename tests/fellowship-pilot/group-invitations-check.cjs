@@ -17,7 +17,7 @@ const makeWrites=(id,creator,email,expires=Date.now()+86400000)=>[
 const joinWrites=(id,uid,role='member')=>[
   {update:{name:documentRoot+invitation(id),fields:value({status:'accepted',acceptedBy:uid})},updateMask:{fieldPaths:['status','acceptedBy']},currentDocument:{exists:true},updateTransforms:[{fieldPath:'acceptedAt',setToServerValue:'REQUEST_TIME'}]},
   {update:{name:documentRoot+group+'/members/'+uid,fields:value({role,inviteId:id})},currentDocument:{exists:false},updateTransforms:[{fieldPath:'joinedAt',setToServerValue:'REQUEST_TIME'}]},
-  {update:{name:documentRoot+group+'/profiles/'+uid,fields:value({displayName:uid})}},
+  {update:{name:documentRoot+group+(group==='groups/household-pilot'?'/profiles/':'/memberNames/')+uid,fields:value({displayName:uid})}},
   {update:{name:documentRoot+'fellowshipMembers/'+uid+'/groups/'+group.split('/')[1],fields:value({threadId:room.split('/').at(-1),title:'Group conversation'})},updateTransforms:[{fieldPath:'savedAt',setToServerValue:'REQUEST_TIME'}]},
 ];
 async function main(){
@@ -50,6 +50,8 @@ async function main(){
     allowed(await request('/'+recipient(id),guest));
     denied(await request('/'+recipient(id),wrong));
     denied(await request('/'+group+':runQuery',guest,'POST',{structuredQuery:{from:[{collectionId:'groupInviteRecipients'}],limit:20}}));
+    assert.equal((await request('/'+group+'/members/family-guest',guest)).status,404,'Recipient can check only their own absent membership');
+    assert.equal((await request('/'+group+'/profiles/family-guest',guest)).status,404,'Recipient transaction can check its own absent profile');
     denied(await read(room,guest));
     const directMembership=joinWrites(id,'family-guest')[1];
     denied(await commit(guest,[directMembership]));
@@ -107,6 +109,10 @@ async function main(){
     denied(await request('/'+beforeIndex,neighbor,'PATCH',{fields:value({threadId:'shared',title:'Group conversation',savedAt:{date:new Date().toISOString()}})}));
     allowed(await commit(neighbor,joinWrites(other,'new-neighbor')));
     allowed(await read(room,neighbor));
+    await seed(group+'/profiles/neighbors-host',value({displayName:'Host',email:'legacy-private@example.test'}));
+    denied(await request('/'+group+'/profiles/neighbors-host',neighbor));
+    denied(await request('/'+group+':runQuery',neighbor,'POST',{structuredQuery:{from:[{collectionId:'profiles'}],limit:50}}));
+    allowed(await request('/'+group+'/memberNames/new-neighbor',host));
     allowed(await send(room,'new-group-message',neighbor,'new-neighbor','Hello neighbors [Scripture: John 1:1]'));
     allowed(await read(room,host));
     allowed(await request('/'+beforeIndex,neighbor));
@@ -120,7 +126,7 @@ async function main(){
     allowed(await commit(declining,[{update:{name:documentRoot+invitation(declined),fields:value({status:'declined',declinedBy:'declining'})},updateMask:{fieldPaths:['status','declinedBy']},updateTransforms:[{fieldPath:'declinedAt',setToServerValue:'REQUEST_TIME'}]}]));
     denied(await commit(declining,joinWrites(declined,'declining')));
     denied(await read(room,declining));
-    denied(await request('/'+group+'/profiles/new-neighbor',neighbor,'PATCH',{fields:value({displayName:'Neighbor',email:'private@example.test'})}));
+    denied(await request('/'+group+'/memberNames/new-neighbor',neighbor,'PATCH',{fields:value({displayName:'Neighbor',email:'private@example.test'})}));
     await request('/'+group+'/members/new-neighbor','owner','DELETE');
     denied(await read(room,neighbor));
     denied(await send(room,'revoked-group-message',neighbor,'new-neighbor','No longer a member'));

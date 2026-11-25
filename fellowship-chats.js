@@ -5,6 +5,7 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
   const details = node('details');
   details.append(node('summary', 'People & chats'));
   const controls = node('div', '', 'actions');
+  const extraGroups=node('div','','communication-room-list');
   function entry(label, select, shared = false) {
     if (!compact) return button(label, select, 'quiet');
     const control = button('', select, 'communication-entry');
@@ -28,8 +29,8 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
   if (compact) {
     controls.className = 'communication-room-list';
     people.classList.add('communication-room-list');
-    target.append(controls, status, people);
-  } else target.append(controls, details);
+    target.append(controls, extraGroups, status, people);
+  } else target.append(controls, extraGroups, details);
   let active = true;
   let names = new Map();
   let chats = [];
@@ -81,6 +82,10 @@ export function mountFellowshipChats(target, { node, text, button, firestore, db
         : 'Saved conversations could not load. Close and reopen Fellowship to try again.';
     }));
   return {
+    setGroups(groups){
+      if(!active)return;
+      extraGroups.replaceChildren(...groups.filter(group=>!['household-pilot','pilot-group'].includes(group.groupId)).map(group=>entry(group.title,()=>choose({kind:'group',...group}),true)));
+    },
     show() { if (active) {
       if (compact) { target.scrollIntoView({ block: 'start' }); (people.querySelector('button') || controls.querySelector('button'))?.focus({ preventScroll: true }); }
       else { details.open = true; details.scrollIntoView({ block: 'nearest' }); details.querySelector('summary').focus(); }

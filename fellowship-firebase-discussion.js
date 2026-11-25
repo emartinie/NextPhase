@@ -3,7 +3,7 @@ import { discussionSession, messageBody, messageParts } from './fellowship-sessi
 export function mountFirebaseDiscussion(target, {
   node, text, button, firestore, db, uid, displayName, year, week,
   passage, readPassage, surface = target, groupId = 'pilot-group',
-  threadId, privateChatId, title = 'Wednesday HomeGroup',
+  threadId, privateChatId, title = 'Wednesday HomeGroup', profileCollection = 'profiles',
   compact = false, detailsTarget,
   getShareContext, shareExternally, onReadPassage,
 }) {
@@ -102,7 +102,7 @@ export function mountFirebaseDiscussion(target, {
   } else target.append(node('h3', title), status, retry, profileStatus, people, feed, form);
 
   const group = firestore.doc(db, 'groups', groupId);
-  const profile = firestore.doc(group, 'profiles', uid);
+  const profile = firestore.doc(group, profileCollection, uid);
   const thread = privateChatId ? firestore.doc(group, 'privateChats', privateChatId)
     : firestore.doc(group, 'studyThreads', threadId || year + '-week-' + String(week).padStart(2, '0'));
   const messages = firestore.collection(thread, 'messages');
@@ -341,7 +341,7 @@ export function mountFirebaseDiscussion(target, {
   function mountConversation() {
     if (mounted || !active || !member) return;
     mounted = true;
-    stops.push(firestore.onSnapshot(firestore.query(firestore.collection(group, 'profiles'), firestore.limit(50)),
+    stops.push(firestore.onSnapshot(firestore.query(firestore.collection(group, profileCollection), firestore.limit(50)),
       { includeMetadataChanges: true }, result => {
         if (!active || !member || result.metadata.fromCache) return;
         names.clear();

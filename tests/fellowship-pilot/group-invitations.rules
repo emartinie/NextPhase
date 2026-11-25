@@ -51,12 +51,13 @@ service cloud.firestore {
     // groupInviteRecipients/{hex64}: creatorId, email, createdAt, immutable;
     // its address is readable only by the named verified recipient.
     // members/{uid}: role:'member', inviteId, joinedAt on invitation enrollment.
-    // profiles/{uid}: displayName only. No contact details belong here.
+    // Family profiles/{uid}, other memberNames/{uid}: displayName only.
     // fellowshipMembers/{uid}/groups/{g}: threadId, title, savedAt, private
     // navigation only; it never authorizes access to the underlying group.
     function invitePath(g,id) { return /databases/$(database)/documents/groups/$(g)/groupInvites/$(id); }
     function recipientPath(g,id) { return /databases/$(database)/documents/groups/$(g)/groupInviteRecipients/$(id); }
     function memberPath(g,uid) { return /databases/$(database)/documents/groups/$(g)/members/$(uid); }
+    function namePath(g,uid) { return g=='household-pilot' ? /databases/$(database)/documents/groups/$(g)/profiles/$(uid) : /databases/$(database)/documents/groups/$(g)/memberNames/$(uid); }
     function roomPath(g,id) { return /databases/$(database)/documents/groups/$(g)/studyThreads/$(id); }
     function validToken(id) { return id is string && id.matches('^[a-f0-9]{64}$'); }
     function validThread(id) { return id is string && id.matches('^[A-Za-z0-9_-]{1,80}$'); }
@@ -103,7 +104,7 @@ service cloud.firestore {
         && validInvitation(after) && after.status=='accepted' && after.acceptedBy==uid && after.acceptedAt==request.time
         && after.creatorId==before.creatorId && after.threadId==before.threadId && after.title==before.title
         && after.createdAt==before.createdAt && after.expiresAt==before.expiresAt
-        && isValidProfile(getAfter(/databases/$(database)/documents/groups/$(g)/profiles/$(uid)).data);
+        && isValidProfile(getAfter(namePath(g,uid)).data);
     }
     function isMemberOf(g,uid) { return exists(memberPath(g,uid)); }
     function isMemberAfter(g,uid) { return existsAfter(memberPath(g,uid)); }
@@ -150,11 +151,19 @@ service cloud.firestore {
                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','declinedBy','declinedAt'])
                 && request.resource.data.declinedBy==request.auth.uid && request.resource.data.declinedAt==request.time))));
     }
-    match /groups/{g}/profiles/{uid} {
-      allow get: if isMember(g) || (request.auth != null && request.auth.uid==uid);
-      allow list: if isMember(g) && request.query.limit <= 50;
-      allow create: if request.auth != null && request.auth.uid==uid && isMemberAfter(g,uid) && isValidProfile(request.resource.data);
-      allow update: if isMember(g) && request.auth.uid==uid && isValidProfile(request.resource.data);
+    match /groups/household-pilot/profiles/{uid} {
+      allow get: if isMember('household-pilot') || (request.auth != null && request.auth.uid==uid);
+      allow list: if isMember('household-pilot') && request.query.limit <= 50;
+      allow create: if request.auth != null && request.auth.uid==uid && isMemberAfter('household-pilot',uid) && isValidProfile(request.resource.data);
+      allow update: if isMember('household-pilot') && request.auth.uid==uid && isValidProfile(request.resource.data);
+    }
+    // Other groups' legacy profiles remain denied. Only this new, explicitly
+    // name-only collection is shared with their authorized group members.
+    match /groups/{g}/memberNames/{uid} {
+      allow get: if g!='household-pilot' && (isMember(g) || (request.auth != null && request.auth.uid==uid));
+      allow list: if g!='household-pilot' && isMember(g) && request.query.limit <= 50;
+      allow create: if g!='household-pilot' && request.auth != null && request.auth.uid==uid && isMemberAfter(g,uid) && isValidProfile(request.resource.data);
+      allow update: if g!='household-pilot' && isMember(g) && request.auth.uid==uid && isValidProfile(request.resource.data);
     }
     function validGroupReference(g,data) {
       return data.keys().hasAll(['threadId','title','savedAt']) && data.keys().hasOnly(['threadId','title','savedAt'])

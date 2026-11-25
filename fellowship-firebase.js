@@ -1,6 +1,7 @@
 import { mountFirebaseDiscussion } from './fellowship-firebase-discussion.js';
 import { clearDiscussionSessions } from './fellowship-session.js';
 import { mountFellowshipChats } from './fellowship-chats.js';
+import { familyGroup, groupInviteToken, mountGroupInvitations } from './group-invitations.js';
 
 const projectId = 'homegroups-fellowship';
 let observedUid;
@@ -37,6 +38,11 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
   let unsubscribe;
   let stopDiscussion;
   let chats;
+  let invitations;
+  let wantsInvitations=false;
+  let reloadInvitations=()=>{wantsInvitations=true;};
+  const invitationRoute=()=>{if(!controller.signal.aborted&&groupInviteToken()){reloadInvitations();onShowList?.();}};
+  window.addEventListener('hashchange',invitationRoute);
   let mountConversation;
   let selectRoom = () => { status.textContent = 'Sign in to open your saved conversations.'; };
   let view = 0;
@@ -80,6 +86,9 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
       stopDiscussion?.();
       stopDiscussion = null;
       chats?.close();
+      invitations?.close();
+      invitations=null;
+      reloadInvitations=()=>{wantsInvitations=true;};
       chats = null;
       mountConversation = null;
       chatHub.replaceChildren();
@@ -99,7 +108,7 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
       accountLabel.textContent = user?.displayName || 'Account';
       status.textContent = user
         ? focused ? '' : `Signed in as ${user.displayName || 'Fellowship member'}.`
-        : 'Sign in to open your community conversation.';
+        : groupInviteToken() ? 'Sign in with the invited account to review this group invitation.' : 'Sign in to open your community conversation.';
       if (!user) return;
       try {
         const firestore = await import('https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js');
@@ -112,9 +121,11 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
             node, text, button, firestore, db, uid: user.uid,
             displayName: user.displayName, ...(getStudyContext?.() || { year, week }),
             ...(selection.kind === 'weekly' ? { year: selection.year, week: selection.week } : {}),
+            ...(['weekly','group'].includes(selection.kind) ? {profileCollection:selection.groupId==='household-pilot'?'profiles':'memberNames'} : {}),
             passage, readPassage, surface,
             ...(selection.kind === 'household' ? { groupId: 'household-pilot', threadId: 'household', title: 'Family conversation' } : {}),
             ...(selection.kind === 'private' ? { groupId: 'household-pilot', privateChatId: selection.id, title: selection.title } : {}),
+            ...(selection.kind === 'group' ? {groupId:selection.groupId,threadId:selection.threadId,title:selection.title} : {}),
             ...options,
           });
           stopDiscussion = stop;
@@ -136,8 +147,29 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
         const requestedRoom = new URLSearchParams(location.search).get('room') === 'household'
           ? { kind: 'household', title: 'Family conversation' } : { kind: 'weekly' };
         if (!focused) selectRoom(roomSelections.get(user.uid) || requestedRoom);
-        try { chats = mountFellowshipChats(chatHub, { node, text, button, firestore, db, uid: user.uid, onSelect: selectRoom, compact: focused }); }
-        catch { chatHub.append(text('Saved private chats are not available yet.', 'form-caption')); }
+        const chatsTarget=node('div'),invitesTarget=node('div');
+        chatHub.append(chatsTarget,invitesTarget);
+        let accessibleGroups=[];
+        const refreshChats=()=>{
+          chats?.close();chatsTarget.replaceChildren();
+          try{chats=mountFellowshipChats(chatsTarget,{node,text,button,firestore,db,uid:user.uid,onSelect:selectRoom,compact:focused});chats.setGroups(accessibleGroups);}
+          catch{chatsTarget.append(text('Saved private chats are not available yet.','form-caption'));}
+        };
+        refreshChats();
+        reloadInvitations=()=>{
+          if(controller.signal.aborted||currentView!==view)return;
+          invitations?.close();invitesTarget.replaceChildren();
+          chatsTarget.hidden=Boolean(groupInviteToken());
+          invitations=mountGroupInvitations(invitesTarget,{node,text,button,firestore,db,user,
+          groups:[familyGroup,{groupId:'pilot-group',threadId:year+'-week-'+String(week).padStart(2,'0'),title:'Weekly study'}],
+          onShowList,
+          onResolved:()=>{if(currentView===view)chatsTarget.hidden=false;},
+          onGroups:groups=>{accessibleGroups=groups;chats?.setGroups?.(groups);},
+          onJoined:selection=>{if(controller.signal.aborted||currentView!==view)return;refreshChats();selectRoom(selection);},
+          });
+          if(wantsInvitations)invitations.show();
+        };
+        reloadInvitations();
       } catch {
         if (!controller.signal.aborted && currentView === view) (focused ? chatHub : discussion).append(text('Could not open the discussion. Reload to try again.'));
       }
@@ -147,7 +179,8 @@ export function mountFirebaseFellowship(target, { node, text, button, year, week
   connect().catch(error => {
     if (!controller.signal.aborted) status.textContent = error.message;
   });
-  const close = () => { controller.abort(); unsubscribe?.(); stopDiscussion?.(); chats?.close(); };
+  const close = () => { controller.abort(); window.removeEventListener('hashchange',invitationRoute); unsubscribe?.(); stopDiscussion?.(); chats?.close(); invitations?.close(); };
+  close.showGroupInvitations=()=>{wantsInvitations=true;onShowList?.();invitations?.show();};
   close.showChatWith = () => { if (onShowList) onShowList(); else if (chats) chats.show(); else selectRoom({ kind: 'weekly' }); };
   close.showHousehold = () => selectRoom({ kind: 'household', title: 'Family conversation' });
   close.showWeekly = () => selectRoom({ kind: 'weekly' });
