@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-25",
+  "reviewBranch": "codex/group-invitations",
+  "testedCommit": "d705b76810ddb35aa5389f4d2ce5e9eec554cc4e",
+  "rulesRun": "https://github.com/emartinie/NextPhase/actions/runs/45574926069",
+  "rulesSha256": "94be9ee8c10d7b8e65abcb92fa166c5389f322e6c3121f5ab994407ba3da377d",
+  "publishedBaselineSha256": "3fe797d44e656ffc577868b5e4a6a24f9098b629f2fb930230ec56884eb050dd",
+  "publishedBaselineSource": "Owner pasted currently published rules on 25 November; matches household-pilot.rules",
+  "unchangedMessagingRules": true,
+  "legacyNonFamilyProfilesRemainPrivate": true,
+  "existingMembershipsMigrated": false,
+  "checks": {
+    "actualFirestoreEmulator": "passed, standard edition, synthetic demo project only",
+    "familyAndSecondGroupBrowser": "passed, actual online-branch application with synthetic Auth/store adapters",
+    "shortHeight375x420": "passed, simulated layout, not physical keyboard",
+    "sameDocumentInviteNavigation": "passed",
+    "distinctGroupDrafts": "passed",
+    "independentBrowserGroupRecovery": "passed",
+    "nativeShare": "API contract passed with a mock, physical iPhone unverified",
+    "identityCleanup": "passed, including pending request across sign-out",
+    "existingSiteRuntimeRouting": "passed",
+    "existingSessionIsolation": "passed"
+  },
+  "notVerified": [
+    "Physical iPhone Safari and installed PWA with the new invitation form",
+    "New real family member Google sign-in and live membership acceptance",
+    "Automatic email delivery (not implemented)"
+  ],
+  "productionRulesChanged": false,
+  "productionRecordsChanged": false,
+  "hostingDeployed": false,
+  "merged": false
+}
