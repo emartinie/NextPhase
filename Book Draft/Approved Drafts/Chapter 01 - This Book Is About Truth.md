@@ -41,6 +41,20 @@ Genesis gives us origins: humanity, nations, promise, the beginnings of Israel, 
 
 I believe the Torah is holy, righteous, and good. I do not believe Yeshua came to make obedience to the Father meaningless. I do not believe the apostles taught that sin ceased to be sin because Messiah came.
 
+There was a time when I understood the prophetic significance of the appointed times and how they pointed to Messiah without understanding my own responsibility to observe them.
+
+What changed was not simply my understanding of the commandments. It was my understanding of who I was.
+
+As I came to understand what it meant to be a new creation in Messiah, grafted into Israel and made a fellow citizen of the Commonwealth of Israel, I could no longer separate my theology from my identity.
+
+I did not adopt a set of practices in pursuit of a new identity. My practices changed because my understanding of my identity changed.
+
+I did not begin observing the appointed times in order to become Israel. I began observing them because I had come to understand myself as Israel through Messiah.
+
+Obedience, therefore, is not the means by which I acquire my inheritance. It is an expression of my recognition of the inheritance I have received.
+
+That distinction is foundational to everything that follows.
+
 That conviction leads me to take the Sabbath, the appointed times, the dietary instructions, and the commandments seriously. I observe the Sabbath and understand Passover and the other appointed times as part of the biblical story, not embarrassing relics to be discarded. I also recognize that sincere believers disagree about how particular commandments apply today, especially in the absence of a Temple and within the realities of life among the nations.
 
 The point is not that I have perfectly kept every commandment. I have not. Nor do I think outward observance alone proves a faithful heart.
