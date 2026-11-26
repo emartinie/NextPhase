@@ -1,7 +1,7 @@
 # Chapter One — This Book Is About Truth
 ## Belief, covenant, and why I began building HomeGroups
 
-*First working draft — November 2026. Written in the author's proposed first-person voice from conversations and earlier manuscript material. This is not an approved statement of faith or a replacement for earlier manuscripts.*
+*First working draft — November 2026. Written in first-person voice from conversations and earlier manuscript material. This is not an approved statement of faith or a replacement for earlier manuscripts.*
 
 I have spent a great deal of my life asking questions that other people seemed content to leave alone.
 
@@ -183,9 +183,7 @@ It is also about what truth ought to do to the person who seeks it.
 
 ## Editorial notes for the second draft (not part of the chapter)
 
-- Verify the author's preferred wording and sequence for the Father/Son relationship, the divorce of northern Israel, Judah's standing, and the covenant inclusion of the nations.
 - Decide whether the autobiographical prison-study material belongs here or should remain primarily in later memoir chapters.
 - Expand textual evidence and competing readings for Jeremiah 3 and 31, Ezekiel 37, Hosea, Matthew 15, Acts 1, Romans 9–11, Ephesians 2, Matthew 5, and Paul's letters.
 - Confirm whether this chapter should lead with theological convictions or with the earlier manuscript's autobiographical “Search for Truth” opening.
 - Distinguish historical testimony, current convictions, interpretive proposals, and unresolved hypotheses in the next editorial pass.
-- Do not import third-party manuscript resources into this folder without reviewing provenance and redistribution rights.
