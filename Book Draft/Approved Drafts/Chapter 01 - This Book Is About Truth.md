@@ -179,6 +179,132 @@ This book is about truth.
 
 It is also about what truth ought to do to the person who seeks it.
 
+When I look back across the years, I don't see a straight line.
+
+I see questions.
+
+I see victories.
+
+I see failures.
+
+I see seasons that made no sense while I was living them but now fit together in ways I never could have imagined.
+
+If I could speak to the young man carrying that notebook full of questions, I don't think I would give him many answers.
+
+Instead, I would tell him to keep asking.
+
+### The Journey Was the Teacher
+
+There were times I believed I had finally figured everything out.
+
+Then life would humble me.
+
+A new experience.
+
+A painful loss.
+
+A relationship.
+
+A failure.
+
+A discovery hidden in Scripture.
+
+Each one reminded me that truth is too large to be possessed.
+
+It must be pursued.
+
+The older I become, the less interested I am in winning arguments.
+
+I'm far more interested in understanding people, listening carefully, and allowing evidence to reshape my thinking whenever necessary.
+
+That isn't weakness;
+
+It's growth.
+
+### What Remains
+
+Careers change.
+
+Businesses rise and fall.
+
+Dreams evolve.
+
+People come and go.
+
+But some things endure.
+
+Faith.
+
+Hope.
+
+Love.
+
+Purpose.
+
+The conviction that every life has value.
+
+The belief that redemption is possible.
+
+The certainty that God is still writing stories long after we believe the chapter has ended.
+
+Those are the things I carry with me today.
+
+### The Search Continues
+
+People sometimes ask whether I have finally found the truth.
+
+My answer surprises them.
+
+Yes.
+
+And no.
+
+I know the One who called Himself the Truth.
+
+But knowing Him hasn't ended my search.
+
+It has transformed it.
+
+Now I don't study to prove myself right or others wrong.
+
+I study because wonder has replaced certainty.
+
+Curiosity has replaced fear.
+
+The search continues—not only because truth is often hidden, but because it is inexhaustible.
+
+Every page of Scripture.
+
+Every conversation.
+
+Every hardship.
+
+Every blessing.
+
+Each reveals another glimpse of the Creator.
+
+### A Final Thought
+
+If this book has one message, I hope it is this:
+
+Don't be afraid of difficult questions.
+
+Don't be afraid to admit when you're wrong.
+
+Don't be afraid to change my mind when the evidence leads somewhere unexpected.
+
+Truth has nothing to fear from honest investigation.
+
+And neither should we.
+
+The journey isn't over.
+
+In many ways...
+
+It's only just beginning.
+
+There are seasons in life when you become convinced that some chapters have ended forever.
+
 ---
 
 ## Editorial notes for the second draft (not part of the chapter)
