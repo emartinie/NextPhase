@@ -1,6 +1,6 @@
 # Chapter Two — Good Kid, Bad Things
 
-*First working draft — November 2026. Written in the author's proposed first-person voice from his original “Good kid, bad things…” list and conversations. Narrative order is thematic, not a verified chronology. Details remain subject to the author's review.*
+*First working draft — November 2026. Written in first-person voice from original “Good kid, bad things…” list and conversations. Narrative order is thematic, not a verified chronology. Details remain subject to review.*
 
 I have sometimes wondered how different my life might have been if the people around me had lived different lives.
 
