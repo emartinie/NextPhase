@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-25",
+  "approval": "Owner explicitly approved publishing the reviewed invitation rules and updating iphone-pilot. Owner completed Cloud Shell authorization.",
+  "project": "homegroups-fellowship",
+  "branch": "codex/group-invitations",
+  "commit": "70f1e6da02efb1d7d4196f5dbbe020065bf6039c",
+  "draftPR": "https://github.com/emartinie/NextPhase/pull/14",
+  "rules": {
+    "status": "published",
+    "ruleset": "projects/homegroups-fellowship/rulesets/a67c56af-f368-4f14-8744-ae1e00e0bfdb",
+    "testedSourceSha256": "94be9ee8c10d7b8e65abcb92fa166c5389f322e6c3121f5ab994407ba3da377d",
+    "liveBaselineMatchedOwnerSuppliedRules": true,
+    "compiler": "passed",
+    "publishedSourceMatchedTestedCandidate": true
+  },
+  "hosting": {
+    "channel": "iphone-pilot",
+    "url": "https://homegroups-fellowship--iphone-pilot-xenvabqm.web.app/NextPhase/?pilot=firebase",
+    "release": "sites/homegroups-fellowship/channels/iphone-pilot/releases/1795620112943000",
+    "version": "d991348dcb9a99ff",
+    "expires": "2026-12-02T15:21:34.427957814Z",
+    "runtimeFiles": 20903,
+    "packaging": "Existing tests/fellowship-pilot/package-preview.py from the immutable online review commit",
+    "publicBuildMarkerMatched": true,
+    "publicModuleHashesMatched": ["app.js", "group-invitations.js", "fellowship-firebase.js", "fellowship-chats.js", "fellowship-firebase-discussion.js", "conversation-window.js", "audio-session.js"],
+    "publicFirebaseConfigurationProjectMatched": true,
+    "productionHostingReleaseUnchanged": true,
+    "authorizedDomainsChanged": false
+  },
+  "realUserRecordsWritten": false,
+  "authenticationSettingsChanged": false,
+  "merged": false,
+  "offlineExperimentIncluded": false,
+  "physicalIphoneVerified": false,
+  "remainingVerification": "Owner: create a named Family invitation, share it, sign in as the invited verified Google account, deliberately join, and exchange a persistent message in ordinary Safari and Home Screen PWA.",
+  "cloudShellEvidence": "/tmp/tmp.fGLVXSl9ek/.pilot-tmp/invitation-activation/",
+  "cloudShellEvidenceFiles": ["before.json", "after.json", "public-verification.json"],
+  "evidenceNote": "Observed Cloud Shell output and authenticated read-back. Before snapshot contains original rules and Hosting metadata for recovery. Cloud Shell temporary files are not durable backups; the matching original baseline is retained in tests/fellowship-pilot/household-pilot.rules. Tokens were kept in process memory and not printed or copied here."
+}
