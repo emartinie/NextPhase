@@ -18,13 +18,14 @@ const messages = current => `${current}/messages`;
 const documentRoot = `projects/${project}/databases/(default)/documents`;
 
 // The loopback Firestore emulator accepts this unsigned test identity.
-function testToken(uid) {
+function testToken(uid, identity = {}) {
   const now = Math.floor(Date.now() / 1000);
   const header = { alg: 'none', typ: 'JWT' };
   const claims = {
     iss: `https://securetoken.google.com/${project}`, aud: project,
     iat: now, exp: now + 3600, auth_time: now, sub: uid, user_id: uid,
     firebase: { sign_in_provider: 'custom', identities: {} },
+    ...identity,
   };
   const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
   return `${encode(header)}.${encode(claims)}.`;

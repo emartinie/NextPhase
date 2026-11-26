@@ -1,0 +1,200 @@
+rules_version = '2';
+
+// Prototype for review. No live deployment is performed by this file.
+// Household membership, the household room and private-chat metadata are seeded
+// by the owner. New ordinary memberships require atomic named invitation
+// acceptance; clients cannot create groups or change roles/private participants.
+// profiles/{uid}: displayName only, 1–80 nonblank characters.
+// privateChats/{id}: participantIds (two distinct Auth UIDs), title, createdAt.
+// Private messages use the unchanged authorId/body/createdAt message schema.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isMember(groupId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+    }
+    function isValidMessage(data) {
+      return data.keys().hasAll(['authorId', 'body', 'createdAt'])
+        && data.keys().hasOnly(['authorId', 'body', 'createdAt'])
+        && data.authorId == request.auth.uid
+        && data.body is string && data.body.size() <= 1600
+        && data.body.matches('(?s).*[^\\s].*')
+        && data.createdAt == request.time;
+    }
+    function isValidProfile(data) {
+      return data.keys().hasAll(['displayName']) && data.keys().hasOnly(['displayName'])
+        && data.displayName is string && data.displayName.size() <= 80
+        && data.displayName.matches('(?s).*[^\\s].*');
+    }
+    function isPrivateParticipant(groupId, data) {
+      return isMember(groupId) && request.auth.uid in data.participantIds;
+    }
+    function privateChat(groupId, chatId) {
+      return get(/databases/$(database)/documents/groups/$(groupId)/privateChats/$(chatId)).data;
+    }
+    function canReadPrivate(groupId, chatId) {
+      return isPrivateParticipant(groupId, privateChat(groupId, chatId));
+    }
+    function canSendPrivate(groupId, chatId) {
+      let data = privateChat(groupId, chatId);
+      return isPrivateParticipant(groupId, data)
+        && data.participantIds is list && data.participantIds.size() == 2
+        && data.participantIds[0] is string && data.participantIds[1] is string
+        && data.participantIds[0] != data.participantIds[1]
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(data.participantIds[0]))
+        && exists(/databases/$(database)/documents/groups/$(groupId)/members/$(data.participantIds[1]));
+    }
+
+    // Group invitation schema (all fields validated; default deny elsewhere):
+    // groups/{g}/groupInvites/{hex64}: creatorId, threadId, title, createdAt,
+    // expiresAt (<=7 days), status; acceptedBy/At or declinedBy/At on resolution.
+    // groupInviteRecipients/{hex64}: creatorId, email, createdAt, immutable;
+    // its address is readable only by the named verified recipient.
+    // members/{uid}: role:'member', inviteId, joinedAt on invitation enrollment.
+    // Family profiles/{uid}, other memberNames/{uid}: displayName only.
+    // fellowshipMembers/{uid}/groups/{g}: threadId, title, savedAt, private
+    // navigation only; it never authorizes access to the underlying group.
+    function invitePath(g,id) { return /databases/$(database)/documents/groups/$(g)/groupInvites/$(id); }
+    function recipientPath(g,id) { return /databases/$(database)/documents/groups/$(g)/groupInviteRecipients/$(id); }
+    function memberPath(g,uid) { return /databases/$(database)/documents/groups/$(g)/members/$(uid); }
+    function namePath(g,uid) { return g=='household-pilot' ? /databases/$(database)/documents/groups/$(g)/profiles/$(uid) : /databases/$(database)/documents/groups/$(g)/memberNames/$(uid); }
+    function roomPath(g,id) { return /databases/$(database)/documents/groups/$(g)/studyThreads/$(id); }
+    function validToken(id) { return id is string && id.matches('^[a-f0-9]{64}$'); }
+    function validThread(id) { return id is string && id.matches('^[A-Za-z0-9_-]{1,80}$'); }
+    function roomOpen(g,id) { return get(roomPath(g,id)).data.open == true; }
+    function roomTitle(g,id) {
+      let room=get(roomPath(g,id)).data;
+      let title=room.get('title','Group conversation');
+      return title is string && title.size() <= 80 && title.matches('(?s).*[^\\s].*') ? title : 'Group conversation';
+    }
+    function verifiedRecipient(g,id) {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email is string
+        && get(recipientPath(g,id)).data.email == request.auth.token.email.lower();
+    }
+    function validRecipient(data) {
+      return data.keys().hasAll(['creatorId','email','createdAt'])
+        && data.keys().hasOnly(['creatorId','email','createdAt'])
+        && data.creatorId is string && data.email is string && data.email.size() > 3 && data.email.size() <= 254
+        && data.email == data.email.lower() && data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
+        && data.createdAt is timestamp;
+    }
+    function validInvitation(data) {
+      let basic=['creatorId','threadId','title','createdAt','expiresAt','status'];
+      return data.keys().hasAll(basic) && data.creatorId is string && validThread(data.threadId)
+        && data.title is string && data.title.size() <= 80 && data.title.matches('(?s).*[^\\s].*')
+        && data.createdAt is timestamp && data.expiresAt is timestamp
+        && data.expiresAt > data.createdAt && data.expiresAt <= data.createdAt + duration.value(7,'d')
+        && ((data.status in ['open','revoked'] && data.keys().hasOnly(basic))
+          || (data.status=='accepted' && data.keys().hasAll(['acceptedBy','acceptedAt'])
+            && data.keys().hasOnly(['creatorId','threadId','title','createdAt','expiresAt','status','acceptedBy','acceptedAt'])
+            && data.acceptedBy is string && data.acceptedAt is timestamp)
+          || (data.status=='declined' && data.keys().hasAll(['declinedBy','declinedAt'])
+            && data.keys().hasOnly(['creatorId','threadId','title','createdAt','expiresAt','status','declinedBy','declinedAt'])
+            && data.declinedBy is string && data.declinedAt is timestamp));
+    }
+    function validJoinedMember(g,uid,data) {
+      let before=get(invitePath(g,data.inviteId)).data;
+      let after=getAfter(invitePath(g,data.inviteId)).data;
+      return request.auth != null && request.auth.uid==uid
+        && data.keys().hasAll(['role','inviteId','joinedAt']) && data.keys().hasOnly(['role','inviteId','joinedAt'])
+        && data.role=='member' && validToken(data.inviteId) && data.joinedAt==request.time
+        && verifiedRecipient(g,data.inviteId) && validInvitation(before) && before.status=='open'
+        && before.expiresAt > request.time && isMemberOf(g,before.creatorId) && roomOpen(g,before.threadId)
+        && validInvitation(after) && after.status=='accepted' && after.acceptedBy==uid && after.acceptedAt==request.time
+        && after.creatorId==before.creatorId && after.threadId==before.threadId && after.title==before.title
+        && after.createdAt==before.createdAt && after.expiresAt==before.expiresAt
+        && isValidProfile(getAfter(namePath(g,uid)).data);
+    }
+    function isMemberOf(g,uid) { return exists(memberPath(g,uid)); }
+    function isMemberAfter(g,uid) { return existsAfter(memberPath(g,uid)); }
+    function joinedByInvite(g,id,uid) {
+      let member=getAfter(memberPath(g,uid)).data;
+      return !exists(memberPath(g,uid)) && member.role=='member' && member.inviteId==id && member.joinedAt==request.time;
+    }
+    match /groups/{g}/members/{uid} {
+      allow get: if request.auth != null && request.auth.uid==uid;
+      allow create: if validJoinedMember(g,uid,request.resource.data);
+    }
+    match /groups/{g}/groupInviteRecipients/{id} {
+      allow get: if validToken(id) && verifiedRecipient(g,id);
+      allow create: if validToken(id) && isMember(g) && validRecipient(request.resource.data)
+        && request.resource.data.creatorId==request.auth.uid && request.resource.data.createdAt==request.time
+        && validInvitation(getAfter(invitePath(g,id)).data)
+        && getAfter(invitePath(g,id)).data.creatorId==request.auth.uid
+        && getAfter(invitePath(g,id)).data.status=='open' && getAfter(invitePath(g,id)).data.createdAt==request.time;
+    }
+    match /groups/{g}/groupInvites/{id} {
+      allow get: if request.auth != null && validToken(id)
+        && ((isMember(g) && resource.data.creatorId==request.auth.uid)||verifiedRecipient(g,id));
+      allow list: if isMember(g) && resource.data.creatorId==request.auth.uid && request.query.limit <= 20;
+      allow create: if validToken(id) && isMember(g) && validInvitation(request.resource.data)
+        && request.resource.data.creatorId==request.auth.uid && request.resource.data.createdAt==request.time
+        && request.resource.data.status=='open' && request.resource.data.expiresAt > request.time
+        && roomOpen(g,request.resource.data.threadId) && request.resource.data.title==roomTitle(g,request.resource.data.threadId)
+        && validRecipient(getAfter(recipientPath(g,id)).data)
+        && getAfter(recipientPath(g,id)).data.creatorId==request.auth.uid
+        && getAfter(recipientPath(g,id)).data.createdAt==request.time;
+      allow update: if request.auth != null && validToken(id) && validInvitation(request.resource.data)
+        && resource.data.status=='open' && request.resource.data.creatorId==resource.data.creatorId
+        && request.resource.data.threadId==resource.data.threadId && request.resource.data.title==resource.data.title
+        && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.expiresAt==resource.data.expiresAt
+        && ((isMember(g) && resource.data.creatorId==request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status=='revoked')
+          || (verifiedRecipient(g,id) && resource.data.expiresAt > request.time
+            && isMemberOf(g,resource.data.creatorId) && roomOpen(g,resource.data.threadId)
+            && ((request.resource.data.status=='accepted'
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','acceptedBy','acceptedAt'])
+                && request.resource.data.acceptedBy==request.auth.uid && request.resource.data.acceptedAt==request.time
+                && joinedByInvite(g,id,request.auth.uid))
+              || (request.resource.data.status=='declined'
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','declinedBy','declinedAt'])
+                && request.resource.data.declinedBy==request.auth.uid && request.resource.data.declinedAt==request.time))));
+    }
+    match /groups/household-pilot/profiles/{uid} {
+      allow get: if isMember('household-pilot') || (request.auth != null && request.auth.uid==uid);
+      allow list: if isMember('household-pilot') && request.query.limit <= 50;
+      allow create: if request.auth != null && request.auth.uid==uid && isMemberAfter('household-pilot',uid) && isValidProfile(request.resource.data);
+      allow update: if isMember('household-pilot') && request.auth.uid==uid && isValidProfile(request.resource.data);
+    }
+    // Other groups' legacy profiles remain denied. Only this new, explicitly
+    // name-only collection is shared with their authorized group members.
+    match /groups/{g}/memberNames/{uid} {
+      allow get: if g!='household-pilot' && (isMember(g) || (request.auth != null && request.auth.uid==uid));
+      allow list: if g!='household-pilot' && isMember(g) && request.query.limit <= 50;
+      allow create: if g!='household-pilot' && request.auth != null && request.auth.uid==uid && isMemberAfter(g,uid) && isValidProfile(request.resource.data);
+      allow update: if g!='household-pilot' && isMember(g) && request.auth.uid==uid && isValidProfile(request.resource.data);
+    }
+    function validGroupReference(g,data) {
+      return data.keys().hasAll(['threadId','title','savedAt']) && data.keys().hasOnly(['threadId','title','savedAt'])
+        && validThread(data.threadId) && data.title is string && data.title==roomTitle(g,data.threadId)
+        && data.savedAt==request.time;
+    }
+    match /fellowshipMembers/{uid}/groups/{g} {
+      allow get: if request.auth != null && request.auth.uid==uid;
+      allow list: if request.auth != null && request.auth.uid==uid && request.query.limit <= 50;
+      allow create, update: if request.auth != null && request.auth.uid==uid
+        && isMemberAfter(g,uid) && validGroupReference(g,request.resource.data);
+      allow delete: if request.auth != null && request.auth.uid==uid;
+    }
+    match /groups/household-pilot/privateChats/{chatId} {
+      allow get: if isPrivateParticipant('household-pilot', resource.data);
+      allow list: if isPrivateParticipant('household-pilot', resource.data) && request.query.limit <= 20;
+      match /messages/{messageId} {
+        allow get: if canReadPrivate('household-pilot', chatId);
+        allow list: if canReadPrivate('household-pilot', chatId) && request.query.limit <= 50;
+        allow create: if canSendPrivate('household-pilot', chatId) && isValidMessage(request.resource.data);
+      }
+    }
+    match /groups/{groupId}/studyThreads/{threadId} {
+      allow get: if isMember(groupId);
+      match /messages/{messageId} {
+        allow get: if isMember(groupId);
+        allow list: if isMember(groupId) && request.query.limit <= 50;
+        allow create: if isMember(groupId)
+          && get(/databases/$(database)/documents/groups/$(groupId)/studyThreads/$(threadId)).data.open == true
+          && isValidMessage(request.resource.data);
+      }
+    }
+  }
+}

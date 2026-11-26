@@ -25,6 +25,7 @@ import { createConversationWindow } from './conversation-window.js';
 import { audioSession } from './audio-session.js';
 import { initWorkspaceViewport, workspaceRect } from './edge-docking.js';
 import { fellowshipRuntime } from './site-runtime.js';
+import { groupInviteToken } from './group-invitations.js';
 
 const $ = (id) => document.getElementById(id);
 const study = $('study');
@@ -545,6 +546,10 @@ async function openLinkedStudyCard() {
 
 function open(type, data = {}, restoredFrame) {
   if (!active?.content || pendingClose) return;
+  if(firebaseCommunication&&type==='fellowshipInvitations'){
+    const show=()=>{conversationActivity.showList();stopFellowshipPilot?.showGroupInvitations?.();};
+    if(frames.length)closePanels(show);else show();return;
+  }
   if (firebaseCommunication && ['fellowshipConversations', 'fellowshipChat'].includes(type)) { conversationActivity.showList(); return; }
   const returnToCommunication = conversationActivity.fullscreen;
   conversationActivity.minimize(false);
@@ -1329,7 +1334,8 @@ const views = {
   },
   fellowshipActions(target) {
     target.append(row('Conversations', 'Weekly community conversation', () => open('fellowshipConversations')),
-      row('Communities', 'Weekly study community', () => open('fellowshipCommunities')));
+      row('Communities', 'Weekly study community', () => open('fellowshipCommunities')),
+      row('Invitations', 'Invite someone to your group', () => open('fellowshipInvitations')));
     if (fellowshipPilot) target.append(row('Chat with…', 'Family members and saved private chats', () => returnToHouseholdChats(true)));
     if (gamesAvailable()) target.append(row('Invite to Game', 'Fellowship activity', () => open('games', { scope: threadKey() })));
     target.append(row('Discussion archives', 'Previous study years', () => open('archive')));
@@ -1845,6 +1851,7 @@ $('learning-discuss').addEventListener('click', () => {
 
 async function boot() {
   ensureCommunication();
+  if(firebaseCommunication&&groupInviteToken())conversationActivity.showList();
   try {
     catalog = await schedules();
     history.replaceState({ panels: [] }, '', location.href);
